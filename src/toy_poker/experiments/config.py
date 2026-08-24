@@ -43,6 +43,7 @@ class ExperimentConfig:
             game_params=dict(game.get("params", {})),
             solver=SolverConfig(
                 solver_id=str(solver.get("id", "cfr_plus")),
+                backend=str(solver.get("backend", "python_game")),
                 iterations=int(solver.get("iterations", 100_000)),
                 snapshot_every=int(solver.get("snapshot_every", 1_000)),
             ),
@@ -58,6 +59,8 @@ class ExperimentConfig:
     def validate(self) -> None:
         if self.solver.iterations <= 0 or self.solver.snapshot_every <= 0:
             raise ValueError("iterations and snapshot_every must be positive")
+        if self.solver.backend not in {"python_game", "native_efg"}:
+            raise ValueError("solver.backend must be 'python_game' or 'native_efg'")
         if self.analysis.mode != "exact_tree":
             raise ValueError("Only analysis.mode='exact_tree' is implemented")
         if self.analysis.off_path_threshold < 0:

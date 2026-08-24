@@ -105,6 +105,11 @@ id = "akqj_two_street"
 [game.params]
 oop_stack = 1.0
 ip_stack = 1.0
+
+[solver]
+id = "cfr_plus"
+backend = "native_efg"
+iterations = 1000000
 ```
 
 ```bash
@@ -116,31 +121,40 @@ toy-poker run configs/experiments/akqj_two_street_cfr_plus.toml
 
 ## 標準設定の参考結果
 
-両者のスタックを1、CFR+を30,000反復とした結果は次のとおりです。数値はCFR+による
+両者のスタックを1、CFR+を1,000,000反復とした結果は次のとおりです。数値はCFR+による
 均衡近似であり、丸め前の完全な値はartifactに保存されます。
 
 | information set | 主な戦略 |
 |---|---|
-| OOP(K)、1st street最初 | Check 約99.9999% |
-| IP(A)、OOPのCheck後 | Geometric bet 約99.9999% |
-| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約69.6086%、Geometric bet 約30.3914% |
-| OOP(K)、IPの1st Geometric betに直面 | Call 約73.2040%、Fold 約26.7960% |
+| OOP(K)、1st street最初 | Check 約100% |
+| IP(A)、OOPのCheck後 | Geometric bet 約100% |
+| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約69.6148%、Geometric bet 約30.3852% |
+| OOP(K)、IPの1st Geometric betに直面 | Call 約73.2050%、Fold 約26.7950% |
 | 1st Geometric bet-call後のOOP(K) | 2nd streetでCheck 約100% |
 | 同じ経路のIP(A) | All-in 約100% |
-| 同じ経路のIP(Q/J) | 各カードでCheck 約55.9114%、All-in 約44.0886% |
-| OOP(K)、上記2nd street All-inに直面 | Call 約73.2050%、Fold 約26.7950% |
+| 同じ経路のIP(Q/J) | 各カードでCheck 約55.9076%、All-in 約44.0924% |
+| OOP(K)、上記2nd street All-inに直面 | Call 約73.2051%、Fold 約26.7949% |
 
-1st streetがCheck-checkだった経路では、OOPは2nd streetで約12.1402% Geometric betし、
+1st streetがCheck-checkだった経路では、OOPは2nd streetで約12.1401% Geometric betし、
 IPのQ/Jはそれにほぼ常にFoldしました。
 
 | 指標 | 結果 |
 |---|---:|
-| IP EV | +0.035898401 |
-| OOP EV | -0.035898401 |
-| Exploitability | 0.0000158208 |
-| NashConv | 0.0000316416 |
+| IP EV | +0.0358983849 |
+| OOP EV | -0.0358983849 |
+| Exploitability | 0.00000110942 |
+| NashConv | 0.00000221885 |
 
-このrunの計算時間は約147.9秒でした。計算時間は実行環境によって変わります。
+`native_efg` backendでは、Pythonゲーム木を最初にGambit EFGへ展開し、CFR+の反復を
+OpenSpielのC++内で完結させます。同じ環境での速度比較は次のとおりです。
+
+| backend | iteration | 計算時間 | 速度 |
+|---|---:|---:|---:|
+| `python_game` | 30,000 | 約147.9秒 | 約203 iter/s |
+| `native_efg` | 1,000,000 | 約63.9秒 | 約15,646 iter/s |
+
+反復部分は約77倍高速化し、約33倍のiterationを従来の半分以下の時間で実行できました。
+計算時間は実行環境によって変わります。
 
 ## 出力の読み方
 

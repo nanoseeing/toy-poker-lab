@@ -61,6 +61,7 @@ def run_experiment(
         "solver": {
             "id": config.solver.solver_id,
             "name": "OpenSpiel C++ CFRPlusSolver",
+            "backend": config.solver.backend,
             "iterations": config.solver.iterations,
             "snapshot_every": config.solver.snapshot_every,
             "elapsed_seconds": solver_result.elapsed_seconds,

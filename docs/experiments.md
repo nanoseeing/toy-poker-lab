@@ -24,6 +24,7 @@ ip_stack = 1.0
 
 [solver]
 id = "cfr_plus"
+backend = "python_game"
 iterations = 100000
 snapshot_every = 1000
 
@@ -43,6 +44,17 @@ artifact_root = "artifacts"
 | `solver` | solver種別、反復数、収束履歴の保存間隔 |
 | `analysis` | 解析方法とoff-path判定閾値 |
 | `output` | runの保存先 |
+
+`solver.backend`は次の2種類です。
+
+| backend | 特性 |
+|---|---|
+| `python_game` | Pythonで実装したゲーム状態をC++ CFR+から直接たどる標準方式 |
+| `native_efg` | 最初に全ゲーム木をGambit EFGへ展開し、反復をC++内で実行する高速方式 |
+
+`native_efg`は有限の2人逐次ゲームに使用できます。元ゲームと同じinformation set、
+action、chance確率、terminal utilityを持つ木を生成し、求解後の方策を元ゲームのaction IDへ
+戻します。ゲーム木全体を事前構築するため、大規模ゲームには適しません。
 
 現在の `exact_tree` は有限ゲーム木を完全列挙します。ゲーム木が大きくなった場合の
 sampling解析はまだ実装されていません。

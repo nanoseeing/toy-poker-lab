@@ -27,3 +27,32 @@ def test_cfr_plus_converges_and_returns_standalone_policy():
     assert ace["All-in"]["probability"] > 0.999
     assert abs(queen["All-in"]["probability"] - 0.5) < 0.005
     assert len(result.convergence) == 3
+
+
+def test_native_efg_backend_matches_python_game_backend():
+    game = get_game("akqj_two_street").load_game()
+    config = {"iterations": 100, "snapshot_every": 100}
+    python_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="python_game", **config)
+    )
+    native_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="native_efg", **config)
+    )
+
+    assert python_result.policy_table.keys() == native_result.policy_table.keys()
+    for key in python_result.policy_table:
+        python_actions = python_result.policy_table[key]
+        native_actions = native_result.policy_table[key]
+        assert [action for action, _ in python_actions] == [
+            action for action, _ in native_actions
+        ]
+        assert all(
+            abs(python_probability - native_probability) < 1e-12
+            for (_, python_probability), (_, native_probability) in zip(
+                python_actions, native_actions
+            )
+        )
+    assert abs(
+        pyspiel.exploitability(game, python_result.policy)
+        - pyspiel.exploitability(game, native_result.policy)
+    ) < 1e-12
