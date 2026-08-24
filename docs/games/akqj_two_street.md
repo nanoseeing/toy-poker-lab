@@ -113,7 +113,12 @@ ip_stack = 1.0
 [solver]
 id = "cfr_plus"
 backend = "native_efg"
-iterations = 100000
+iterations = 10000
+snapshot_every = 1000
+early_stopping = true
+target_exploitability = 1e-5
+min_iterations = 1000
+patience_checkpoints = 2
 ```
 
 ```bash
@@ -133,39 +138,39 @@ toy-poker run configs/experiments/akqj_two_street_stack_4_cfr_plus.toml
 
 ## 標準設定の参考結果
 
-両者のスタックを1、CFR+を100,000反復とした結果は次のとおりです。数値はCFR+による
+両者のスタックを1、CFR+を最大10,000反復とした結果は次のとおりです。数値はCFR+による
 均衡近似であり、丸め前の完全な値はartifactに保存されます。
 
 | information set | 主な戦略 |
 |---|---|
 | OOP(K)、1st street最初 | Check 約100% |
 | IP(A)、OOPのCheck後 | Geometric bet 約100% |
-| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約69.6127%、Geometric bet 約30.3873% |
-| OOP(K)、IPの1st Geometric betに直面 | Call 約73.2045%、Fold 約26.7955% |
+| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約69.5995%、Geometric bet 約30.4005% |
+| OOP(K)、IPの1st Geometric betに直面 | Call 約73.2043%、Fold 約26.7957% |
 | 1st Geometric bet-call後のOOP(K) | 2nd streetでCheck 約100% |
 | 同じ経路のIP(A) | All-in 約100% |
-| 同じ経路のIP(Q/J) | 各カードでCheck 約55.9090%、All-in 約44.0910% |
-| OOP(K)、上記2nd street All-inに直面 | Call 約73.2049%、Fold 約26.7951% |
+| 同じ経路のIP(Q/J) | 各カードでCheck 約55.9180%、All-in 約44.0820% |
+| OOP(K)、上記2nd street All-inに直面 | Call 約73.2071%、Fold 約26.7929% |
 
-1st streetがCheck-checkだった経路では、OOPは2nd streetで約12.1401% Geometric betし、
+1st streetがCheck-checkだった経路では、OOPは2nd streetで約12.1407% Geometric betし、
 IPのQ/Jはそれにほぼ常にFoldしました。
 
 | 指標 | 結果 |
 |---|---:|
-| IP EV | 0.5358983849 |
-| OOP EV | 0.4641016151 |
-| Exploitability | 0.00000680147 |
-| NashConv | 0.00001360294 |
-| 計算時間 | 約5.6秒 |
+| IP EV | 0.5358985237 |
+| OOP EV | 0.4641014763 |
+| Exploitability | 0.0000315688 |
+| NashConv | 0.0000631376 |
+| 計算時間 | 約0.56秒 |
 
 `native_efg` backendでは、Pythonゲーム木を最初にGambit EFGへ展開し、CFR+の反復を
-OpenSpielのC++内で完結させます。現在は全標準設定で100,000反復の`native_efg`を
+OpenSpielのC++内で完結させます。現在は全標準設定で最大10,000反復の`native_efg`を
 使用します。同じ環境での今回の実行時間は次のとおりです。
 
 | stack | iteration | 計算時間 |
 |---:|---:|---:|
-| 1 | 100,000 | 約5.6秒 |
-| 4 | 100,000 | 約5.1秒 |
+| 1 | 10,000 | 約0.56秒 |
+| 4 | 10,000 | 約0.50秒 |
 
 計算時間は実行環境によって変わります。
 
@@ -180,28 +185,28 @@ e=\frac{-1+\sqrt{1+2\times4}}{2}=1
 1st streetではpot 1へ1をbetし、call後のpot 3へ2nd streetで残り3をAll-inします。
 両方がcallされると最終potは9、showdownのutilityは勝者`+5`、敗者`-4`です。
 
-100,000反復の主要戦略は次のとおりです。
+10,000反復の主要戦略は次のとおりです。
 
 | information set | 主な戦略 |
 |---|---|
 | OOP(K)、1st street最初 | Check 約100% |
 | IP(A)、OOPのCheck後 | Geometric bet 約100% |
-| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約37.5003%、Geometric bet 約62.4997% |
-| OOP(K)、IPの1st Geometric betに直面 | Call 約49.9990%、Fold 約50.0010% |
+| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約37.4917%、Geometric bet 約62.5083% |
+| OOP(K)、IPの1st Geometric betに直面 | Call 約49.9955%、Fold 約50.0045% |
 | 1st Geometric bet-call後のOOP(K) | 2nd streetでCheck 約100% |
 | 同じ経路のIP(A) | All-in 100% |
-| 同じ経路のIP(Q/J) | 各カードでCheck 約59.9998%、All-in 約40.0002% |
-| OOP(K)、上記2nd street All-inに直面 | Call 約50.0001%、Fold 約49.9999% |
+| 同じ経路のIP(Q/J) | 各カードでCheck 約60.0057%、All-in 約39.9943% |
+| OOP(K)、上記2nd street All-inに直面 | Call 約50.0008%、Fold 約49.9992% |
 
 | 指標 | 結果 |
 |---|---:|
-| IP EV | 0.74999999815 |
-| OOP EV | 0.25000000185 |
-| Exploitability | 0.00000359140 |
-| NashConv | 0.00000718280 |
-| 計算時間 | 約5.1秒 |
+| IP EV | 0.7499998240 |
+| OOP EV | 0.2500001760 |
+| Exploitability | 0.0000437285 |
+| NashConv | 0.0000874571 |
+| 計算時間 | 約0.50秒 |
 
-測定checkpoint中の最良Exploitabilityは80,000反復時点の約`0.00000285818`でした。
+stack 1・4とも目標`1e-5`へ届かなかったため、10,000反復上限で終了しました。
 
 ## 出力の読み方
 

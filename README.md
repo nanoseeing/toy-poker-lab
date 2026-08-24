@@ -9,6 +9,7 @@ OpenSpielを利用して有限のtoy poker gameを定義し、CFR+による求�
 python -m pip install -e '.[dev]'
 toy-poker list-games
 toy-poker run configs/experiments/akq_allin_cfr_plus.toml
+toy-poker benchmark configs/experiments/integer_range_betting_dcfr.toml --iterations 1000
 ```
 
 各runは `artifacts/<game>/<run-id>/` に分けて保存されます。保存された
@@ -25,8 +26,9 @@ toy-poker report artifacts/akq_allin/<run-id>
 - [AKQ all-inゲーム](docs/games/akq_allin.md)
 - [AKQJ all-inゲーム](docs/games/akqj_allin.md)
 - [AKQJ two-street geometricゲーム](docs/games/akqj_two_street.md)
-- [Integer 1-10 custom-sizeゲーム](docs/games/integer_range_betting.md)
+- [Integer 1-N weighted-range custom-sizeゲーム](docs/games/integer_range_betting.md)
 - [実験設定・CLI・artifact](docs/experiments.md)
+- [Solver構成・高速化・benchmark](docs/solvers.md)
 
 実行可能なAKQ設定例は
 [`configs/experiments/akq_allin_cfr_plus.toml`](configs/experiments/akq_allin_cfr_plus.toml)

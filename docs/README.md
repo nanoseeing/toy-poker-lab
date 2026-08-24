@@ -8,6 +8,7 @@
 | `docs/games/<game_id>.md` | ゲームのルール、情報構造、パラメータ、ペイオフ、解析解 | ゲーム仕様を変更したとき |
 | `docs/games/README.md` | 利用可能なゲームのカタログ | ゲームを追加・削除したとき |
 | `docs/experiments.md` | 全ゲーム共通のTOML、CLI、artifact仕様 | 実験基盤を変更したとき |
+| `docs/solvers.md` | solver更新則、データ配置、高速化・benchmark方針 | solverを変更したとき |
 | `configs/experiments/*.toml` | そのまま実行できる実験設定 | 標準実験を追加・変更したとき |
 | `artifacts/<game>/<run-id>/` | 方策、生データ、図、run固有レポート | 実験実行時に自動生成 |
 | `src/toy_poker/games/` | OpenSpielが実行する機械可読な仕様 | 実装変更時 |

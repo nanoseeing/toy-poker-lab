@@ -120,16 +120,22 @@ ip_stack = 4.0
 [solver]
 id = "cfr_plus"
 backend = "native_efg"
-iterations = 100000
+iterations = 10000
+snapshot_every = 1000
+early_stopping = true
+target_exploitability = 1e-5
+min_iterations = 1000
+patience_checkpoints = 2
 ```
 
 ```bash
 toy-poker run configs/experiments/akqj_allin_cfr_plus.toml
 ```
 
-100,000反復の標準runでは、IP(Q/J)はそれぞれ約39.9985% All-in、OOPは約20.0003%
-Callとなりました。IP EVは約0.6000000002、OOP EVは約0.3999999998、Exploitabilityは
-約`0.00000680387`、計算時間は約1.0秒です。
+10,000反復上限の標準runでは、IP(Q/J)はそれぞれ約39.9951% All-in、OOPは約20.0061%
+Callとなりました。IP EVは約0.6000000179、OOP EVは約0.3999999821、Exploitabilityは
+約`0.0000569292`、計算時間は約0.09秒です。このrunは目標`1e-5`へ届かなかったため、
+early stoppingではなく10,000反復上限で終了しました。
 
 出力先は `artifacts/akqj_allin/<run-id>/` です。最新runは
 `artifacts/akqj_allin/latest.json` から確認できます。
