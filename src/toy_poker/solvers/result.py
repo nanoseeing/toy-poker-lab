@@ -22,3 +22,4 @@ class SolveResult:
     policy_table: dict[str, list[tuple[int, float]]]
     convergence: list[dict[str, Any]]
     elapsed_seconds: float
+    checkpoint_evaluation_backend: str

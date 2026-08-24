@@ -22,9 +22,28 @@ class CFRPlusSolverAdapter:
             compiled = compile_to_native_efg(game)
             solver_game = compiled.game
             translate_policy = compiled.translate_policy
+
+            def evaluate_snapshot(policy):
+                return (
+                    pyspiel.exploitability(solver_game, policy),
+                    list(
+                        pyspiel.expected_returns(
+                            solver_game.new_initial_state(), policy, -1, True
+                        )
+                    ),
+                )
+
         elif config.backend == "python_game":
             solver_game = game
             translate_policy = lambda policy: clone_policy(game, policy)
+
+            def evaluate_snapshot(policy):
+                source_policy, _ = translate_policy(policy)
+                return (
+                    pyspiel.exploitability(game, source_policy),
+                    expected_returns(game, source_policy),
+                )
+
         else:
             raise ValueError(f"Unsupported CFR+ backend: {config.backend}")
         solver = pyspiel.CFRPlusSolver(solver_game)
@@ -33,12 +52,12 @@ class CFRPlusSolverAdapter:
         for iteration in range(1, config.iterations + 1):
             solver.evaluate_and_update_policy()
             if iteration % config.snapshot_every == 0 or iteration == config.iterations:
-                snapshot_policy, _ = translate_policy(solver.average_policy())
+                gap, returns = evaluate_snapshot(solver.average_policy())
                 convergence.append(
                     {
                         "iteration": iteration,
-                        "exploitability": pyspiel.exploitability(game, snapshot_policy),
-                        "returns": expected_returns(game, snapshot_policy),
+                        "exploitability": gap,
+                        "returns": returns,
                     }
                 )
         elapsed = time.perf_counter() - started
@@ -48,4 +67,5 @@ class CFRPlusSolverAdapter:
             policy_table=table,
             convergence=convergence,
             elapsed_seconds=elapsed,
+            checkpoint_evaluation_backend=config.backend,
         )

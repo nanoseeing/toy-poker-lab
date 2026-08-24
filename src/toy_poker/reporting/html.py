@@ -81,6 +81,8 @@ hr {{ border:0; border-top:2px solid #ddd; margin:3rem 0; }}
 <p>EV is {html.escape(plugin.metadata.utility_unit)} for the acting player, conditional on reaching the information set.
 {html.escape(plugin.metadata.utility_convention)} This game has terminal utility sum
 {analysis['game'].get('utility_sum', 1.0):g}.</p>
+<p>Solver backend: <code>{html.escape(analysis['solver']['backend'])}</code>;
+checkpoint evaluation: <code>{html.escape(analysis['solver'].get('checkpoint_evaluation_backend', analysis['solver']['backend']))}</code>.</p>
 <div class="cards"><div class="card">Iterations<div class="value">{analysis['solver']['iterations']:,}</div></div>
 <div class="card">Exploitability<div class="value">{summary['exploitability']:.8f}</div></div>{cards}</div>
 <h2>Major strategy</h2>

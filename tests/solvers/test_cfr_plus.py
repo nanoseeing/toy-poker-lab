@@ -45,6 +45,9 @@ def test_native_efg_backend_matches_python_game_backend():
         game, SolverConfig(backend="native_efg", **config)
     )
 
+    assert python_result.checkpoint_evaluation_backend == "python_game"
+    assert native_result.checkpoint_evaluation_backend == "native_efg"
+
     assert python_result.policy_table.keys() == native_result.policy_table.keys()
     for key in python_result.policy_table:
         python_actions = python_result.policy_table[key]
@@ -62,3 +65,14 @@ def test_native_efg_backend_matches_python_game_backend():
         pyspiel.exploitability(game, python_result.policy)
         - pyspiel.exploitability(game, native_result.policy)
     ) < 1e-12
+    assert abs(
+        python_result.convergence[-1]["exploitability"]
+        - native_result.convergence[-1]["exploitability"]
+    ) < 1e-12
+    assert all(
+        abs(python_value - native_value) < 1e-12
+        for python_value, native_value in zip(
+            python_result.convergence[-1]["returns"],
+            native_result.convergence[-1]["returns"],
+        )
+    )

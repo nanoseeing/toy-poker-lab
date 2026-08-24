@@ -7,9 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pyspiel
-
-from toy_poker.analysis import analyze_information_sets, expected_returns, terminal_paths
+from toy_poker.analysis import analyze_information_sets, terminal_paths
 from toy_poker.experiments.artifacts import manifest, new_run_directory, write_latest_pointer
 from toy_poker.experiments.config import ExperimentConfig
 from toy_poker.games import get_game
@@ -39,8 +37,9 @@ def run_experiment(
     game = plugin.load_game(config.game_params)
     solver_result = _solver(config.solver.solver_id).solve(game, config.solver)
     policy = solver_result.policy
-    returns = expected_returns(game, policy)
-    gap = pyspiel.exploitability(game, policy)
+    final_checkpoint = solver_result.convergence[-1]
+    returns = list(final_checkpoint["returns"])
+    gap = float(final_checkpoint["exploitability"])
     infos = analyze_information_sets(
         game, policy, plugin, off_path_threshold=config.analysis.off_path_threshold
     )
@@ -64,6 +63,7 @@ def run_experiment(
             "id": config.solver.solver_id,
             "name": "OpenSpiel C++ CFRPlusSolver",
             "backend": config.solver.backend,
+            "checkpoint_evaluation_backend": solver_result.checkpoint_evaluation_backend,
             "iterations": config.solver.iterations,
             "snapshot_every": config.solver.snapshot_every,
             "elapsed_seconds": solver_result.elapsed_seconds,

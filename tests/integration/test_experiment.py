@@ -44,6 +44,7 @@ def test_experiment_writes_replayable_bundle(
     assert result.analysis["game"]["player_names"] == ["IP", "OOP"]
     assert result.analysis["game"]["parameters"]["initial_pot"] == 1.0
     assert result.analysis["game"]["utility_sum"] == 1.0
+    assert result.analysis["solver"]["checkpoint_evaluation_backend"] == "native_efg"
     assert result.analysis["game"]["analytic_returns"] == pytest.approx(expected_analytic)
     policy_data = json.loads((output / "policy.json").read_text(encoding="utf-8"))
     assert policy_key in policy_data

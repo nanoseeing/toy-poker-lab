@@ -129,7 +129,7 @@ toy-poker run configs/experiments/akqj_allin_cfr_plus.toml
 
 100,000反復の標準runでは、IP(Q/J)はそれぞれ約39.9985% All-in、OOPは約20.0003%
 Callとなりました。IP EVは約0.6000000002、OOP EVは約0.3999999998、Exploitabilityは
-約`0.00000680387`、計算時間は約1.2秒です。
+約`0.00000680387`、計算時間は約1.0秒です。
 
 出力先は `artifacts/akqj_allin/<run-id>/` です。最新runは
 `artifacts/akqj_allin/latest.json` から確認できます。

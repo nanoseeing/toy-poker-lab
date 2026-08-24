@@ -57,6 +57,11 @@ artifact_root = "artifacts"
 action、chance確率、terminal utilityを持つ木を生成し、求解後の方策を元ゲームのaction IDへ
 戻します。ゲーム木全体を事前構築するため、大規模ゲームには適しません。
 
+`native_efg`使用時はCFR+の反復だけでなく、各checkpointのExploitabilityとExpected
+Returnsも変換後のC++ EFG上で評価します。最終summaryは最後のcheckpoint値を再利用します。
+評価経路は`analysis.json`の`solver.checkpoint_evaluation_backend`へ保存されます。
+`python_game`を明示した場合だけ、checkpointも元のPythonゲーム上で評価します。
+
 現在の `exact_tree` は有限ゲーム木を完全列挙します。ゲーム木が大きくなった場合の
 sampling解析はまだ実装されていません。
 
