@@ -5,11 +5,12 @@ name = "akqj_allin_cfr_plus"
 id = "akqj_allin"
 
 [game.params]
-oop_stack = 1.0
-ip_stack = 1.0
+oop_stack = 4.0
+ip_stack = 4.0
 
 [solver]
 id = "cfr_plus"
+backend = "native_efg"
 iterations = 100000
 snapshot_every = 1000
 

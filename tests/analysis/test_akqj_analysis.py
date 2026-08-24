@@ -13,9 +13,9 @@ def symmetric_default_policy():
         {
             "P1|K|ROOT": [(0, 1.0), (1, 0.0)],
             "P0|A|CHECK": [(0, 0.0), (1, 1.0)],
-            "P0|Q|CHECK": [(0, 0.75), (1, 0.25)],
-            "P0|J|CHECK": [(0, 0.75), (1, 0.25)],
-            "P1|K|CHECK-ALL_IN": [(1, 0.5), (2, 0.5)],
+            "P0|Q|CHECK": [(0, 0.6), (1, 0.4)],
+            "P0|J|CHECK": [(0, 0.6), (1, 0.4)],
+            "P1|K|CHECK-ALL_IN": [(1, 0.2), (2, 0.8)],
             "P0|A|ALL_IN": [(1, 1.0), (2, 0.0)],
             "P0|Q|ALL_IN": [(1, 0.0), (2, 1.0)],
             "P0|J|ALL_IN": [(1, 0.0), (2, 1.0)],
@@ -29,9 +29,10 @@ def test_symmetric_analytic_equilibrium():
     policy = symmetric_default_policy()
     infos = {row["key"]: row for row in analyze_information_sets(game, policy, plugin)}
     returns = expected_returns(game, policy)
-    assert all(abs(value - 0.5) < 1e-12 for value in returns)
+    assert abs(returns[0] - 0.6) < 1e-12
+    assert abs(returns[1] - 0.4) < 1e-12
     assert pyspiel.exploitability(game, policy) < 1e-12
-    assert abs(infos["P1|K|CHECK-ALL_IN"]["reach_probability"] - 0.5) < 1e-12
+    assert abs(infos["P1|K|CHECK-ALL_IN"]["reach_probability"] - 0.6) < 1e-12
     assert all(
         abs(action["ev"]) < 1e-12
         for action in infos["P1|K|CHECK-ALL_IN"]["actions"]
@@ -66,8 +67,9 @@ def test_cpp_cfr_plus_converges_to_equilibrium_family():
     q_bluff = action_maps["P0|Q|CHECK"]["All-in"]["probability"]
     j_bluff = action_maps["P0|J|CHECK"]["All-in"]["probability"]
     assert pyspiel.exploitability(game, result.policy) < 1e-4
-    assert all(abs(value - 0.5) < 1e-5 for value in returns)
+    assert abs(returns[0] - 0.6) < 1e-5
+    assert abs(returns[1] - 0.4) < 1e-5
     assert action_maps["P1|K|ROOT"]["Check"]["probability"] > 0.999
     assert action_maps["P0|A|CHECK"]["All-in"]["probability"] > 0.999
-    assert abs(q_bluff + j_bluff - 0.5) < 0.01
-    assert abs(action_maps["P1|K|CHECK-ALL_IN"]["Call"]["probability"] - 0.5) < 0.01
+    assert abs(q_bluff + j_bluff - 0.8) < 0.01
+    assert abs(action_maps["P1|K|CHECK-ALL_IN"]["Call"]["probability"] - 0.2) < 0.01

@@ -7,6 +7,12 @@ from toy_poker.games import get_game
 from toy_poker.solvers import CFRPlusSolverAdapter, SolverConfig
 
 
+def test_solver_defaults_to_native_efg_and_100k_iterations():
+    config = SolverConfig()
+    assert config.backend == "native_efg"
+    assert config.iterations == 100_000
+
+
 def test_cfr_plus_converges_and_returns_standalone_policy():
     plugin = get_game("akq_allin")
     game = plugin.load_game()

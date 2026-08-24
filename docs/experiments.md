@@ -24,7 +24,7 @@ ip_stack = 1.0
 
 [solver]
 id = "cfr_plus"
-backend = "python_game"
+backend = "native_efg"
 iterations = 100000
 snapshot_every = 1000
 
@@ -46,7 +46,7 @@ artifact_root = "artifacts"
 | `analysis` | 解析方法とoff-path判定閾値 |
 | `output` | runの保存先 |
 
-`solver.backend`は次の2種類です。
+`solver.backend`のデフォルトは高速な`native_efg`です。選択肢は次の2種類です。
 
 | backend | 特性 |
 |---|---|

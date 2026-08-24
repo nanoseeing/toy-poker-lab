@@ -11,8 +11,8 @@ ip_stack = 1.0
 [solver]
 id = "cfr_plus"
 backend = "native_efg"
-iterations = 1000000
-snapshot_every = 10000
+iterations = 100000
+snapshot_every = 1000
 
 [analysis]
 mode = "exact_tree"

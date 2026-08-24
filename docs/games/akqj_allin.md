@@ -27,8 +27,8 @@ OOPは常にKを持ち、IPのAには負け、QとJには勝ちます。QとJは
 
 | パラメータ | 型 | デフォルト | 制約 | 意味 |
 |---|---|---:|---|---|
-| `oop_stack` | float | 1.0 | `> 0` | OOPの残りスタック |
-| `ip_stack` | float | 1.0 | `> 0` | IPの残りスタック |
+| `oop_stack` | float | 4.0 | `> 0` | OOPの残りスタック |
+| `ip_stack` | float | 4.0 | `> 0` | IPの残りスタック |
 
 実効スタックは次のとおりです。
 
@@ -96,8 +96,9 @@ EV_{IP}=\frac{1+2s}{3(1+s)},\qquad
 EV_{OOP}=\frac{2+s}{3(1+s)}
 \]
 
-デフォルトの \(s=1\) では、IP(Q)とIP(J)は対称解で各25% All-in、OOPは50% Call、
-両者のEVは0.5です。Qだけ50%でJを0%、またはその逆にする方策も同じ均衡族に含まれます。
+デフォルトの \(s=4\) では、IP(Q)とIP(J)は対称解で各40% All-in、OOPは20% Call、
+IP EVは0.6、OOP EVは0.4です。Qだけ80%でJを0%、またはその逆にする方策も同じ
+均衡族に含まれます。
 
 例えば `oop_stack=2`, `ip_stack=3` なら \(s=2\) なので、Q/Jの合計ブラフ率は2/3、
 対称解では各1/3、OOPのCall率は1/3、IP EVは5/9、OOP EVは4/9です。
@@ -113,21 +114,22 @@ EV_{OOP}=\frac{2+s}{3(1+s)}
 id = "akqj_allin"
 
 [game.params]
-oop_stack = 1.0
-ip_stack = 1.0
+oop_stack = 4.0
+ip_stack = 4.0
+
+[solver]
+id = "cfr_plus"
+backend = "native_efg"
+iterations = 100000
 ```
 
 ```bash
 toy-poker run configs/experiments/akqj_allin_cfr_plus.toml
 ```
 
-両者のスタックを2にした検証用設定も用意しています。
-
-[`configs/experiments/akqj_allin_stack_2_cfr_plus.toml`](../../configs/experiments/akqj_allin_stack_2_cfr_plus.toml)
-
-```bash
-toy-poker run configs/experiments/akqj_allin_stack_2_cfr_plus.toml
-```
+100,000反復の標準runでは、IP(Q/J)はそれぞれ約39.9985% All-in、OOPは約20.0003%
+Callとなりました。IP EVは約0.6000000002、OOP EVは約0.3999999998、Exploitabilityは
+約`0.00000680387`、計算時間は約1.2秒です。
 
 出力先は `artifacts/akqj_allin/<run-id>/` です。最新runは
 `artifacts/akqj_allin/latest.json` から確認できます。
@@ -137,7 +139,7 @@ toy-poker run configs/experiments/akqj_allin_stack_2_cfr_plus.toml
 - Q/Jの個別All-in率ではなく、まず両者の合計が解析条件を満たすか確認します。
 - `reach_probability` が小さいoff-path局面は、アクション確率よりAction EVを優先します。
 - `exploitability` は非一意な均衡族のどのメンバーへ収束したかに関係なく、方策全体を評価します。
-- デフォルトでは両者のゲーム価値が0.5なので、EVだけで収束を判断せずExploitabilityも確認します。
+- デフォルトではIPのゲーム価値が0.6、OOPが0.4なので、EVだけで収束を判断せずExploitabilityも確認します。
 
 共通の各列とartifactの説明は[実験設定とartifact](../experiments.md)を参照してください。
 

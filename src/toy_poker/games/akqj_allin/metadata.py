@@ -20,5 +20,5 @@ METADATA = GameMetadata(
     player_names=("IP", "OOP"),
     utility_unit="chips (initial pot is dead money)",
     information_labels=INFORMATION_LABELS,
-    parameters={"initial_pot": 1.0, "oop_stack": 1.0, "ip_stack": 1.0},
+    parameters={"initial_pot": 1.0, "oop_stack": 4.0, "ip_stack": 4.0},
 )

@@ -30,7 +30,12 @@ def test_cards_roles_and_terminal_payoffs():
         assert state.returns() == [0.0, 1.0]
 
     state = apply_actions(dealt_state(IPCard.ACE), [Action.CHECK, Action.ALL_IN, Action.ALL_IN])
-    assert state.returns() == [2.0, -1.0]
+    assert state.returns() == [5.0, -4.0]
+
+    game = plugin.load_game()
+    assert game.oop_stack == 4.0
+    assert game.ip_stack == 4.0
+    assert game.max_utility() == 5.0
 
 
 def test_independent_stacks_use_effective_stack():

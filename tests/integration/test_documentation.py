@@ -18,7 +18,10 @@ def test_every_registered_game_has_documentation_and_standard_config():
     configured_games = set()
     for path in (PROJECT_ROOT / "configs" / "experiments").glob("*.toml"):
         with path.open("rb") as handle:
-            configured_games.add(tomllib.load(handle)["game"]["id"])
+            config = tomllib.load(handle)
+        configured_games.add(config["game"]["id"])
+        assert config["solver"]["backend"] == "native_efg"
+        assert config["solver"]["iterations"] == 100_000
 
     registered_games = {plugin.metadata.game_id for plugin in list_games()}
     assert registered_games <= documented_games

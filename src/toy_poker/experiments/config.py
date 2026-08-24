@@ -44,7 +44,7 @@ class ExperimentConfig:
             game_params=dict(game.get("params", {})),
             solver=SolverConfig(
                 solver_id=str(solver.get("id", "cfr_plus")),
-                backend=str(solver.get("backend", "python_game")),
+                backend=str(solver.get("backend", "native_efg")),
                 iterations=int(solver.get("iterations", 100_000)),
                 snapshot_every=int(solver.get("snapshot_every", 1_000)),
             ),

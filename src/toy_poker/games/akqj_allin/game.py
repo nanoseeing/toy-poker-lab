@@ -22,7 +22,12 @@ class IPCard(enum.IntEnum):
     ACE = 2
 
 
-_GAME_TYPE = make_game_type("python_akqj_allin", "AKQJ all-in toy poker")
+DEFAULT_STACK = 4.0
+
+
+_GAME_TYPE = make_game_type(
+    "python_akqj_allin", "AKQJ all-in toy poker", default_stack=DEFAULT_STACK
+)
 
 
 class AKQJGame(FixedOOPAllInGame):
@@ -32,6 +37,7 @@ class AKQJGame(FixedOOPAllInGame):
             ip_cards=tuple(IPCard),
             ip_winning_cards=(IPCard.ACE,),
             oop_card_label="K",
+            default_stack=DEFAULT_STACK,
             params=params,
         )
 

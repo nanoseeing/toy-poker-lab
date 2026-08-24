@@ -10,6 +10,7 @@ ip_stack = 1.0
 
 [solver]
 id = "cfr_plus"
+backend = "native_efg"
 iterations = 100000
 snapshot_every = 1000
 

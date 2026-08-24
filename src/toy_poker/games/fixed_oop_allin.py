@@ -19,7 +19,9 @@ PLAYER_OOP = 1
 NUM_PLAYERS = 2
 
 
-def make_game_type(short_name: str, long_name: str) -> pyspiel.GameType:
+def make_game_type(
+    short_name: str, long_name: str, default_stack: float = 1.0
+) -> pyspiel.GameType:
     return pyspiel.GameType(
         short_name=short_name,
         long_name=long_name,
@@ -34,7 +36,10 @@ def make_game_type(short_name: str, long_name: str) -> pyspiel.GameType:
         provides_information_state_tensor=False,
         provides_observation_string=True,
         provides_observation_tensor=False,
-        parameter_specification={"oop_stack": 1.0, "ip_stack": 1.0},
+        parameter_specification={
+            "oop_stack": default_stack,
+            "ip_stack": default_stack,
+        },
     )
 
 
@@ -47,11 +52,12 @@ class FixedOOPAllInGame(pyspiel.Game):
         ip_cards: Iterable[enum.IntEnum],
         ip_winning_cards: Iterable[enum.IntEnum],
         oop_card_label: str,
+        default_stack: float = 1.0,
         params=None,
     ):
         params = params or {}
-        self.oop_stack = float(params.get("oop_stack", 1.0))
-        self.ip_stack = float(params.get("ip_stack", 1.0))
+        self.oop_stack = float(params.get("oop_stack", default_stack))
+        self.ip_stack = float(params.get("ip_stack", default_stack))
         if self.oop_stack <= 0 or self.ip_stack <= 0:
             raise ValueError("oop_stack and ip_stack must both be positive")
         self.effective_stack = min(self.oop_stack, self.ip_stack)
