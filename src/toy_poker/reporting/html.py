@@ -1,0 +1,52 @@
+"""Small dependency-free HTML report renderer."""
+
+from __future__ import annotations
+
+import html
+from pathlib import Path
+
+from toy_poker.games.base import GamePlugin
+
+
+def save_html(path: Path, analysis: dict, plugin: GamePlugin, tree_created: bool) -> None:
+    summary = analysis["summary"]
+    cards = "".join(
+        f'<div class="card">{html.escape(player)} EV<div class="value">{value:+.6f}</div></div>'
+        for player, value in summary["returns"].items()
+    )
+    rows = []
+    for info in analysis["information_sets"]:
+        strategy = "<br>".join(
+            f"{html.escape(action['action'])}: <strong>{action['probability']:.2%}</strong>"
+            for action in info["actions"]
+        )
+        action_evs = "<br>".join(
+            f"{html.escape(action['action'])}: {action['ev']:+.6f}" for action in info["actions"]
+        )
+        off_path = " <span class=\"tag\">off path</span>" if info["is_off_path"] else ""
+        rows.append(
+            f"<tr><td>{html.escape(info['label'])}{off_path}</td>"
+            f"<td>{info['reach_probability']:.6%}</td><td>{strategy}</td>"
+            f"<td>{info['policy_ev']:+.6f}</td><td>{action_evs}</td></tr>"
+        )
+    tree = '<h2>Legal-action tree</h2><img src="figures/strategy_tree.png" alt="Strategy tree">' if tree_created else ""
+    document = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>{html.escape(plugin.metadata.title)} report</title><style>
+body {{ font-family: system-ui,sans-serif; margin:2rem auto; max-width:1200px; color:#222; }}
+.cards {{ display:flex; gap:1rem; flex-wrap:wrap; }} .card {{ background:#f4f7fa; border-radius:8px; padding:1rem 1.4rem; min-width:180px; }}
+.value {{ font-size:1.6rem; font-weight:700; }} table {{ border-collapse:collapse; width:100%; margin:1rem 0 2rem; }}
+th,td {{ border-bottom:1px solid #ddd; padding:.65rem; text-align:left; vertical-align:top; }} th {{ background:#f4f7fa; }}
+img {{ width:100%; height:auto; margin-bottom:2rem; }} .tag {{ font-size:.75rem; background:#eee; border-radius:4px; padding:.15rem .3rem; }}
+</style></head><body><h1>{html.escape(plugin.metadata.title)}</h1>
+<p>EV is {html.escape(plugin.metadata.utility_unit)} for the acting player, conditional on reaching the information set.</p>
+<div class="cards"><div class="card">Iterations<div class="value">{analysis['solver']['iterations']:,}</div></div>
+<div class="card">Exploitability<div class="value">{summary['exploitability']:.8f}</div></div>{cards}</div>
+<h2>Information sets</h2><table><thead><tr><th>Decision</th><th>Reach</th><th>Strategy</th><th>Policy EV</th><th>Action EV</th></tr></thead>
+<tbody>{''.join(rows)}</tbody></table>{tree}
+<h2>Action probabilities</h2><img src="figures/strategy_probabilities.png" alt="Action probabilities">
+<h2>Action EV</h2><img src="figures/action_ev.png" alt="Action EV">
+<h2>Convergence</h2><img src="figures/convergence.png" alt="Convergence">
+<p>Data: <a href="analysis.json">analysis JSON</a>, <a href="policy.json">policy JSON</a>,
+<a href="information_sets.csv">information sets CSV</a>, <a href="terminal_paths.csv">terminal paths CSV</a>,
+<a href="convergence.csv">convergence CSV</a>.</p></body></html>"""
+    path.write_text(document, encoding="utf-8")

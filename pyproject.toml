@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toy-poker"
+version = "0.1.0"
+description = "Reproducible OpenSpiel experiments for toy poker games"
+requires-python = ">=3.11"
+dependencies = [
+  "open_spiel==2.0.2",
+]
+
+[project.optional-dependencies]
+viz = ["matplotlib==3.10.5"]
+dev = [
+  "matplotlib==3.10.5",
+  "pytest==9.1.1",
+]
+
+[project.scripts]
+toy-poker = "toy_poker.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+norecursedirs = [".venv", "artifacts", "results"]
+filterwarnings = [
+  "ignore::pyparsing.warnings.PyparsingDeprecationWarning",
+]
