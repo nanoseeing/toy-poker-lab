@@ -39,6 +39,11 @@ class GamePlugin:
         parts = state.information_state_string(player).split("|")
         return parts[1] if len(parts) >= 3 else ""
 
+    def information_context(self, state: pyspiel.State) -> dict[str, Any]:
+        """Return optional public state data shown beside an information set."""
+        del state
+        return {}
+
     def chance_outcome_label(self, state: pyspiel.State, action: int) -> str:
         label = state.action_to_string(pyspiel.PlayerId.CHANCE, action)
         return label.removeprefix("Deal")

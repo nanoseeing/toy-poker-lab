@@ -16,6 +16,11 @@ def save_html(path: Path, analysis: dict, plugin: GamePlugin, tree_created: bool
     )
     rows = []
     for info in analysis["information_sets"]:
+        context = ", ".join(
+            f"{html.escape(str(key))}={html.escape(f'{value:.6g}' if isinstance(value, float) else str(value))}"
+            for key, value in info.get("context", {}).items()
+        )
+        context_html = f'<br><span class="context">{context}</span>' if context else ""
         strategy = "<br>".join(
             f"{html.escape(action['action'])}: <strong>{action['probability']:.2%}</strong>"
             for action in info["actions"]
@@ -25,7 +30,7 @@ def save_html(path: Path, analysis: dict, plugin: GamePlugin, tree_created: bool
         )
         off_path = " <span class=\"tag\">off path</span>" if info["is_off_path"] else ""
         rows.append(
-            f"<tr><td>{html.escape(info['label'])}{off_path}</td>"
+            f"<tr><td>{html.escape(info['label'])}{off_path}{context_html}</td>"
             f"<td>{info['reach_probability']:.6%}</td><td>{strategy}</td>"
             f"<td>{info['policy_ev']:+.6f}</td><td>{action_evs}</td></tr>"
         )
@@ -37,6 +42,7 @@ body {{ font-family: system-ui,sans-serif; margin:2rem auto; max-width:1200px; c
 .value {{ font-size:1.6rem; font-weight:700; }} table {{ border-collapse:collapse; width:100%; margin:1rem 0 2rem; }}
 th,td {{ border-bottom:1px solid #ddd; padding:.65rem; text-align:left; vertical-align:top; }} th {{ background:#f4f7fa; }}
 img {{ width:100%; height:auto; margin-bottom:2rem; }} .tag {{ font-size:.75rem; background:#eee; border-radius:4px; padding:.15rem .3rem; }}
+.context {{ color:#666; font-size:.8rem; }}
 </style></head><body><h1>{html.escape(plugin.metadata.title)}</h1>
 <p>EV is {html.escape(plugin.metadata.utility_unit)} for the acting player, conditional on reaching the information set.</p>
 <div class="cards"><div class="card">Iterations<div class="value">{analysis['solver']['iterations']:,}</div></div>

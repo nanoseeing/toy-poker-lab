@@ -48,6 +48,7 @@ def write_report_bundle(
                     "information_state": info["key"], "label": info["label"],
                     "player": info["player"], "card": info["card"],
                     "history": " -> ".join(info["history"]) or "ROOT",
+                    "context": json.dumps(info.get("context", {}), ensure_ascii=False),
                     "reach_probability": info["reach_probability"], "is_off_path": info["is_off_path"],
                     "ev_belief": info["ev_belief"], "policy_ev": info["policy_ev"],
                     "action": action["action"], "action_probability": action["probability"],

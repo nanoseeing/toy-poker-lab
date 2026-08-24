@@ -16,6 +16,8 @@ from toy_poker.games.base import GamePlugin
 ACTION_COLORS = {
     "Check": "#4C78A8",
     "All-in": "#F58518",
+    "Geometric bet": "#B279A2",
+    "Raise all-in": "#E45756",
     "Call": "#54A24B",
     "Fold": "#9D9DA1",
 }

@@ -1,0 +1,158 @@
+# AKQJ two-street geometric game
+
+## 概要
+
+OOPがKを、IPがA/Q/Jのいずれかを持つAKQJゲームを、2回のbetting streetへ拡張した
+有限ゼロサムゲームです。ランクの強さは `A > K > Q > J` で、street間で新しいカードは
+配られません。
+
+各streetではCheckとAll-inに加えて、残り2 streetでスタックを幾何学的に使い切る
+Geometric betが選べます。Geometric betに対してはCallまたはAll-in raiseも可能です。
+
+## プレイヤーと情報構造
+
+| OpenSpiel index | 名前 | private card | 行動順 |
+|---:|---|---|---|
+| 0 | IP | A、Q、Jを各1/3 | 各streetでOOPの後 |
+| 1 | OOP | 常にK | 各streetの最初 |
+
+- IPだけがA/Q/Jのどれを配られたか知っています。
+- OOPはIPのカードを知りません。
+- street、pot、commit額、全アクション履歴は公開情報です。
+- 同じカードを持ったまま2 streetをプレイします。
+
+## ポット、スタック、Geometric bet
+
+初期potは1で固定です。両者が初期potを0.5ずつ拠出済みと考え、utilityは純利益で
+表します。
+
+| パラメータ | 型 | デフォルト | 制約 | 意味 |
+|---|---|---:|---|---|
+| `oop_stack` | float | 1.0 | `> 0` | OOPの残りスタック |
+| `ip_stack` | float | 1.0 | `> 0` | IPの残りスタック |
+
+実効スタックは次のとおりです。
+
+\[
+S=\min(\text{oop\_stack},\text{ip\_stack})
+\]
+
+Geometric betのpot比率 \(e\) は次の式で計算します。
+
+\[
+e=\frac{-1+\sqrt{1+2S}}{2}
+\]
+
+初期pot 1に対する1st streetのbet額は \(b_1=e\)、call後のpotは \(1+2e\)、
+2nd streetのbet額は \(b_2=e(1+2e)\) です。
+
+\[
+b_1+b_2=e+e(1+2e)=2e+2e^2=S
+\]
+
+したがって、両streetで同じpot比率をbetしてcallされると、2nd streetでちょうど
+All-inになります。例えば \(S=1\) では \(e\simeq0.366025\)、bet額は順に
+約0.366025と0.633975です。
+
+## ゲーム進行と合法アクション
+
+各streetはOOPから始まります。
+
+| 現在の状態 | 合法アクション |
+|---|---|
+| betされていない | `Check`、`Geometric bet`、`All-in` |
+| Geometric betに直面 | `Raise all-in`、`Call`、`Fold` |
+| All-inまたはRaise all-inに直面 | `Call`、`Fold` |
+
+- 1st streetのCheck-checkまたはGeometric bet-call後は2nd streetへ進みます。
+- 2nd streetのCheck-checkまたはGeometric bet-call後はshowdownです。
+- All-inがCallされた場合はstreetに関係なくshowdownです。
+- Foldされた場合は直ちに終了します。
+- Geometric bet額と残りスタックが一致する局面では、同値な選択肢を重複させず
+  `All-in`だけを表示します。
+
+## Showdownとペイオフ
+
+- IPがAならIPの勝ちです。
+- IPがQまたはJならOOPのKが勝ちです。
+- showdownで両者が追加で \(c\) ずつcommitしていれば、勝者utilityは
+  \(+(0.5+c)\)、敗者utilityは \(-(0.5+c)\) です。
+- Foldしたプレイヤーが追加で \(c_f\) をcommitしていれば、そのプレイヤーのutilityは
+  \(-(0.5+c_f)\) です。相手の未call分は返却されます。
+- utilityの合計はすべてのterminalで0です。
+
+## 解析方法
+
+この2 street版には、現時点では閉形式の均衡戦略・ゲーム価値を設定していません。
+OpenSpielのC++ `CFRPlusSolver`で数値的に解き、次の値で収束を判断します。
+
+- Exploitability
+- NashConv
+- 各プレイヤーのEV
+- 各information setのaction確率とAction EV
+- 反復数に対するExploitabilityの推移
+
+## 設定と実行
+
+標準設定は
+[`configs/experiments/akqj_two_street_cfr_plus.toml`](../../configs/experiments/akqj_two_street_cfr_plus.toml)
+です。
+
+```toml
+[game]
+id = "akqj_two_street"
+
+[game.params]
+oop_stack = 1.0
+ip_stack = 1.0
+```
+
+```bash
+toy-poker run configs/experiments/akqj_two_street_cfr_plus.toml
+```
+
+出力先は `artifacts/akqj_two_street/<run-id>/` です。HTMLレポートとJSON/CSVには、
+各information setのstreet、pot、IP/OOPのcommit額も保存されます。
+
+## 標準設定の参考結果
+
+両者のスタックを1、CFR+を30,000反復とした結果は次のとおりです。数値はCFR+による
+均衡近似であり、丸め前の完全な値はartifactに保存されます。
+
+| information set | 主な戦略 |
+|---|---|
+| OOP(K)、1st street最初 | Check 約99.9999% |
+| IP(A)、OOPのCheck後 | Geometric bet 約99.9999% |
+| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約69.6086%、Geometric bet 約30.3914% |
+| OOP(K)、IPの1st Geometric betに直面 | Call 約73.2040%、Fold 約26.7960% |
+| 1st Geometric bet-call後のOOP(K) | 2nd streetでCheck 約100% |
+| 同じ経路のIP(A) | All-in 約100% |
+| 同じ経路のIP(Q/J) | 各カードでCheck 約55.9114%、All-in 約44.0886% |
+| OOP(K)、上記2nd street All-inに直面 | Call 約73.2050%、Fold 約26.7950% |
+
+1st streetがCheck-checkだった経路では、OOPは2nd streetで約12.1402% Geometric betし、
+IPのQ/Jはそれにほぼ常にFoldしました。
+
+| 指標 | 結果 |
+|---|---:|
+| IP EV | +0.035898401 |
+| OOP EV | -0.035898401 |
+| Exploitability | 0.0000158208 |
+| NashConv | 0.0000316416 |
+
+このrunの計算時間は約147.9秒でした。計算時間は実行環境によって変わります。
+
+## 出力の読み方
+
+- 同じプレイヤーとカードでも、streetとそれまでの履歴が異なれば別information setです。
+- 低い確率でしか到達しない局面では、戦略確率に加えてAction EVも確認します。
+- 閉形式の比較対象がないため、EVだけでなくExploitabilityを主要な収束指標とします。
+- QとJはshowdown上同じ強さなので、対称な局面での個別戦略は非一意になる場合があります。
+
+## 実装とテスト
+
+- [ゲーム実装](../../src/toy_poker/games/akqj_two_street/game.py)
+- [2 street共通状態機械](../../src/toy_poker/games/fixed_oop_two_street.py)
+- [表示用メタデータ](../../src/toy_poker/games/akqj_two_street/metadata.py)
+- [ゲームルールテスト](../../tests/games/test_akqj_two_street.py)
+- [解析・CFR+テスト](../../tests/analysis/test_akqj_two_street_analysis.py)

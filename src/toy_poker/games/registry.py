@@ -20,6 +20,7 @@ def _load_builtins() -> None:
     if not _BUILTINS_LOADED:
         from toy_poker.games.akq_allin import plugin as _akq_plugin  # noqa: F401
         from toy_poker.games.akqj_allin import plugin as _akqj_plugin  # noqa: F401
+        from toy_poker.games.akqj_two_street import plugin as _akqj_two_street_plugin  # noqa: F401
 
         _BUILTINS_LOADED = True
 

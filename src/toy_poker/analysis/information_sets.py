@@ -82,6 +82,7 @@ def analyze_information_sets(
                 "player": plugin.player_name(player),
                 "card": plugin.private_card(representative, player),
                 "history": history,
+                "context": plugin.information_context(representative),
                 "reach_probability": total_reach,
                 "is_off_path": total_reach < off_path_threshold,
                 "ev_belief": belief,
