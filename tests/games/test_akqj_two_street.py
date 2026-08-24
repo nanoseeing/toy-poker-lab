@@ -22,7 +22,7 @@ def apply_actions(state, actions):
 
 
 def test_geometric_fraction_uses_the_stack_over_two_streets():
-    for effective_stack in (0.25, 1.0, 2.0, 10.0):
+    for effective_stack in (0.25, 1.0, 2.0, 4.0, 10.0):
         fraction = geometric_fraction(effective_stack)
         first_bet = fraction
         second_bet = fraction * (1.0 + 2.0 * first_bet)

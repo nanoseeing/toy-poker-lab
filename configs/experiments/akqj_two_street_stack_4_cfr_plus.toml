@@ -1,0 +1,22 @@
+[experiment]
+name = "akqj_two_street_stack_4_cfr_plus"
+
+[game]
+id = "akqj_two_street"
+
+[game.params]
+oop_stack = 4.0
+ip_stack = 4.0
+
+[solver]
+id = "cfr_plus"
+backend = "native_efg"
+iterations = 1000000
+snapshot_every = 10000
+
+[analysis]
+mode = "exact_tree"
+off_path_threshold = 1e-8
+
+[output]
+artifact_root = "artifacts"

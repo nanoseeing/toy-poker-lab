@@ -116,6 +116,14 @@ iterations = 1000000
 toy-poker run configs/experiments/akqj_two_street_cfr_plus.toml
 ```
 
+両者のスタックを4にする設定は
+[`configs/experiments/akqj_two_street_stack_4_cfr_plus.toml`](../../configs/experiments/akqj_two_street_stack_4_cfr_plus.toml)
+です。
+
+```bash
+toy-poker run configs/experiments/akqj_two_street_stack_4_cfr_plus.toml
+```
+
 出力先は `artifacts/akqj_two_street/<run-id>/` です。HTMLレポートとJSON/CSVには、
 各information setのstreet、pot、IP/OOPのcommit額も保存されます。
 
@@ -155,6 +163,40 @@ OpenSpielのC++内で完結させます。同じ環境での速度比較は次�
 
 反復部分は約77倍高速化し、約33倍のiterationを従来の半分以下の時間で実行できました。
 計算時間は実行環境によって変わります。
+
+## Stack 4の参考結果
+
+両者のスタックを4にすると、Geometric betのpot比率はちょうど1になります。
+
+\[
+e=\frac{-1+\sqrt{1+2\times4}}{2}=1
+\]
+
+1st streetではpot 1へ1をbetし、call後のpot 3へ2nd streetで残り3をAll-inします。
+両方がcallされると最終potは9、showdownのutilityは勝者`+4.5`、敗者`-4.5`です。
+
+1,000,000反復の主要戦略は次のとおりです。
+
+| information set | 主な戦略 |
+|---|---|
+| OOP(K)、1st street最初 | Check 約100% |
+| IP(A)、OOPのCheck後 | Geometric bet 約100% |
+| IP(Q/J)、OOPのCheck後 | 各カードでCheck 約37.5001%、Geometric bet 約62.4999% |
+| OOP(K)、IPの1st Geometric betに直面 | Call 約49.9997%、Fold 約50.0003% |
+| 1st Geometric bet-call後のOOP(K) | 2nd streetでCheck 約100% |
+| 同じ経路のIP(A) | All-in 100% |
+| 同じ経路のIP(Q/J) | 各カードでCheck 約60.0000%、All-in 約40.0000% |
+| OOP(K)、上記2nd street All-inに直面 | Call 約50.0000%、Fold 約50.0000% |
+
+| 指標 | 結果 |
+|---|---:|
+| IP EV | +0.24999999998 |
+| OOP EV | -0.24999999998 |
+| Exploitability | 0.000000914742 |
+| NashConv | 0.00000182948 |
+| 計算時間 | 約57.0秒 |
+
+測定checkpoint中の最良Exploitabilityは970,000反復時点の約`0.000000468355`でした。
 
 ## 出力の読み方
 
