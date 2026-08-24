@@ -1,11 +1,9 @@
 # Toy Poker Experiments
 
-Configuration-driven OpenSpiel experiments for finite toy poker games.
+OpenSpielを利用して有限のtoy poker gameを定義し、CFR+による求解、解析、
+可視化を再現可能な設定から実行するプロジェクトです。
 
-The bundled AKQ game has OOP holding K and acting first, while IP is dealt A
-or Q with equal probability. The pot is fixed at 1. Configure each player's
-stack independently in the experiment TOML; both default to 1. Unmatched
-all-in excess is returned, so only the effective stack is at risk.
+## Quick start
 
 ```bash
 python -m pip install -e '.[dev]'
@@ -13,16 +11,20 @@ toy-poker list-games
 toy-poker run configs/experiments/akq_allin_cfr_plus.toml
 ```
 
-```toml
-[game.params]
-oop_stack = 1.0
-ip_stack = 1.0
-```
-
-Each run is stored in an immutable directory under `artifacts/<game>/<run-id>/`.
-The saved `policy.json` is independent of the C++ solver and can be used to
-re-render a report without solving again:
+各runは `artifacts/<game>/<run-id>/` に分けて保存されます。保存された
+`policy.json` はC++ソルバーから独立しており、再求解せずレポートを再生成できます。
 
 ```bash
 toy-poker report artifacts/akq_allin/<run-id>
 ```
+
+## Documentation
+
+- [文書の構成と更新方針](docs/README.md)
+- [toyゲーム一覧](docs/games/README.md)
+- [AKQ all-inゲーム](docs/games/akq_allin.md)
+- [実験設定・CLI・artifact](docs/experiments.md)
+
+実行可能なAKQ設定例は
+[`configs/experiments/akq_allin_cfr_plus.toml`](configs/experiments/akq_allin_cfr_plus.toml)
+です。
