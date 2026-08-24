@@ -45,6 +45,7 @@ def run_experiment(
         game, policy, plugin, off_path_threshold=config.analysis.off_path_threshold
     )
     paths = terminal_paths(game, policy, plugin)
+    reference_returns = plugin.analytic_returns(game)
     analysis = {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -55,6 +56,7 @@ def run_experiment(
             "player_names": list(plugin.metadata.player_names),
             "utility_unit": plugin.metadata.utility_unit,
             "parameters": plugin.metadata.parameters | config.game_params,
+            "analytic_returns": list(reference_returns) if reference_returns is not None else None,
         },
         "solver": {
             "id": config.solver.solver_id,

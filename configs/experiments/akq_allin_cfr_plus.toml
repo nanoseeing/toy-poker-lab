@@ -4,6 +4,10 @@ name = "akq_allin_cfr_plus"
 [game]
 id = "akq_allin"
 
+[game.params]
+oop_stack = 1.0
+ip_stack = 1.0
+
 [solver]
 id = "cfr_plus"
 iterations = 100000

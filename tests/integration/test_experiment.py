@@ -13,6 +13,7 @@ def test_experiment_writes_replayable_bundle(tmp_path: Path):
     config = ExperimentConfig(
         name="integration",
         game_id="akq_allin",
+        game_params={"oop_stack": 2.0, "ip_stack": 3.0},
         solver=SolverConfig(iterations=200, snapshot_every=100),
         analysis=AnalysisConfig(),
         artifact_root=tmp_path / "artifacts",
@@ -26,7 +27,9 @@ def test_experiment_writes_replayable_bundle(tmp_path: Path):
     assert expected.issubset({path.name for path in output.iterdir()})
     assert (output / "figures" / "strategy_tree.png").exists()
     assert result.analysis["game"]["player_names"] == ["IP", "OOP"]
+    assert result.analysis["game"]["parameters"]["initial_pot"] == 1.0
+    assert result.analysis["game"]["analytic_returns"] == [1.0 / 3.0, -1.0 / 3.0]
     policy_data = json.loads((output / "policy.json").read_text(encoding="utf-8"))
-    assert "P1|A|ROOT" in policy_data
+    assert "P1|K|ROOT" in policy_data
     rerender_artifact(output)
-    assert "OOP(A)" in (output / "report.html").read_text(encoding="utf-8")
+    assert "OOP(K)" in (output / "report.html").read_text(encoding="utf-8")

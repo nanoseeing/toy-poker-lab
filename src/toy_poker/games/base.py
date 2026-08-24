@@ -42,3 +42,7 @@ class GamePlugin:
     def chance_outcome_label(self, state: pyspiel.State, action: int) -> str:
         label = state.action_to_string(pyspiel.PlayerId.CHANCE, action)
         return label.removeprefix("Deal")
+
+    def analytic_returns(self, game: pyspiel.Game) -> tuple[float, ...] | None:
+        del game
+        return self.metadata.analytic_returns

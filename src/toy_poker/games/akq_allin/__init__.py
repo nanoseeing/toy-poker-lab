@@ -4,7 +4,7 @@ from toy_poker.games.akq_allin.game import (
     Action,
     AKQGame,
     AKQState,
-    OOPCard,
+    IPCard,
     PLAYER_IP,
     PLAYER_OOP,
 )
@@ -14,7 +14,7 @@ __all__ = [
     "Action",
     "AKQGame",
     "AKQState",
-    "OOPCard",
+    "IPCard",
     "PLAYER_IP",
     "PLAYER_OOP",
     "PLUGIN",

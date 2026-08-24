@@ -92,10 +92,15 @@ def save_ev_plot(path: Path, infos: list[dict], utility_unit: str) -> None:
     plt.close(fig)
 
 
-def save_convergence_plot(path: Path, convergence: list[dict], plugin: GamePlugin) -> None:
+def save_convergence_plot(
+    path: Path,
+    convergence: list[dict],
+    plugin: GamePlugin,
+    analytic_returns: list[float] | None,
+) -> None:
     iterations = [row["iteration"] for row in convergence]
     gaps = [row["exploitability"] for row in convergence]
-    analytic = plugin.metadata.analytic_returns
+    analytic = analytic_returns
     rows = 2 if analytic is not None else 1
     fig, axes = plt.subplots(rows, 1, figsize=(10, 7.5 if rows == 2 else 4.5), sharex=True, squeeze=False)
     ax_gap = axes[0][0]

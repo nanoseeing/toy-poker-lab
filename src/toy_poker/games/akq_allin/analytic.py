@@ -1,13 +1,20 @@
 """Analytic reference solution for regression tests and reports."""
 
-ANALYTIC_STRATEGY = {
-    "P1|A|ROOT": {"Check": 0.0, "All-in": 1.0},
-    "P1|Q|ROOT": {"Check": 0.5, "All-in": 0.5},
-    "P0|K|ALL_IN": {"Call": 0.5, "Fold": 0.5},
-    # One member of the equilibrium family: IP's all-in rate may be [0, 0.5].
-    "P0|K|CHECK": {"Check": 1.0, "All-in": 0.0},
-    "P1|A|CHECK-ALL_IN": {"Call": 1.0, "Fold": 0.0},
-    "P1|Q|CHECK-ALL_IN": {"Call": 0.0, "Fold": 1.0},
-}
+def analytic_strategy(effective_stack: float) -> dict[str, dict[str, float]]:
+    if effective_stack <= 0:
+        raise ValueError("effective_stack must be positive")
+    bluff = effective_stack / (1.0 + effective_stack)
+    call = 1.0 / (1.0 + effective_stack)
+    return {
+        "P1|K|ROOT": {"Check": 1.0, "All-in": 0.0},
+        "P0|A|CHECK": {"Check": 0.0, "All-in": 1.0},
+        "P0|Q|CHECK": {"Check": 1.0 - bluff, "All-in": bluff},
+        "P1|K|CHECK-ALL_IN": {"Call": call, "Fold": 1.0 - call},
+        "P0|A|ALL_IN": {"Call": 1.0, "Fold": 0.0},
+        "P0|Q|ALL_IN": {"Call": 0.0, "Fold": 1.0},
+    }
 
-ANALYTIC_RETURNS = (-0.25, 0.25)
+
+def analytic_returns(effective_stack: float) -> tuple[float, float]:
+    oop_value = -effective_stack / (2.0 * (1.0 + effective_stack))
+    return (-oop_value, oop_value)

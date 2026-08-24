@@ -1,9 +1,11 @@
 """AKQ all-in toy poker implemented as an OpenSpiel Python game.
 
-Player 0 is IP and always holds K. Player 1 is OOP and receives A or Q with
+Player 1 is OOP and always holds K. Player 0 is IP and receives A or Q with
 equal probability. OOP acts first. With no outstanding bet, legal actions are
 check and all-in. Facing an all-in, legal actions are fold and all-in, where
-the latter means call with the player's remaining chip.
+the latter means call. The pot is fixed at one chip. Stacks are independently
+configurable and unmatched excess is returned, so the wager at risk is the
+effective stack: min(oop_stack, ip_stack).
 """
 
 from __future__ import annotations
@@ -19,7 +21,7 @@ class Action(enum.IntEnum):
     FOLD = 2
 
 
-class OOPCard(enum.IntEnum):
+class IPCard(enum.IntEnum):
     QUEEN = 0
     ACE = 1
 
@@ -42,22 +44,29 @@ _GAME_TYPE = pyspiel.GameType(
     provides_information_state_tensor=False,
     provides_observation_string=True,
     provides_observation_tensor=False,
-)
-
-_GAME_INFO = pyspiel.GameInfo(
-    num_distinct_actions=len(Action),
-    max_chance_outcomes=len(OOPCard),
-    num_players=_NUM_PLAYERS,
-    min_utility=-1.5,
-    max_utility=1.5,
-    utility_sum=0.0,
-    max_game_length=3,
+    parameter_specification={"oop_stack": 1.0, "ip_stack": 1.0},
 )
 
 
 class AKQGame(pyspiel.Game):
     def __init__(self, params=None):
-        super().__init__(_GAME_TYPE, _GAME_INFO, params or {})
+        params = params or {}
+        self.oop_stack = float(params.get("oop_stack", 1.0))
+        self.ip_stack = float(params.get("ip_stack", 1.0))
+        if self.oop_stack <= 0 or self.ip_stack <= 0:
+            raise ValueError("oop_stack and ip_stack must both be positive")
+        self.effective_stack = min(self.oop_stack, self.ip_stack)
+        all_in_payoff = 0.5 + self.effective_stack
+        game_info = pyspiel.GameInfo(
+            num_distinct_actions=len(Action),
+            max_chance_outcomes=len(IPCard),
+            num_players=_NUM_PLAYERS,
+            min_utility=-all_in_payoff,
+            max_utility=all_in_payoff,
+            utility_sum=0.0,
+            max_game_length=3,
+        )
+        super().__init__(_GAME_TYPE, game_info, params)
 
     def new_initial_state(self):
         return AKQState(self)
@@ -71,7 +80,7 @@ class AKQGame(pyspiel.Game):
 class AKQState(pyspiel.State):
     def __init__(self, game):
         super().__init__(game)
-        self.oop_card: OOPCard | None = None
+        self.ip_card: IPCard | None = None
         self.history: list[Action] = []
         self._terminal = False
         self._current_player = PLAYER_OOP
@@ -79,12 +88,12 @@ class AKQState(pyspiel.State):
     def current_player(self):
         if self._terminal:
             return pyspiel.PlayerId.TERMINAL
-        if self.oop_card is None:
+        if self.ip_card is None:
             return pyspiel.PlayerId.CHANCE
         return self._current_player
 
     def _legal_actions(self, player):
-        if player < 0 or self._terminal or self.oop_card is None:
+        if player < 0 or self._terminal or self.ip_card is None:
             return []
         if self._facing_all_in():
             return [Action.ALL_IN, Action.FOLD]
@@ -93,11 +102,11 @@ class AKQState(pyspiel.State):
     def chance_outcomes(self):
         if not self.is_chance_node():
             raise ValueError("chance_outcomes called outside the chance node")
-        return [(int(OOPCard.QUEEN), 0.5), (int(OOPCard.ACE), 0.5)]
+        return [(int(IPCard.QUEEN), 0.5), (int(IPCard.ACE), 0.5)]
 
     def _apply_action(self, action):
         if self.is_chance_node():
-            self.oop_card = OOPCard(action)
+            self.ip_card = IPCard(action)
             self._current_player = PLAYER_OOP
             return
         action = Action(action)
@@ -121,7 +130,7 @@ class AKQState(pyspiel.State):
 
     def _action_to_string(self, player, action):
         if player == pyspiel.PlayerId.CHANCE:
-            return "DealQ" if action == int(OOPCard.QUEEN) else "DealA"
+            return "DealQ" if action == int(IPCard.QUEEN) else "DealA"
         action = Action(action)
         if action == Action.ALL_IN and self._facing_all_in():
             return "Call"
@@ -139,9 +148,13 @@ class AKQState(pyspiel.State):
             result = [-0.5, -0.5]
             result[winner] = 0.5
             return result
-        payoff = 1.5 if self.history.count(Action.ALL_IN) == 2 else 0.5
-        assert self.oop_card is not None
-        winner = PLAYER_OOP if self.oop_card == OOPCard.ACE else PLAYER_IP
+        payoff = (
+            0.5 + self.get_game().effective_stack
+            if self.history.count(Action.ALL_IN) == 2
+            else 0.5
+        )
+        assert self.ip_card is not None
+        winner = PLAYER_IP if self.ip_card == IPCard.ACE else PLAYER_OOP
         result = [-payoff, -payoff]
         result[winner] = payoff
         return result
@@ -151,7 +164,7 @@ class AKQState(pyspiel.State):
             player = self.current_player()
         if player not in (PLAYER_IP, PLAYER_OOP):
             raise ValueError(f"No information state for player {player}")
-        private_card = "K" if player == PLAYER_IP else self.oop_card.name[0]
+        private_card = "K" if player == PLAYER_OOP else self.ip_card.name[0]
         public_history = "-".join(action.name for action in self.history) or "ROOT"
         return f"P{player}|{private_card}|{public_history}"
 
@@ -159,9 +172,9 @@ class AKQState(pyspiel.State):
         return self.information_state_string(player)
 
     def __str__(self):
-        card = "?" if self.oop_card is None else self.oop_card.name[0]
+        card = "?" if self.ip_card is None else self.ip_card.name[0]
         actions = "-".join(action.name for action in self.history) or "ROOT"
-        return f"OOP:{card}|{actions}"
+        return f"IP:{card}|{actions}"
 
 
 class AKQObserver:

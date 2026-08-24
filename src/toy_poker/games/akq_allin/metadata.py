@@ -3,12 +3,12 @@
 from toy_poker.games.base import GameMetadata
 
 INFORMATION_LABELS = {
-    "P1|A|ROOT": "OOP(A): first action",
-    "P1|Q|ROOT": "OOP(Q): first action",
-    "P0|K|ALL_IN": "IP(K): facing OOP all-in",
-    "P0|K|CHECK": "IP(K): after OOP check",
-    "P1|A|CHECK-ALL_IN": "OOP(A): facing IP all-in",
-    "P1|Q|CHECK-ALL_IN": "OOP(Q): facing IP all-in",
+    "P1|K|ROOT": "OOP(K): first action",
+    "P0|A|CHECK": "IP(A): after OOP check",
+    "P0|Q|CHECK": "IP(Q): after OOP check",
+    "P1|K|CHECK-ALL_IN": "OOP(K): facing IP all-in",
+    "P0|A|ALL_IN": "IP(A): facing OOP all-in",
+    "P0|Q|ALL_IN": "IP(Q): facing OOP all-in",
 }
 
 METADATA = GameMetadata(
@@ -18,6 +18,5 @@ METADATA = GameMetadata(
     player_names=("IP", "OOP"),
     utility_unit="net chips",
     information_labels=INFORMATION_LABELS,
-    analytic_returns=(-0.25, 0.25),
-    parameters={"initial_pot": 1.0, "stack_per_player": 1.0},
+    parameters={"initial_pot": 1.0, "oop_stack": 1.0, "ip_stack": 1.0},
 )

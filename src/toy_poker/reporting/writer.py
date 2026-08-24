@@ -82,6 +82,11 @@ def write_report_bundle(
 
     save_strategy_plot(figures / "strategy_probabilities.png", analysis["information_sets"], plugin.metadata.title)
     save_ev_plot(figures / "action_ev.png", analysis["information_sets"], plugin.metadata.utility_unit)
-    save_convergence_plot(figures / "convergence.png", analysis["convergence"], plugin)
+    save_convergence_plot(
+        figures / "convergence.png",
+        analysis["convergence"],
+        plugin,
+        analysis["game"].get("analytic_returns"),
+    )
     tree_created = save_tree_plot(figures / "strategy_tree.png", game, policy, plugin)
     save_html(directory / "report.html", analysis, plugin, tree_created)
