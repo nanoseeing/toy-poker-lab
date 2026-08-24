@@ -11,8 +11,13 @@ ip_stack = 4.0
 [solver]
 id = "cfr_plus"
 backend = "native_efg"
-iterations = 100000
+algorithm = "cfr_plus"
+iterations = 10000
 snapshot_every = 1000
+early_stopping = true
+target_exploitability = 1e-5
+min_iterations = 1000
+patience_checkpoints = 2
 
 [analysis]
 mode = "exact_tree"

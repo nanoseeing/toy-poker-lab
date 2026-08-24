@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=75"]
+requires = ["setuptools>=75", "wheel", "pybind11>=2.13"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Reproducible OpenSpiel experiments for toy poker games"
 requires-python = ">=3.11"
 dependencies = [
+  "numpy>=1.26,<3",
   "open_spiel==2.0.2",
 ]
 

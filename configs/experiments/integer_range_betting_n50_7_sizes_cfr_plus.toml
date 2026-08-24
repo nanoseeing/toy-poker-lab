@@ -1,16 +1,20 @@
 [experiment]
-name = "akqj_two_street_cfr_plus"
+name = "integer_range_betting_n50_7_sizes_cfr_plus"
 
 [game]
-id = "akqj_two_street"
+id = "integer_range_betting"
 
 [game.params]
-oop_stack = 1.0
-ip_stack = 1.0
+oop_stack = 4.0
+ip_stack = 4.0
+bet_fractions = "0.1,0.2,0.3333333333333333,0.5,0.75,1.0,1.5"
+num_ranks = 50
+oop_rank_weights = "uniform"
+ip_rank_weights = "uniform"
 
 [solver]
 id = "cfr_plus"
-backend = "native_efg"
+backend = "vectorized_range"
 algorithm = "cfr_plus"
 iterations = 10000
 snapshot_every = 1000

@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from toy_poker.experiments.comparison import compare_runs
+from toy_poker.experiments.benchmark import benchmark_experiment
 from toy_poker.experiments.config import ExperimentConfig
 from toy_poker.experiments.runner import rerender_artifact, run_experiment
 from toy_poker.games import list_games
@@ -23,6 +24,12 @@ def main() -> None:
     report_parser.add_argument("run_dir", type=Path)
     compare_parser = subparsers.add_parser("compare", help="Compare completed runs")
     compare_parser.add_argument("run_dirs", type=Path, nargs="+")
+    benchmark_parser = subparsers.add_parser(
+        "benchmark", help="Benchmark solver execution without writing artifacts"
+    )
+    benchmark_parser.add_argument("config", type=Path)
+    benchmark_parser.add_argument("--iterations", type=int)
+    benchmark_parser.add_argument("--repeat", type=int, default=1)
     args = parser.parse_args()
 
     if args.command == "list-games":
@@ -39,6 +46,16 @@ def main() -> None:
         print(f"Report: {(args.run_dir / 'report.html').resolve()}")
     elif args.command == "compare":
         print(json.dumps(compare_runs(args.run_dirs), indent=2, ensure_ascii=False))
+    elif args.command == "benchmark":
+        print(
+            json.dumps(
+                benchmark_experiment(
+                    args.config, iterations=args.iterations, repeat=args.repeat
+                ),
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
 
 
 if __name__ == "__main__":
