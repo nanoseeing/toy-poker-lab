@@ -7,17 +7,27 @@ from toy_poker.games import get_game
 from toy_poker.solvers import CFRPlusSolverAdapter, SolverConfig
 
 
-def test_solver_defaults_to_native_efg_and_100k_iterations():
+def test_solver_defaults_to_native_efg_and_early_stopping():
     config = SolverConfig()
     assert config.backend == "native_efg"
-    assert config.iterations == 100_000
+    assert config.iterations == 10_000
+    assert config.snapshot_every == 1_000
+    assert config.early_stopping is True
+    assert config.target_exploitability == 1e-5
+    assert config.min_iterations == 1_000
+    assert config.patience_checkpoints == 2
 
 
 def test_cfr_plus_converges_and_returns_standalone_policy():
     plugin = get_game("akq_allin")
     game = plugin.load_game()
     result = CFRPlusSolverAdapter().solve(
-        game, SolverConfig(iterations=30_000, snapshot_every=10_000)
+        game,
+        SolverConfig(
+            iterations=30_000,
+            snapshot_every=10_000,
+            early_stopping=False,
+        ),
     )
     strategies = {
         row["key"]: row for row in analyze_information_sets(game, result.policy, plugin)
@@ -33,6 +43,46 @@ def test_cfr_plus_converges_and_returns_standalone_policy():
     assert ace["All-in"]["probability"] > 0.999
     assert abs(queen["All-in"]["probability"] - 0.5) < 0.005
     assert len(result.convergence) == 3
+
+
+def test_early_stopping_respects_minimum_and_consecutive_checkpoints():
+    game = get_game("akq_allin").load_game()
+    result = CFRPlusSolverAdapter().solve(
+        game,
+        SolverConfig(
+            iterations=10_000,
+            snapshot_every=1_000,
+            target_exploitability=1.0,
+            min_iterations=1_500,
+            patience_checkpoints=2,
+        ),
+    )
+
+    assert result.early_stopped is True
+    assert result.stop_reason == "target_exploitability"
+    assert result.completed_iterations == 3_000
+    assert [row["iteration"] for row in result.convergence] == [
+        1_000,
+        2_000,
+        3_000,
+    ]
+
+
+def test_solver_runs_to_maximum_when_target_is_not_reached():
+    game = get_game("akq_allin").load_game()
+    result = CFRPlusSolverAdapter().solve(
+        game,
+        SolverConfig(
+            iterations=2_500,
+            snapshot_every=1_000,
+            target_exploitability=1e-30,
+        ),
+    )
+
+    assert result.early_stopped is False
+    assert result.stop_reason == "max_iterations"
+    assert result.completed_iterations == 2_500
+    assert [row["iteration"] for row in result.convergence] == [1_000, 2_000, 2_500]
 
 
 def test_native_efg_backend_matches_python_game_backend():
