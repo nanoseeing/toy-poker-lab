@@ -35,6 +35,15 @@ def write_report_bundle(
     directory.mkdir(parents=True, exist_ok=True)
     figures = directory / "figures"
     figures.mkdir(exist_ok=True)
+    reporting = analysis.setdefault("reporting", {})
+    major_reach_threshold = float(
+        reporting.setdefault("major_reach_threshold", 1e-4)
+    )
+    major_infos = [
+        info
+        for info in analysis["information_sets"]
+        if info["reach_probability"] >= major_reach_threshold
+    ]
     serialized = json.dumps(analysis, indent=2, ensure_ascii=False)
     (directory / "analysis.json").write_text(serialized, encoding="utf-8")
     # Compatibility with the first AKQ report schema filename.
@@ -82,6 +91,12 @@ def write_report_bundle(
     _write_csv(directory / "convergence.csv", convergence_rows, list(convergence_rows[0]))
 
     save_strategy_plot(figures / "strategy_probabilities.png", analysis["information_sets"], plugin.metadata.title)
+    save_strategy_plot(
+        figures / "major_strategy_probabilities.png",
+        major_infos,
+        plugin.metadata.title,
+        scope=f"major strategy (reach >= {major_reach_threshold:.4%})",
+    )
     save_ev_plot(figures / "action_ev.png", analysis["information_sets"], plugin.metadata.utility_unit)
     save_convergence_plot(
         figures / "convergence.png",
@@ -90,4 +105,17 @@ def write_report_bundle(
         analysis["game"].get("analytic_returns"),
     )
     tree_created = save_tree_plot(figures / "strategy_tree.png", game, policy, plugin)
-    save_html(directory / "report.html", analysis, plugin, tree_created)
+    major_tree_created = save_tree_plot(
+        figures / "major_strategy_tree.png",
+        game,
+        policy,
+        plugin,
+        min_reach=major_reach_threshold,
+    )
+    save_html(
+        directory / "report.html",
+        analysis,
+        plugin,
+        tree_created,
+        major_tree_created,
+    )

@@ -73,6 +73,9 @@ def run_experiment(
             "exploitability": gap,
             "nash_conv": gap * game.num_players(),
         },
+        "reporting": {
+            "major_reach_threshold": config.analysis.major_reach_threshold,
+        },
         "information_sets": infos,
         "terminal_paths": paths,
         "convergence": solver_result.convergence,

@@ -201,6 +201,8 @@ e=\frac{-1+\sqrt{1+2\times4}}{2}=1
 ## 出力の読み方
 
 - 同じプレイヤーとカードでも、streetとそれまでの履歴が異なれば別information setです。
+- reportの冒頭には到達確率0.01%以上の主要tree、action probabilities、information set表を
+  表示し、後段に低到達確率局面を含むfull版を表示します。
 - 低い確率でしか到達しない局面では、戦略確率に加えてAction EVも確認します。
 - 閉形式の比較対象がないため、EVだけでなくExploitabilityを主要な収束指標とします。
 - QとJはshowdown上同じ強さなので、対称な局面での個別戦略は非一意になる場合があります。

@@ -31,6 +31,7 @@ snapshot_every = 1000
 [analysis]
 mode = "exact_tree"
 off_path_threshold = 1e-8
+major_reach_threshold = 1e-4
 
 [output]
 artifact_root = "artifacts"
@@ -58,6 +59,10 @@ action、chance確率、terminal utilityを持つ木を生成し、求解後の�
 
 現在の `exact_tree` は有限ゲーム木を完全列挙します。ゲーム木が大きくなった場合の
 sampling解析はまだ実装されていません。
+
+`major_reach_threshold`はHTMLレポート冒頭の主要戦略に残すinformation setとtree nodeの
+最小到達確率です。デフォルトの`1e-4`は0.01%を意味します。閾値未満の局面も削除されず、
+report後段のfull版と`information_sets.csv`にはすべて残ります。
 
 ## CLI
 
@@ -96,5 +101,8 @@ artifacts/<game_id>/<run-id>/
 - `terminal_paths.csv`: 終端履歴の到達確率とutility
 - `convergence.csv`: 反復数ごとのEVとExploitability
 - `figures/`, `report.html`: 生データから再生成できる表示用成果物
+
+`figures/major_strategy_tree.png`と`major_strategy_probabilities.png`は到達確率で絞った
+主要局面版です。`strategy_tree.png`と`strategy_probabilities.png`は全局面版です。
 
 `latest.json` はゲームごとの最新runを指します。artifactはGit管理対象外です。

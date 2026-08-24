@@ -15,6 +15,7 @@ from toy_poker.solvers.result import SolverConfig
 class AnalysisConfig:
     mode: str = "exact_tree"
     off_path_threshold: float = 1e-8
+    major_reach_threshold: float = 1e-4
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,9 @@ class ExperimentConfig:
             analysis=AnalysisConfig(
                 mode=str(analysis.get("mode", "exact_tree")),
                 off_path_threshold=float(analysis.get("off_path_threshold", 1e-8)),
+                major_reach_threshold=float(
+                    analysis.get("major_reach_threshold", 1e-4)
+                ),
             ),
             artifact_root=Path(output.get("artifact_root", "artifacts")),
         )
@@ -65,6 +69,8 @@ class ExperimentConfig:
             raise ValueError("Only analysis.mode='exact_tree' is implemented")
         if self.analysis.off_path_threshold < 0:
             raise ValueError("off_path_threshold cannot be negative")
+        if not 0 <= self.analysis.major_reach_threshold <= 1:
+            raise ValueError("major_reach_threshold must be between 0 and 1")
 
     def to_dict(self) -> dict:
         data = asdict(self)

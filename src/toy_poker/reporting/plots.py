@@ -27,7 +27,9 @@ def action_color(action: str) -> str:
     return ACTION_COLORS.get(action, "#B279A2")
 
 
-def save_strategy_plot(path: Path, infos: list[dict], title: str) -> None:
+def save_strategy_plot(
+    path: Path, infos: list[dict], title: str, scope: str = "average strategy"
+) -> None:
     labels = [info["label"] for info in infos]
     height = max(4.5, 1.0 + len(infos) * 0.9)
     fig, ax = plt.subplots(figsize=(12, height))
@@ -61,7 +63,7 @@ def save_strategy_plot(path: Path, infos: list[dict], title: str) -> None:
     ax.set_xlim(0, 1)
     ax.xaxis.set_major_formatter(lambda x, _: f"{x:.0%}")
     ax.set_xlabel("Action probability")
-    ax.set_title(f"{title}: average strategy")
+    ax.set_title(f"{title}: {scope}")
     ax.grid(axis="x", alpha=0.2)
     fig.tight_layout()
     fig.savefig(path, dpi=180)
@@ -126,32 +128,56 @@ def save_convergence_plot(
     plt.close(fig)
 
 
-def _tree(state: pyspiel.State, policy: pyspiel.Policy, plugin: GamePlugin):
+def _tree(
+    state: pyspiel.State,
+    policy: pyspiel.Policy,
+    plugin: GamePlugin,
+    initial_reach: float = 1.0,
+    min_reach: float = 0.0,
+):
     nodes: list[dict] = []
     edges: list[tuple[int, int, str, float]] = []
 
-    def build(current: pyspiel.State, depth: int) -> int:
+    def build(current: pyspiel.State, depth: int, reach: float) -> int:
         node_id = len(nodes)
         if current.is_terminal():
             payoff = " / ".join(
                 f"{plugin.player_name(player)} {value:+.1f}"
                 for player, value in enumerate(current.returns())
             )
-            nodes.append({"label": f"Terminal\n{payoff}", "depth": depth, "terminal": True, "children": []})
+            nodes.append(
+                {
+                    "label": f"Terminal\n{payoff}",
+                    "depth": depth,
+                    "reach": reach,
+                    "terminal": True,
+                    "children": [],
+                }
+            )
             return node_id
         player = current.current_player()
         nodes.append(
-            {"label": plugin.player_name(player), "depth": depth, "terminal": False, "children": []}
+            {
+                "label": plugin.player_name(player),
+                "depth": depth,
+                "reach": reach,
+                "terminal": False,
+                "children": [],
+            }
         )
         probabilities = policy.action_probabilities(current)
         for action in current.legal_actions():
-            child_id = build(current.child(action), depth + 1)
+            probability = probabilities.get(action, 0.0)
+            child_reach = reach * probability
+            if min_reach > 0.0 and child_reach < min_reach:
+                continue
+            child_id = build(current.child(action), depth + 1, child_reach)
             label = display_action(current, player, action)
-            edges.append((node_id, child_id, label, probabilities.get(action, 0.0)))
+            edges.append((node_id, child_id, label, probability))
             nodes[node_id]["children"].append(child_id)
         return node_id
 
-    root_id = build(state, 0)
+    root_id = build(state, 0, initial_reach)
     leaf = 0
 
     def layout(node_id: int) -> float:
@@ -169,7 +195,13 @@ def _tree(state: pyspiel.State, policy: pyspiel.Policy, plugin: GamePlugin):
     return nodes, edges
 
 
-def save_tree_plot(path: Path, game: pyspiel.Game, policy: pyspiel.Policy, plugin: GamePlugin) -> bool:
+def save_tree_plot(
+    path: Path,
+    game: pyspiel.Game,
+    policy: pyspiel.Policy,
+    plugin: GamePlugin,
+    min_reach: float = 0.0,
+) -> bool:
     initial = game.new_initial_state()
     if initial.is_chance_node():
         scenarios = [
@@ -178,11 +210,41 @@ def save_tree_plot(path: Path, game: pyspiel.Game, policy: pyspiel.Policy, plugi
         ]
     else:
         scenarios = [(initial, "Game tree", 1.0)]
+    if min_reach > 0.0:
+        scenarios = [
+            scenario for scenario in scenarios if scenario[2] >= min_reach
+        ]
+    if not scenarios:
+        return False
     if len(scenarios) > 4:
         return False
-    fig, axes = plt.subplots(1, len(scenarios), figsize=(9 * len(scenarios), 9), squeeze=False, sharey=True)
-    for ax, (state, scenario, chance_probability) in zip(axes[0], scenarios):
-        nodes, edges = _tree(state, policy, plugin)
+    trees = [
+        (
+            scenario,
+            chance_probability,
+            *_tree(
+                state,
+                policy,
+                plugin,
+                initial_reach=chance_probability,
+                min_reach=min_reach,
+            ),
+        )
+        for state, scenario, chance_probability in scenarios
+    ]
+    max_leaves = max(
+        sum(not node["children"] for node in nodes)
+        for _, _, nodes, _ in trees
+    )
+    height = max(7.0, min(24.0, max_leaves * 0.45))
+    fig, axes = plt.subplots(
+        1,
+        len(scenarios),
+        figsize=(9 * len(scenarios), height),
+        squeeze=False,
+        sharey=True,
+    )
+    for ax, (scenario, chance_probability, nodes, edges) in zip(axes[0], trees):
         for parent, child, action, probability in edges:
             x0, y0 = nodes[parent]["depth"], nodes[parent]["y"]
             x1, y1 = nodes[child]["depth"], nodes[child]["y"]
@@ -198,8 +260,11 @@ def save_tree_plot(path: Path, game: pyspiel.Game, policy: pyspiel.Policy, plugi
             )
         for node in nodes:
             color = "#F1F1F1" if node["terminal"] else "#DCEAF7"
+            label = node["label"]
+            if min_reach > 0.0:
+                label += f"\nReach {node['reach']:.3%}"
             ax.text(
-                node["depth"], node["y"], node["label"], ha="center", va="center", fontsize=8,
+                node["depth"], node["y"], label, ha="center", va="center", fontsize=8,
                 bbox={"boxstyle": "round,pad=0.35", "facecolor": color, "edgecolor": "#666666"}, zorder=3,
             )
         ax.set_title(f"Chance: {scenario} ({chance_probability:.1%})")
@@ -207,7 +272,12 @@ def save_tree_plot(path: Path, game: pyspiel.Game, policy: pyspiel.Policy, plugi
         ax.set_yticks([])
         ax.invert_yaxis()
         ax.set_frame_on(False)
-    fig.suptitle(f"{plugin.metadata.title}: legal-action tree", fontsize=15)
+    scope = (
+        f"major action tree (reach >= {min_reach:.4%})"
+        if min_reach > 0.0
+        else "full legal-action tree"
+    )
+    fig.suptitle(f"{plugin.metadata.title}: {scope}", fontsize=15)
     fig.tight_layout()
     fig.savefig(path, dpi=180)
     plt.close(fig)

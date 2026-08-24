@@ -17,6 +17,7 @@ snapshot_every = 10000
 [analysis]
 mode = "exact_tree"
 off_path_threshold = 1e-8
+major_reach_threshold = 1e-4
 
 [output]
 artifact_root = "artifacts"

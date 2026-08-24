@@ -38,10 +38,14 @@ def test_experiment_writes_replayable_bundle(
     }
     assert expected.issubset({path.name for path in output.iterdir()})
     assert (output / "figures" / "strategy_tree.png").exists()
+    assert (output / "figures" / "major_strategy_tree.png").exists()
+    assert (output / "figures" / "major_strategy_probabilities.png").exists()
     assert result.analysis["game"]["player_names"] == ["IP", "OOP"]
     assert result.analysis["game"]["parameters"]["initial_pot"] == 1.0
     assert result.analysis["game"]["analytic_returns"] == expected_analytic
     policy_data = json.loads((output / "policy.json").read_text(encoding="utf-8"))
     assert policy_key in policy_data
     rerender_artifact(output)
-    assert label in (output / "report.html").read_text(encoding="utf-8")
+    report = (output / "report.html").read_text(encoding="utf-8")
+    assert label in report
+    assert report.index("Major strategy") < report.index("Full analysis")
