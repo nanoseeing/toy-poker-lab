@@ -3,7 +3,7 @@
 ## 概要
 
 OOPがKを、IPがA/Q/Jのいずれかを持つAKQJゲームを、2回のbetting streetへ拡張した
-有限ゼロサムゲームです。ランクの強さは `A > K > Q > J` で、street間で新しいカードは
+有限定和ゲームです。ランクの強さは `A > K > Q > J` で、street間で新しいカードは
 配られません。
 
 各streetではCheckとAll-inに加えて、残り2 streetでスタックを幾何学的に使い切る
@@ -23,8 +23,8 @@ Geometric betが選べます。Geometric betに対してはCallまたはAll-in r
 
 ## ポット、スタック、Geometric bet
 
-初期potは1で固定です。両者が初期potを0.5ずつ拠出済みと考え、utilityは純利益で
-表します。
+初期potは1で固定です。この1は両者の現在の拠出ではないデッドマネーとして扱います。
+utilityはゲーム開始後に得る初期potと追加commitの純増減で表します。
 
 | パラメータ | 型 | デフォルト | 制約 | 意味 |
 |---|---|---:|---|---|
@@ -76,10 +76,14 @@ All-inになります。例えば \(S=1\) では \(e\simeq0.366025\)、bet額は
 - IPがAならIPの勝ちです。
 - IPがQまたはJならOOPのKが勝ちです。
 - showdownで両者が追加で \(c\) ずつcommitしていれば、勝者utilityは
-  \(+(0.5+c)\)、敗者utilityは \(-(0.5+c)\) です。
+  \(1+c\)、敗者utilityは \(-c\) です。
 - Foldしたプレイヤーが追加で \(c_f\) をcommitしていれば、そのプレイヤーのutilityは
-  \(-(0.5+c_f)\) です。相手の未call分は返却されます。
-- utilityの合計はすべてのterminalで0です。
+  \(-c_f\)、勝者は \(1+c_f\) です。相手の未call分は返却されます。
+- utilityの合計はすべてのterminalで初期pot額の1です。
+
+これは従来の中心化したutilityへ両プレイヤーとも一律に+0.5した規約です。そのため、
+戦略確率、アクション間のEV差、Exploitabilityは変わらず、各Player EVとAction EVの
+絶対値だけが+0.5されます。
 
 ## 解析方法
 
@@ -148,8 +152,8 @@ IPのQ/Jはそれにほぼ常にFoldしました。
 
 | 指標 | 結果 |
 |---|---:|
-| IP EV | +0.0358983849 |
-| OOP EV | -0.0358983849 |
+| IP EV | 0.5358983849 |
+| OOP EV | 0.4641016151 |
 | Exploitability | 0.00000110942 |
 | NashConv | 0.00000221885 |
 
@@ -173,7 +177,7 @@ e=\frac{-1+\sqrt{1+2\times4}}{2}=1
 \]
 
 1st streetではpot 1へ1をbetし、call後のpot 3へ2nd streetで残り3をAll-inします。
-両方がcallされると最終potは9、showdownのutilityは勝者`+4.5`、敗者`-4.5`です。
+両方がcallされると最終potは9、showdownのutilityは勝者`+5`、敗者`-4`です。
 
 1,000,000反復の主要戦略は次のとおりです。
 
@@ -190,8 +194,8 @@ e=\frac{-1+\sqrt{1+2\times4}}{2}=1
 
 | 指標 | 結果 |
 |---|---:|
-| IP EV | +0.24999999998 |
-| OOP EV | -0.24999999998 |
+| IP EV | 0.74999999998 |
+| OOP EV | 0.25000000002 |
 | Exploitability | 0.000000914742 |
 | NashConv | 0.00000182948 |
 | 計算時間 | 約57.0秒 |

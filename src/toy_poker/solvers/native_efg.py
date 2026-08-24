@@ -20,8 +20,13 @@ class _EFGWriter:
             raise ValueError("The native EFG CFR+ backend requires exactly two players")
         if game.get_type().dynamics != pyspiel.GameType.Dynamics.SEQUENTIAL:
             raise ValueError("The native EFG backend requires a sequential game")
-        if game.get_type().utility != pyspiel.GameType.Utility.ZERO_SUM:
-            raise ValueError("The native EFG CFR+ backend requires a zero-sum game")
+        if game.get_type().utility not in (
+            pyspiel.GameType.Utility.ZERO_SUM,
+            pyspiel.GameType.Utility.CONSTANT_SUM,
+        ):
+            raise ValueError(
+                "The native EFG CFR+ backend requires a zero-sum or constant-sum game"
+            )
         self.game = game
         self.lines: list[str] = []
         self.information_set_ids: list[dict[str, int]] = [{}, {}]

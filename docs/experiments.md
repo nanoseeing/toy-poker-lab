@@ -60,6 +60,11 @@ action、chance確率、terminal utilityを持つ木を生成し、求解後の�
 現在の `exact_tree` は有限ゲーム木を完全列挙します。ゲーム木が大きくなった場合の
 sampling解析はまだ実装されていません。
 
+組み込みゲームでは初期ポット1を両プレイヤーの過去の拠出とはみなさず、デッドマネー
+として扱います。したがって各terminalのutility合計と、ゲーム開始時点の両者EV合計は
+常に1です。この規約は`analysis.json`の`game.utility_convention`と`game.utility_sum`にも
+保存されます。
+
 `major_reach_threshold`はHTMLレポート冒頭の主要戦略に残すinformation setとtree nodeの
 最小到達確率です。デフォルトの`1e-4`は0.01%を意味します。閾値未満の局面も削除されず、
 report後段のfull版と`information_sets.csv`にはすべて残ります。
@@ -96,7 +101,7 @@ artifacts/<game_id>/<run-id>/
 - `manifest.json`: バージョン、設定ハッシュ、実行時間などの再現情報
 - `resolved_config.json`: 実際に使用した全設定
 - `policy.*`: solverから独立して復元可能な平均方策
-- `analysis.json`: EV、Exploitability、情報集合、終端経路、収束履歴の統合データ
+- `analysis.json`: utility規約、EV、Exploitability、情報集合、終端経路、収束履歴の統合データ
 - `information_sets.csv`: 情報集合・合法アクション単位の確率とEV
 - `terminal_paths.csv`: 終端履歴の到達確率とutility
 - `convergence.csv`: 反復数ごとのEVとExploitability

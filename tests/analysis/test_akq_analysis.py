@@ -28,10 +28,10 @@ def test_exact_information_set_evs():
     game = plugin.load_game()
     policy = analytic_policy()
     infos = {row["key"]: row for row in analyze_information_sets(game, policy, plugin)}
-    assert expected_returns(game, policy) == [0.25, -0.25]
+    assert expected_returns(game, policy) == [0.75, 0.25]
     assert infos["P1|K|CHECK-ALL_IN"]["reach_probability"] == 0.75
     assert all(
-        abs(action["ev"] + 0.5) < 1e-12
+        abs(action["ev"]) < 1e-12
         for action in infos["P1|K|CHECK-ALL_IN"]["actions"]
     )
     assert infos["P0|A|ALL_IN"]["is_off_path"]
@@ -54,5 +54,5 @@ def test_analytic_solution_scales_with_effective_stack():
     assert strategy["P0|Q|CHECK"]["All-in"] == 2.0 / 3.0
     assert strategy["P1|K|CHECK-ALL_IN"]["Call"] == 1.0 / 3.0
     ip_value, oop_value = analytic_returns(2.0)
-    assert abs(ip_value - 1.0 / 3.0) < 1e-12
-    assert abs(oop_value + 1.0 / 3.0) < 1e-12
+    assert abs(ip_value - 5.0 / 6.0) < 1e-12
+    assert abs(oop_value - 1.0 / 6.0) < 1e-12

@@ -39,7 +39,7 @@ def make_game_type(short_name: str, long_name: str) -> pyspiel.GameType:
         dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
         chance_mode=pyspiel.GameType.ChanceMode.EXPLICIT_STOCHASTIC,
         information=pyspiel.GameType.Information.IMPERFECT_INFORMATION,
-        utility=pyspiel.GameType.Utility.ZERO_SUM,
+        utility=pyspiel.GameType.Utility.CONSTANT_SUM,
         reward_model=pyspiel.GameType.RewardModel.TERMINAL,
         max_num_players=NUM_PLAYERS,
         min_num_players=NUM_PLAYERS,
@@ -74,14 +74,13 @@ class FixedOOPTwoStreetGame(pyspiel.Game):
             raise ValueError("ip_cards cannot be empty")
         self.ip_winning_cards = frozenset(int(card) for card in ip_winning_cards)
         self.oop_card_label = oop_card_label
-        max_payoff = INITIAL_POT / 2.0 + self.effective_stack
         game_info = pyspiel.GameInfo(
             num_distinct_actions=len(Action),
             max_chance_outcomes=len(self.ip_cards),
             num_players=NUM_PLAYERS,
-            min_utility=-max_payoff,
-            max_utility=max_payoff,
-            utility_sum=0.0,
+            min_utility=-self.effective_stack,
+            max_utility=INITIAL_POT + self.effective_stack,
+            utility_sum=INITIAL_POT,
             max_game_length=6,
         )
         super().__init__(game_type, game_info, params)
@@ -258,7 +257,7 @@ class FixedOOPTwoStreetState(pyspiel.State):
             return [0.0, 0.0]
         if self._folder is not None:
             winner = 1 - self._folder
-            payoff = INITIAL_POT / 2.0 + self.commitments[self._folder]
+            matched = self.commitments[self._folder]
         else:
             assert math.isclose(
                 self.commitments[PLAYER_IP],
@@ -266,15 +265,15 @@ class FixedOOPTwoStreetState(pyspiel.State):
                 rel_tol=1e-12,
                 abs_tol=_CHIP_TOLERANCE,
             )
-            payoff = INITIAL_POT / 2.0 + self.commitments[PLAYER_IP]
+            matched = self.commitments[PLAYER_IP]
             assert self.ip_card is not None
             winner = (
                 PLAYER_IP
                 if int(self.ip_card) in self.get_game().ip_winning_cards
                 else PLAYER_OOP
             )
-        result = [-payoff, -payoff]
-        result[winner] = payoff
+        result = [-matched, -matched]
+        result[winner] = INITIAL_POT + matched
         return result
 
     def information_state_string(self, player=None):

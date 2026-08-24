@@ -18,8 +18,8 @@ def test_cfr_plus_converges_and_returns_standalone_policy():
     }
     returns = expected_returns(game, result.policy)
     assert pyspiel.exploitability(game, result.policy) < 5e-5
-    assert abs(returns[0] - 0.25) < 1e-5
-    assert abs(returns[1] + 0.25) < 1e-5
+    assert abs(returns[0] - 0.75) < 1e-5
+    assert abs(returns[1] - 0.25) < 1e-5
     root = {action["action"]: action for action in strategies["P1|K|ROOT"]["actions"]}
     ace = {action["action"]: action for action in strategies["P0|A|CHECK"]["actions"]}
     queen = {action["action"]: action for action in strategies["P0|Q|CHECK"]["actions"]}

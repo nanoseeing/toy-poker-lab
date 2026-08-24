@@ -8,7 +8,7 @@ METADATA = GameMetadata(
     open_spiel_name="python_akqj_two_street",
     title="AKQJ two-street geometric toy poker",
     player_names=("IP", "OOP"),
-    utility_unit="net chips",
+    utility_unit="chips (initial pot is dead money)",
     parameters={
         "initial_pot": 1.0,
         "oop_stack": 1.0,

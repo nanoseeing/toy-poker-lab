@@ -29,11 +29,11 @@ def test_symmetric_analytic_equilibrium():
     policy = symmetric_default_policy()
     infos = {row["key"]: row for row in analyze_information_sets(game, policy, plugin)}
     returns = expected_returns(game, policy)
-    assert all(abs(value) < 1e-12 for value in returns)
+    assert all(abs(value - 0.5) < 1e-12 for value in returns)
     assert pyspiel.exploitability(game, policy) < 1e-12
     assert abs(infos["P1|K|CHECK-ALL_IN"]["reach_probability"] - 0.5) < 1e-12
     assert all(
-        abs(action["ev"] + 0.5) < 1e-12
+        abs(action["ev"]) < 1e-12
         for action in infos["P1|K|CHECK-ALL_IN"]["actions"]
     )
     paths = terminal_paths(game, policy, plugin)
@@ -47,8 +47,8 @@ def test_analytic_solution_scales_and_has_nonunique_bluff_split():
     assert abs(q_bluff + j_bluff - 2.0 / 3.0) < 1e-12
     assert strategy["P1|K|CHECK-ALL_IN"]["Call"] == 1.0 / 3.0
     ip_value, oop_value = analytic_returns(2.0)
-    assert abs(ip_value - 1.0 / 18.0) < 1e-12
-    assert abs(oop_value + 1.0 / 18.0) < 1e-12
+    assert abs(ip_value - 5.0 / 9.0) < 1e-12
+    assert abs(oop_value - 4.0 / 9.0) < 1e-12
 
 
 def test_cpp_cfr_plus_converges_to_equilibrium_family():
@@ -66,7 +66,7 @@ def test_cpp_cfr_plus_converges_to_equilibrium_family():
     q_bluff = action_maps["P0|Q|CHECK"]["All-in"]["probability"]
     j_bluff = action_maps["P0|J|CHECK"]["All-in"]["probability"]
     assert pyspiel.exploitability(game, result.policy) < 1e-4
-    assert all(abs(value) < 1e-5 for value in returns)
+    assert all(abs(value - 0.5) < 1e-5 for value in returns)
     assert action_maps["P1|K|ROOT"]["Check"]["probability"] > 0.999
     assert action_maps["P0|A|CHECK"]["All-in"]["probability"] > 0.999
     assert abs(q_bluff + j_bluff - 0.5) < 0.01

@@ -16,5 +16,5 @@ def analytic_strategy(effective_stack: float) -> dict[str, dict[str, float]]:
 
 
 def analytic_returns(effective_stack: float) -> tuple[float, float]:
-    oop_value = -effective_stack / (2.0 * (1.0 + effective_stack))
-    return (-oop_value, oop_value)
+    centered_ip_value = effective_stack / (2.0 * (1.0 + effective_stack))
+    return (0.5 + centered_ip_value, 0.5 - centered_ip_value)

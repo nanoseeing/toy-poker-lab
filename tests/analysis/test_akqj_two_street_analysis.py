@@ -18,7 +18,7 @@ def test_cpp_cfr_plus_solves_and_analysis_keeps_public_context():
     paths = terminal_paths(game, result.policy, plugin)
 
     assert pyspiel.exploitability(game, result.policy) < 5e-4
-    assert abs(sum(returns)) < 1e-12
+    assert abs(sum(returns) - 1.0) < 1e-12
     assert len(infos) == 48
     assert abs(sum(path["reach_probability"] for path in paths) - 1.0) < 1e-12
     assert infos["P1|K|S1:ROOT"]["context"] == {

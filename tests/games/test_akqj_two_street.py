@@ -41,12 +41,12 @@ def test_cards_roles_and_check_down_payoffs():
         dealt_state(IPCard.ACE),
         [Action.CHECK, Action.CHECK, Action.CHECK, Action.CHECK],
     )
-    assert state.returns() == [0.5, -0.5]
+    assert state.returns() == [1.0, 0.0]
     state = apply_actions(
         dealt_state(IPCard.QUEEN),
         [Action.CHECK, Action.CHECK, Action.CHECK, Action.CHECK],
     )
-    assert state.returns() == [-0.5, 0.5]
+    assert state.returns() == [0.0, 1.0]
 
 
 def test_geo_call_advances_street_and_second_geo_is_all_in():
@@ -61,7 +61,7 @@ def test_geo_call_advances_street_and_second_geo_is_all_in():
     assert state.legal_actions() == [Action.CHECK, Action.ALL_IN]
 
     apply_actions(state, [Action.ALL_IN, Action.CALL])
-    assert state.returns() == [1.5, -1.5]
+    assert state.returns() == [2.0, -1.0]
 
 
 def test_geo_can_be_raised_all_in_and_fold_loses_only_committed_chips():
@@ -72,9 +72,9 @@ def test_geo_can_be_raised_all_in_and_fold_loses_only_committed_chips():
     )
     assert state.action_to_string(state.current_player(), int(Action.CALL)) == "Call"
     apply_actions(state, [Action.FOLD])
-    loss = 0.5 + game.geometric_fraction
+    loss = game.geometric_fraction
     assert math.isclose(state.returns()[0], -loss)
-    assert math.isclose(state.returns()[1], loss)
+    assert math.isclose(state.returns()[1], 1.0 + loss)
 
 
 def test_independent_stacks_use_effective_stack_and_valid_game_tree():
@@ -82,9 +82,28 @@ def test_independent_stacks_use_effective_stack_and_valid_game_tree():
     game = get_game("akqj_two_street").load_game(params)
     assert game.effective_stack == 2.0
     assert math.isclose(game.geometric_fraction, (math.sqrt(5.0) - 1.0) / 2.0)
-    assert game.max_utility() == 2.5
+    assert game.max_utility() == 3.0
     state = apply_actions(
         dealt_state(IPCard.JACK, params), [Action.ALL_IN, Action.CALL]
     )
-    assert state.returns() == [-2.5, 2.5]
+    assert state.returns() == [-2.0, 3.0]
     pyspiel.random_sim_test(game, 50, False, False, False)
+
+
+def test_every_terminal_has_utility_sum_one():
+    game = get_game("akqj_two_street").load_game()
+    assert game.get_type().utility == pyspiel.GameType.Utility.CONSTANT_SUM
+
+    def visit(state):
+        if state.is_terminal():
+            assert abs(sum(state.returns()) - 1.0) < 1e-12
+            return
+        actions = (
+            [action for action, _ in state.chance_outcomes()]
+            if state.is_chance_node()
+            else state.legal_actions()
+        )
+        for action in actions:
+            visit(state.child(action))
+
+    visit(game.new_initial_state())

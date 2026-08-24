@@ -55,6 +55,8 @@ def run_experiment(
             "title": plugin.metadata.title,
             "player_names": list(plugin.metadata.player_names),
             "utility_unit": plugin.metadata.utility_unit,
+            "utility_convention": plugin.metadata.utility_convention,
+            "utility_sum": game.utility_sum(),
             "parameters": plugin.metadata.parameters | config.game_params,
             "analytic_returns": list(reference_returns) if reference_returns is not None else None,
         },

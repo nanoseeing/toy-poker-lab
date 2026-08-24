@@ -26,7 +26,7 @@ def make_game_type(short_name: str, long_name: str) -> pyspiel.GameType:
         dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
         chance_mode=pyspiel.GameType.ChanceMode.EXPLICIT_STOCHASTIC,
         information=pyspiel.GameType.Information.IMPERFECT_INFORMATION,
-        utility=pyspiel.GameType.Utility.ZERO_SUM,
+        utility=pyspiel.GameType.Utility.CONSTANT_SUM,
         reward_model=pyspiel.GameType.RewardModel.TERMINAL,
         max_num_players=NUM_PLAYERS,
         min_num_players=NUM_PLAYERS,
@@ -60,14 +60,13 @@ class FixedOOPAllInGame(pyspiel.Game):
             raise ValueError("ip_cards cannot be empty")
         self.ip_winning_cards = frozenset(int(card) for card in ip_winning_cards)
         self.oop_card_label = oop_card_label
-        all_in_payoff = 0.5 + self.effective_stack
         game_info = pyspiel.GameInfo(
             num_distinct_actions=len(Action),
             max_chance_outcomes=len(self.ip_cards),
             num_players=NUM_PLAYERS,
-            min_utility=-all_in_payoff,
-            max_utility=all_in_payoff,
-            utility_sum=0.0,
+            min_utility=-self.effective_stack,
+            max_utility=1.0 + self.effective_stack,
+            utility_sum=1.0,
             max_game_length=3,
         )
         super().__init__(game_type, game_info, params)
@@ -158,15 +157,15 @@ class FixedOOPAllInState(pyspiel.State):
         if self.history[-1] == Action.FOLD:
             folder = self._current_player
             winner = 1 - folder
-            result = [-0.5, -0.5]
-            result[winner] = 0.5
+            result = [0.0, 0.0]
+            result[winner] = 1.0
             return result
         game = self.get_game()
-        payoff = 0.5 + game.effective_stack if self.history.count(Action.ALL_IN) == 2 else 0.5
+        matched = game.effective_stack if self.history.count(Action.ALL_IN) == 2 else 0.0
         assert self.ip_card is not None
         winner = PLAYER_IP if int(self.ip_card) in game.ip_winning_cards else PLAYER_OOP
-        result = [-payoff, -payoff]
-        result[winner] = payoff
+        result = [-matched, -matched]
+        result[winner] = 1.0 + matched
         return result
 
     def information_state_string(self, player=None):

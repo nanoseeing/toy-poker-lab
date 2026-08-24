@@ -2,7 +2,7 @@
 
 ## 概要
 
-AKQ all-inゲームにJを加え、IPがA/Q/Jのいずれかを持つ有限ゼロサムゲームです。
+AKQ all-inゲームにJを加え、IPがA/Q/Jのいずれかを持つ有限定和ゲームです。
 ランクの強さは `A > K > Q > J` です。
 
 OOPは常にKを持ち、IPのAには負け、QとJには勝ちます。QとJはshowdown valueが同じ
@@ -22,8 +22,8 @@ OOPは常にKを持ち、IPのAには負け、QとJには勝ちます。QとJは
 
 ## ポットとスタック
 
-初期ポットは常に1で変更できません。utilityは初期ポットを両者が0.5ずつ拠出したと
-考えた純利益です。
+初期ポットは常に1で変更できません。この1はデッドマネーとして扱い、utilityは
+ゲーム開始後に獲得する初期ポットと追加commitの純増減です。
 
 | パラメータ | 型 | デフォルト | 制約 | 意味 |
 |---|---|---:|---|---|
@@ -57,11 +57,12 @@ OpenSpiel内部では、ベットされていない状態の `ALL_IN` はAll-in�
 
 | 終了方法 | 勝者utility | 敗者utility |
 |---|---:|---:|
-| Check-checkのshowdown | +0.5 | -0.5 |
-| All-inにFold | +0.5 | -0.5 |
-| All-inをCall | \(+(0.5+s)\) | \(-(0.5+s)\) |
+| Check-checkのshowdown | +1 | 0 |
+| All-inにFold | +1 | 0 |
+| All-inをCall | \(1+s\) | \(-s\) |
 
-常にutilityの合計が0になるゼロサムゲームです。
+常にutilityの合計が初期ポット額の1になる定和ゲームです。従来の中心化したutilityへ
+各プレイヤー一律に+0.5しただけなので、均衡戦略とExploitabilityは変わりません。
 
 ## 解析解
 
@@ -91,15 +92,15 @@ b_Q=b_J=\frac{s}{2(1+s)}
 ゲーム価値は次のとおりです。
 
 \[
-EV_{IP}=\frac{s-1}{6(1+s)},\qquad
-EV_{OOP}=\frac{1-s}{6(1+s)}
+EV_{IP}=\frac{1+2s}{3(1+s)},\qquad
+EV_{OOP}=\frac{2+s}{3(1+s)}
 \]
 
 デフォルトの \(s=1\) では、IP(Q)とIP(J)は対称解で各25% All-in、OOPは50% Call、
-両者のEVは0です。Qだけ50%でJを0%、またはその逆にする方策も同じ均衡族に含まれます。
+両者のEVは0.5です。Qだけ50%でJを0%、またはその逆にする方策も同じ均衡族に含まれます。
 
 例えば `oop_stack=2`, `ip_stack=3` なら \(s=2\) なので、Q/Jの合計ブラフ率は2/3、
-対称解では各1/3、OOPのCall率は1/3、IP EVは1/18です。
+対称解では各1/3、OOPのCall率は1/3、IP EVは5/9、OOP EVは4/9です。
 
 ## 設定と実行
 
@@ -136,7 +137,7 @@ toy-poker run configs/experiments/akqj_allin_stack_2_cfr_plus.toml
 - Q/Jの個別All-in率ではなく、まず両者の合計が解析条件を満たすか確認します。
 - `reach_probability` が小さいoff-path局面は、アクション確率よりAction EVを優先します。
 - `exploitability` は非一意な均衡族のどのメンバーへ収束したかに関係なく、方策全体を評価します。
-- デフォルトではゲーム価値が0なので、EVの符号だけで収束を判断せずExploitabilityも確認します。
+- デフォルトでは両者のゲーム価値が0.5なので、EVだけで収束を判断せずExploitabilityも確認します。
 
 共通の各列とartifactの説明は[実験設定とartifact](../experiments.md)を参照してください。
 
