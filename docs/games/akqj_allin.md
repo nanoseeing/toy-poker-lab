@@ -120,6 +120,14 @@ ip_stack = 1.0
 toy-poker run configs/experiments/akqj_allin_cfr_plus.toml
 ```
 
+両者のスタックを2にした検証用設定も用意しています。
+
+[`configs/experiments/akqj_allin_stack_2_cfr_plus.toml`](../../configs/experiments/akqj_allin_stack_2_cfr_plus.toml)
+
+```bash
+toy-poker run configs/experiments/akqj_allin_stack_2_cfr_plus.toml
+```
+
 出力先は `artifacts/akqj_allin/<run-id>/` です。最新runは
 `artifacts/akqj_allin/latest.json` から確認できます。
 
