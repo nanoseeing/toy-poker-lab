@@ -16,6 +16,7 @@ from toy_poker.solvers import SolverConfig
         ("akq_allin", "P1|K|ROOT", "OOP(K)", [5.0 / 6.0, 1.0 / 6.0]),
         ("akqj_allin", "P0|J|CHECK", "IP(J)", [5.0 / 9.0, 4.0 / 9.0]),
         ("akqj_two_street", "P1|K|S1:ROOT", "OOP(K)", None),
+        ("integer_range_betting", "P1|4|ROOT", "OOP(4)", None),
     ],
 )
 def test_experiment_writes_replayable_bundle(

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+from collections import defaultdict
 from pathlib import Path
 
 import matplotlib
@@ -9,6 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pyspiel
+from matplotlib.colors import Normalize, TwoSlopeNorm
 
 from toy_poker.analysis.information_sets import display_action
 from toy_poker.games.base import GamePlugin
@@ -67,6 +70,146 @@ def save_strategy_plot(
     ax.grid(axis="x", alpha=0.2)
     fig.tight_layout()
     fig.savefig(path, dpi=180)
+    plt.close(fig)
+
+
+def _numeric_range_groups(infos: list[dict]) -> list[tuple[tuple, list[dict]]]:
+    grouped: dict[tuple, list[dict]] = defaultdict(list)
+    for info in infos:
+        try:
+            int(info["card"])
+        except (TypeError, ValueError):
+            continue
+        key = (info["player"], tuple(info["history"]))
+        grouped[key].append(info)
+    return sorted(
+        grouped.items(),
+        key=lambda item: (len(item[0][1]), item[0][1], item[0][0]),
+    )
+
+
+def _range_axes(group_count: int):
+    columns = 2
+    rows = max(1, math.ceil(group_count / columns))
+    fig, axes = plt.subplots(
+        rows,
+        columns,
+        figsize=(18, max(4.5, rows * 3.1)),
+        squeeze=False,
+    )
+    return fig, axes.ravel()
+
+
+def save_range_strategy_plot(
+    path: Path, infos: list[dict], title: str, scope: str = "average strategy"
+) -> None:
+    """Plot numeric private-card strategies as one heatmap per public history."""
+    groups = _numeric_range_groups(infos)
+    fig, axes = _range_axes(len(groups))
+    image_artist = None
+    for ax, ((player, history), rows) in zip(axes, groups):
+        rows = sorted(rows, key=lambda row: int(row["card"]))
+        cards = [row["card"] for row in rows]
+        action_names = []
+        for row in rows:
+            for action in row["actions"]:
+                if action["action"] not in action_names:
+                    action_names.append(action["action"])
+        matrix = []
+        for action_name in action_names:
+            matrix.append(
+                [
+                    next(
+                        (
+                            action["probability"]
+                            for action in row["actions"]
+                            if action["action"] == action_name
+                        ),
+                        0.0,
+                    )
+                    for row in rows
+                ]
+            )
+        image_artist = ax.imshow(matrix, vmin=0.0, vmax=1.0, cmap="Blues", aspect="auto")
+        for y, values in enumerate(matrix):
+            for x, value in enumerate(values):
+                if value >= 0.005:
+                    ax.text(
+                        x,
+                        y,
+                        f"{value:.0%}",
+                        ha="center",
+                        va="center",
+                        fontsize=7,
+                        color="white" if value >= 0.55 else "#222222",
+                    )
+        public_history = " → ".join(history) or "ROOT"
+        ax.set_title(f"{player}: {public_history}", fontsize=10)
+        ax.set_xticks(range(len(cards)), cards)
+        ax.set_yticks(range(len(action_names)), action_names)
+        ax.set_xlabel("Private number")
+    for ax in axes[len(groups) :]:
+        ax.set_visible(False)
+    if image_artist is not None:
+        colorbar_axis = fig.add_axes([0.92, 0.08, 0.012, 0.82])
+        fig.colorbar(image_artist, cax=colorbar_axis, label="Probability")
+    fig.suptitle(f"{title}: {scope} by private number", fontsize=15)
+    fig.subplots_adjust(top=0.97, bottom=0.02, left=0.1, right=0.89, hspace=0.55)
+    fig.savefig(path, dpi=120)
+    plt.close(fig)
+
+
+def save_range_ev_plot(
+    path: Path, infos: list[dict], utility_unit: str
+) -> None:
+    """Plot action EVs by numeric private card and public history."""
+    groups = _numeric_range_groups(infos)
+    all_evs = [action["ev"] for info in infos for action in info["actions"]]
+    minimum, maximum = min(all_evs), max(all_evs)
+    norm = (
+        TwoSlopeNorm(vmin=minimum, vcenter=0.0, vmax=maximum)
+        if minimum < 0.0 < maximum
+        else Normalize(vmin=minimum, vmax=maximum)
+    )
+    fig, axes = _range_axes(len(groups))
+    image_artist = None
+    for ax, ((player, history), rows) in zip(axes, groups):
+        rows = sorted(rows, key=lambda row: int(row["card"]))
+        cards = [row["card"] for row in rows]
+        action_names = []
+        for row in rows:
+            for action in row["actions"]:
+                if action["action"] not in action_names:
+                    action_names.append(action["action"])
+        matrix = []
+        for action_name in action_names:
+            matrix.append(
+                [
+                    next(
+                        (
+                            action["ev"]
+                            for action in row["actions"]
+                            if action["action"] == action_name
+                        ),
+                        math.nan,
+                    )
+                    for row in rows
+                ]
+            )
+        image_artist = ax.imshow(matrix, norm=norm, cmap="coolwarm", aspect="auto")
+        public_history = " → ".join(history) or "ROOT"
+        ax.set_title(f"{player}: {public_history}", fontsize=10)
+        ax.set_xticks(range(len(cards)), cards)
+        ax.set_yticks(range(len(action_names)), action_names)
+        ax.set_xlabel("Private number")
+    for ax in axes[len(groups) :]:
+        ax.set_visible(False)
+    if image_artist is not None:
+        colorbar_axis = fig.add_axes([0.92, 0.08, 0.012, 0.82])
+        fig.colorbar(image_artist, cax=colorbar_axis, label=utility_unit)
+    fig.suptitle("Action EV by private number and public history", fontsize=15)
+    fig.subplots_adjust(top=0.97, bottom=0.02, left=0.1, right=0.89, hspace=0.55)
+    fig.savefig(path, dpi=120)
     plt.close(fig)
 
 
@@ -195,6 +338,111 @@ def _tree(
     return nodes, edges
 
 
+def _merged_public_tree(
+    game: pyspiel.Game,
+    policy: pyspiel.Policy,
+    plugin: GamePlugin,
+    min_reach: float = 0.0,
+):
+    """Merge private chance outcomes into one reach-weighted public action tree."""
+    records: dict[tuple[str, ...], dict] = {}
+
+    def record(prefix: tuple[str, ...], terminal: bool, player: int | None) -> dict:
+        return records.setdefault(
+            prefix,
+            {
+                "reach": 0.0,
+                "terminal": terminal,
+                "player": player,
+                "returns": [0.0] * game.num_players(),
+                "children": {},
+            },
+        )
+
+    def aggregate(state: pyspiel.State, reach: float, prefix: tuple[str, ...]) -> None:
+        if state.is_chance_node():
+            for action, probability in state.chance_outcomes():
+                aggregate(state.child(action), reach * probability, prefix)
+            return
+        if state.is_terminal():
+            node = record(prefix, True, None)
+            node["reach"] += reach
+            for player, value in enumerate(state.returns()):
+                node["returns"][player] += reach * value
+            return
+        player = state.current_player()
+        node = record(prefix, False, player)
+        node["reach"] += reach
+        probabilities = policy.action_probabilities(state)
+        for action in state.legal_actions():
+            action_name = display_action(state, player, action)
+            child_prefix = prefix + (action_name,)
+            node["children"][action_name] = child_prefix
+            aggregate(
+                state.child(action),
+                reach * probabilities.get(action, 0.0),
+                child_prefix,
+            )
+
+    aggregate(game.new_initial_state(), 1.0, ())
+    nodes: list[dict] = []
+    edges: list[tuple[int, int, str, float]] = []
+
+    def build(prefix: tuple[str, ...], depth: int) -> int:
+        source = records[prefix]
+        node_id = len(nodes)
+        if source["terminal"]:
+            if source["reach"] > 0.0:
+                payoff = " / ".join(
+                    f"{plugin.player_name(player)} {weighted / source['reach']:+.2f}"
+                    for player, weighted in enumerate(source["returns"])
+                )
+                label = f"Terminal avg.\n{payoff}"
+            else:
+                label = "Terminal\noff path"
+        else:
+            label = plugin.player_name(source["player"])
+        nodes.append(
+            {
+                "label": label,
+                "depth": depth,
+                "reach": source["reach"],
+                "terminal": source["terminal"],
+                "children": [],
+            }
+        )
+        for action_name, child_prefix in source["children"].items():
+            child = records[child_prefix]
+            if min_reach > 0.0 and child["reach"] < min_reach:
+                continue
+            child_id = build(child_prefix, depth + 1)
+            probability = (
+                child["reach"] / source["reach"]
+                if source["reach"] > 0.0
+                else 0.0
+            )
+            edges.append((node_id, child_id, action_name, probability))
+            nodes[node_id]["children"].append(child_id)
+        return node_id
+
+    root_id = build((), 0)
+    leaf = 0
+
+    def layout(node_id: int) -> float:
+        nonlocal leaf
+        children = nodes[node_id]["children"]
+        if children:
+            y = sum(layout(child) for child in children) / len(children)
+        else:
+            y = leaf
+            leaf += 1
+        nodes[node_id]["y"] = y
+        return y
+
+    layout(root_id)
+    return nodes, edges
+
+
 def save_tree_plot(
     path: Path,
     game: pyspiel.Game,
@@ -217,21 +465,24 @@ def save_tree_plot(
     if not scenarios:
         return False
     if len(scenarios) > 4:
-        return False
-    trees = [
-        (
-            scenario,
-            chance_probability,
-            *_tree(
-                state,
-                policy,
-                plugin,
-                initial_reach=chance_probability,
-                min_reach=min_reach,
-            ),
-        )
-        for state, scenario, chance_probability in scenarios
-    ]
+        nodes, edges = _merged_public_tree(game, policy, plugin, min_reach=min_reach)
+        scenarios = [(initial, "All private deals", 1.0)]
+        trees = [("All private deals", 1.0, nodes, edges)]
+    else:
+        trees = [
+            (
+                scenario,
+                chance_probability,
+                *_tree(
+                    state,
+                    policy,
+                    plugin,
+                    initial_reach=chance_probability,
+                    min_reach=min_reach,
+                ),
+            )
+            for state, scenario, chance_probability in scenarios
+        ]
     max_leaves = max(
         sum(not node["children"] for node in nodes)
         for _, _, nodes, _ in trees

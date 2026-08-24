@@ -13,6 +13,8 @@ from toy_poker.reporting.html import save_html
 from toy_poker.reporting.plots import (
     save_convergence_plot,
     save_ev_plot,
+    save_range_ev_plot,
+    save_range_strategy_plot,
     save_strategy_plot,
     save_tree_plot,
 )
@@ -90,14 +92,40 @@ def write_report_bundle(
         convergence_rows.append(row)
     _write_csv(directory / "convergence.csv", convergence_rows, list(convergence_rows[0]))
 
-    save_strategy_plot(figures / "strategy_probabilities.png", analysis["information_sets"], plugin.metadata.title)
-    save_strategy_plot(
-        figures / "major_strategy_probabilities.png",
-        major_infos,
-        plugin.metadata.title,
-        scope=f"major strategy (reach >= {major_reach_threshold:.4%})",
-    )
-    save_ev_plot(figures / "action_ev.png", analysis["information_sets"], plugin.metadata.utility_unit)
+    if getattr(plugin, "numeric_range_strategy", False):
+        save_range_strategy_plot(
+            figures / "strategy_probabilities.png",
+            analysis["information_sets"],
+            plugin.metadata.title,
+        )
+        save_range_strategy_plot(
+            figures / "major_strategy_probabilities.png",
+            major_infos,
+            plugin.metadata.title,
+            scope=f"major strategy (reach >= {major_reach_threshold:.4%})",
+        )
+        save_range_ev_plot(
+            figures / "action_ev.png",
+            analysis["information_sets"],
+            plugin.metadata.utility_unit,
+        )
+    else:
+        save_strategy_plot(
+            figures / "strategy_probabilities.png",
+            analysis["information_sets"],
+            plugin.metadata.title,
+        )
+        save_strategy_plot(
+            figures / "major_strategy_probabilities.png",
+            major_infos,
+            plugin.metadata.title,
+            scope=f"major strategy (reach >= {major_reach_threshold:.4%})",
+        )
+        save_ev_plot(
+            figures / "action_ev.png",
+            analysis["information_sets"],
+            plugin.metadata.utility_unit,
+        )
     save_convergence_plot(
         figures / "convergence.png",
         analysis["convergence"],

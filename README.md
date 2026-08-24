@@ -25,6 +25,7 @@ toy-poker report artifacts/akq_allin/<run-id>
 - [AKQ all-inゲーム](docs/games/akq_allin.md)
 - [AKQJ all-inゲーム](docs/games/akqj_allin.md)
 - [AKQJ two-street geometricゲーム](docs/games/akqj_two_street.md)
+- [Integer 1-10 custom-sizeゲーム](docs/games/integer_range_betting.md)
 - [実験設定・CLI・artifact](docs/experiments.md)
 
 実行可能なAKQ設定例は
