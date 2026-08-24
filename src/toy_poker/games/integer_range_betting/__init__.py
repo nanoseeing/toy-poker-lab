@@ -1,4 +1,4 @@
-"""Integer 1-10 custom-size betting game plugin."""
+"""Integer 1-N weighted-range custom-size betting game plugin."""
 
 from toy_poker.games.integer_range_betting.game import (
     Action,

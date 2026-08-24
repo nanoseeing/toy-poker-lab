@@ -6,7 +6,10 @@ import pyspiel
 import pytest
 
 from toy_poker.games import get_game
-from toy_poker.games.fixed_range_one_street import parse_bet_fractions
+from toy_poker.games.fixed_range_one_street import (
+    parse_bet_fractions,
+    parse_rank_weights,
+)
 from toy_poker.games.integer_range_betting import Action, FIRST_CUSTOM_ACTION
 
 
@@ -17,7 +20,7 @@ BET_100 = FIRST_CUSTOM_ACTION + 1
 def dealt_state(oop_card: int, ip_card: int, params=None):
     game = get_game("integer_range_betting").load_game(params or {})
     state = game.new_initial_state()
-    action = (oop_card - 1) * 10 + (ip_card - 1)
+    action = (oop_card - 1) * game.num_ranks + (ip_card - 1)
     state.apply_action(action)
     return state
 
@@ -34,11 +37,51 @@ def test_defaults_and_independent_uniform_deals():
     assert game.ip_stack == 4.0
     assert game.effective_stack == 4.0
     assert game.bet_fractions == pytest.approx((1.0 / 3.0, 1.0))
+    assert game.num_ranks == 10
+    assert game.oop_rank_probabilities == pytest.approx((0.1,) * 10)
+    assert game.ip_rank_probabilities == pytest.approx((0.1,) * 10)
     assert game.get_type().utility == pyspiel.GameType.Utility.CONSTANT_SUM
     outcomes = game.new_initial_state().chance_outcomes()
     assert len(outcomes) == 100
     assert all(math.isclose(probability, 0.01) for _, probability in outcomes)
     assert math.isclose(sum(probability for _, probability in outcomes), 1.0)
+
+
+def test_dynamic_rank_count_and_independent_weighted_deals():
+    params = {
+        "num_ranks": 3,
+        "oop_rank_weights": "1,2,7",
+        "ip_rank_weights": "6,3,1",
+    }
+    game = get_game("integer_range_betting").load_game(params)
+    assert game.cards == (1, 2, 3)
+    assert game.oop_rank_probabilities == pytest.approx((0.1, 0.2, 0.7))
+    assert game.ip_rank_probabilities == pytest.approx((0.6, 0.3, 0.1))
+    outcomes = dict(game.new_initial_state().chance_outcomes())
+    assert len(outcomes) == 9
+    assert outcomes[0] == pytest.approx(0.06)  # OOP 1 / IP 1
+    assert outcomes[5] == pytest.approx(0.02)  # OOP 2 / IP 3
+    assert outcomes[7] == pytest.approx(0.21)  # OOP 3 / IP 2
+    assert sum(outcomes.values()) == pytest.approx(1.0)
+
+    state = game.new_initial_state()
+    state.apply_action(7)
+    assert state.private_cards == [2, 3]
+
+
+def test_rank_weight_validation():
+    assert parse_rank_weights("uniform", 3, "weights") == pytest.approx(
+        (1.0 / 3.0,) * 3
+    )
+    assert parse_rank_weights("1,2,7", 3, "weights") == pytest.approx(
+        (0.1, 0.2, 0.7)
+    )
+    for invalid in ("", "1,2", "1,2,3,4", "0,1,2", "-1,2,3", "nan,1,2"):
+        with pytest.raises(ValueError):
+            parse_rank_weights(invalid, 3, "weights")
+    for params in ({"num_ranks": 1}, {"num_ranks": 3, "oop_rank_weights": "1,2"}):
+        with pytest.raises(ValueError):
+            get_game("integer_range_betting").load_game(params)
 
 
 def test_opening_bets_and_raise_formula():

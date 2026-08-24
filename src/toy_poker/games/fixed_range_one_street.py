@@ -41,6 +41,28 @@ def parse_bet_fractions(value: str) -> tuple[float, ...]:
     return fractions
 
 
+def parse_rank_weights(
+    value: str,
+    num_ranks: int,
+    parameter_name: str,
+) -> tuple[float, ...]:
+    """Parse positive relative rank weights and normalize them to probabilities."""
+    if not isinstance(value, str):
+        raise ValueError(f"{parameter_name} must be 'uniform' or comma-separated weights")
+    if value.strip().lower() == "uniform":
+        return (1.0 / num_ranks,) * num_ranks
+    try:
+        weights = tuple(float(part.strip()) for part in value.split(","))
+    except ValueError as exc:
+        raise ValueError(f"{parameter_name} contains a non-numeric value") from exc
+    if len(weights) != num_ranks:
+        raise ValueError(f"{parameter_name} must contain exactly {num_ranks} weights")
+    if any(not math.isfinite(weight) or weight <= 0 for weight in weights):
+        raise ValueError(f"{parameter_name} must contain finite positive weights")
+    total = sum(weights)
+    return tuple(weight / total for weight in weights)
+
+
 def fraction_label(fraction: float) -> str:
     if math.isclose(fraction, 1.0 / 3.0, rel_tol=1e-12, abs_tol=1e-12):
         return "33%"
@@ -53,6 +75,9 @@ def make_game_type(
     long_name: str,
     default_stack: float,
     default_bet_fractions: str,
+    default_num_ranks: int,
+    default_oop_rank_weights: str,
+    default_ip_rank_weights: str,
 ) -> pyspiel.GameType:
     return pyspiel.GameType(
         short_name=short_name,
@@ -72,6 +97,9 @@ def make_game_type(
             "oop_stack": default_stack,
             "ip_stack": default_stack,
             "bet_fractions": default_bet_fractions,
+            "num_ranks": default_num_ranks,
+            "oop_rank_weights": default_oop_rank_weights,
+            "ip_rank_weights": default_ip_rank_weights,
         },
     )
 
@@ -95,10 +123,22 @@ class FixedRangeOneStreetGame(pyspiel.Game):
             raise ValueError("oop_stack and ip_stack must both be positive")
         self.effective_stack = min(self.oop_stack, self.ip_stack)
         self.min_card = int(min_card)
-        self.max_card = int(max_card)
-        if self.min_card > self.max_card:
-            raise ValueError("min_card cannot exceed max_card")
+        default_num_ranks = int(max_card) - self.min_card + 1
+        self.num_ranks = int(params.get("num_ranks", default_num_ranks))
+        if self.num_ranks < 2:
+            raise ValueError("num_ranks must be at least 2")
+        self.max_card = self.min_card + self.num_ranks - 1
         self.cards = tuple(range(self.min_card, self.max_card + 1))
+        self.oop_rank_probabilities = parse_rank_weights(
+            str(params.get("oop_rank_weights", "uniform")),
+            self.num_ranks,
+            "oop_rank_weights",
+        )
+        self.ip_rank_probabilities = parse_rank_weights(
+            str(params.get("ip_rank_weights", "uniform")),
+            self.num_ranks,
+            "ip_rank_weights",
+        )
         self.bet_fractions = parse_bet_fractions(
             str(params.get("bet_fractions", default_bet_fractions))
         )
@@ -168,8 +208,14 @@ class FixedRangeOneStreetState(pyspiel.State):
         if not self.is_chance_node():
             raise ValueError("chance_outcomes called outside the chance node")
         game = self.get_game()
-        probability = 1.0 / (len(game.cards) ** 2)
-        return [(action, probability) for action in range(len(game.cards) ** 2)]
+        return [
+            (
+                oop_index * game.num_ranks + ip_index,
+                oop_probability * ip_probability,
+            )
+            for oop_index, oop_probability in enumerate(game.oop_rank_probabilities)
+            for ip_index, ip_probability in enumerate(game.ip_rank_probabilities)
+        ]
 
     def _amount_to_call(self, player: int) -> float:
         return max(0.0, self.commitments[1 - player] - self.commitments[player])

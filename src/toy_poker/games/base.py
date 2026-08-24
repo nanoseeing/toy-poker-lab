@@ -52,3 +52,13 @@ class GamePlugin:
     def analytic_returns(self, game: pyspiel.Game) -> tuple[float, ...] | None:
         del game
         return self.metadata.analytic_returns
+
+    def resolved_parameters(
+        self, game: pyspiel.Game, configured: dict[str, Any]
+    ) -> dict[str, Any]:
+        del game
+        return self.metadata.parameters | configured
+
+    def rank_distribution(self, game: pyspiel.Game) -> dict[str, Any] | None:
+        del game
+        return None

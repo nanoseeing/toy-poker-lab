@@ -9,6 +9,22 @@ from toy_poker.games.registry import register_game
 class IntegerRangeBettingPlugin(GamePlugin):
     numeric_range_strategy = True
 
+    def resolved_parameters(self, game, configured):
+        return super().resolved_parameters(game, configured) | {
+            "min_card": game.min_card,
+            "max_card": game.max_card,
+            "num_ranks": game.num_ranks,
+            "oop_rank_probabilities": list(game.oop_rank_probabilities),
+            "ip_rank_probabilities": list(game.ip_rank_probabilities),
+        }
+
+    def rank_distribution(self, game):
+        return {
+            "ranks": list(game.cards),
+            "OOP": list(game.oop_rank_probabilities),
+            "IP": list(game.ip_rank_probabilities),
+        }
+
     def information_label(self, key: str) -> str:
         player_key, card, history = key.split("|", maxsplit=2)
         player = self.player_name(int(player_key.removeprefix("P")))
