@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import pyspiel
+import numpy as np
 
 
 PolicyTable = dict[str, list[tuple[int, float]]]
@@ -64,7 +65,43 @@ def save_policy(directory: Path, table: PolicyTable) -> None:
                 )
 
 
+def save_policy_npz(directory: Path, table: PolicyTable) -> None:
+    """Store a policy compactly without pickle or per-action JSON objects."""
+    keys = sorted(table)
+    offsets = np.zeros(len(keys) + 1, dtype=np.int64)
+    for index, key in enumerate(keys):
+        offsets[index + 1] = offsets[index] + len(table[key])
+    actions = np.asarray(
+        [action for key in keys for action, _ in table[key]], dtype=np.int32
+    )
+    probabilities = np.asarray(
+        [probability for key in keys for _, probability in table[key]],
+        dtype=np.float64,
+    )
+    np.savez_compressed(
+        directory / "policy.npz",
+        keys=np.asarray(keys, dtype=np.str_),
+        offsets=offsets,
+        actions=actions,
+        probabilities=probabilities,
+    )
+
+
 def load_policy(path: Path) -> tuple[pyspiel.TabularPolicy, PolicyTable]:
+    if path.suffix == ".npz":
+        with np.load(path, allow_pickle=False) as data:
+            keys = data["keys"]
+            offsets = data["offsets"]
+            actions = data["actions"]
+            probabilities = data["probabilities"]
+            table = {
+                str(key): [
+                    (int(actions[item]), float(probabilities[item]))
+                    for item in range(int(offsets[index]), int(offsets[index + 1]))
+                ]
+                for index, key in enumerate(keys)
+            }
+        return standalone_policy(table), table
     data = json.loads(path.read_text(encoding="utf-8"))
     table = {
         key: [(int(item["action_id"]), float(item["probability"])) for item in actions]

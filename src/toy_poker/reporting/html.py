@@ -44,6 +44,7 @@ def save_html(
     major_tree_created: bool,
 ) -> None:
     summary = analysis["summary"]
+    solver = analysis["solver"]
     cards = "".join(
         f'<div class="card">{html.escape(player)} EV<div class="value">{value:+.6f}</div></div>'
         for player, value in summary["returns"].items()
@@ -56,6 +57,16 @@ def save_html(
         for info in analysis["information_sets"]
         if info["reach_probability"] >= major_reach_threshold
     ]
+    reporting = analysis.get("reporting", {})
+    major_only = reporting.get("report_scope", "full") == "major_only"
+    policy_filename = reporting.get("policy_filename", "policy.json")
+    analysis_filename = reporting.get("analysis_filename", "analysis.json")
+    information_sets_filename = reporting.get(
+        "information_sets_filename", "information_sets.csv"
+    )
+    terminal_paths_filename = reporting.get(
+        "terminal_paths_filename", "terminal_paths.csv"
+    )
     major_tree = (
         '<h3>Major action tree</h3><img src="figures/major_strategy_tree.png" '
         'alt="Major strategy tree">'
@@ -66,6 +77,18 @@ def save_html(
         '<h3>Full legal-action tree</h3><img src="figures/strategy_tree.png" '
         'alt="Full strategy tree">'
         if tree_created
+        else ""
+    )
+    full_analysis = "" if major_only else f"""
+<hr><h2>Full analysis</h2>
+{full_tree}
+<h3>Full action probabilities</h3><img src="figures/strategy_probabilities.png" alt="Full action probabilities">
+<h3>Full information sets</h3>{_information_table(analysis['information_sets'])}
+<h3>Full action EV</h3><img src="figures/action_ev.png" alt="Action EV">"""
+    rank_distribution = (
+        '<h2>Private-number distributions</h2>'
+        '<img src="figures/rank_distribution.png" alt="Private-number distributions">'
+        if analysis["game"].get("rank_distribution") is not None
         else ""
     )
     document = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -82,9 +105,15 @@ hr {{ border:0; border-top:2px solid #ddd; margin:3rem 0; }}
 {html.escape(plugin.metadata.utility_convention)} This game has terminal utility sum
 {analysis['game'].get('utility_sum', 1.0):g}.</p>
 <p>Solver backend: <code>{html.escape(analysis['solver']['backend'])}</code>;
+algorithm: <code>{html.escape(analysis['solver'].get('algorithm', 'cfr_plus'))}</code>;
 checkpoint evaluation: <code>{html.escape(analysis['solver'].get('checkpoint_evaluation_backend', analysis['solver']['backend']))}</code>.</p>
-<div class="cards"><div class="card">Iterations<div class="value">{analysis['solver']['iterations']:,}</div></div>
+<div class="cards"><div class="card">Iterations<div class="value">{solver.get('completed_iterations', solver['iterations']):,} / {solver.get('requested_iterations', solver['iterations']):,}</div></div>
 <div class="card">Exploitability<div class="value">{summary['exploitability']:.8f}</div></div>{cards}</div>
+<p>Stop reason: <code>{html.escape(solver.get('stop_reason', 'max_iterations'))}</code>;
+target exploitability: <code>{solver.get('target_exploitability', float('nan')):.1e}</code>;
+best checkpoint: <code>{solver.get('best_exploitability', summary['exploitability']):.8g}</code>
+at iteration {solver.get('best_iteration', solver.get('iterations', 0)):,}.</p>
+{rank_distribution}
 <h2>Major strategy</h2>
 <p class="section-note">Information sets and tree nodes with reach probability below
 {major_reach_threshold:.4%} are omitted here. Showing {len(major_infos)} of
@@ -93,13 +122,10 @@ checkpoint evaluation: <code>{html.escape(analysis['solver'].get('checkpoint_eva
 <h3>Major action probabilities</h3>
 <img src="figures/major_strategy_probabilities.png" alt="Major action probabilities">
 <h3>Major information sets</h3>{_information_table(major_infos)}
-<hr><h2>Full analysis</h2>
-{full_tree}
-<h3>Full action probabilities</h3><img src="figures/strategy_probabilities.png" alt="Full action probabilities">
-<h3>Full information sets</h3>{_information_table(analysis['information_sets'])}
-<h3>Full action EV</h3><img src="figures/action_ev.png" alt="Action EV">
+{'<h3>Major action EV</h3><img src="figures/action_ev.png" alt="Major action EV">' if major_only else ''}
+{full_analysis}
 <h3>Convergence</h3><img src="figures/convergence.png" alt="Convergence">
-<p>Data: <a href="analysis.json">analysis JSON</a>, <a href="policy.json">policy JSON</a>,
-<a href="information_sets.csv">information sets CSV</a>, <a href="terminal_paths.csv">terminal paths CSV</a>,
-<a href="convergence.csv">convergence CSV</a>.</p></body></html>"""
+<p>Data: <a href="{html.escape(analysis_filename)}">analysis JSON</a>, <a href="{html.escape(policy_filename)}">policy</a>,
+<a href="{html.escape(information_sets_filename)}">information sets CSV</a>, <a href="{html.escape(terminal_paths_filename)}">terminal paths CSV</a>,
+<a href="convergence.csv">convergence CSV</a>{', <a href="rank_distribution.csv">rank distribution CSV</a>' if rank_distribution else ''}.</p></body></html>"""
     path.write_text(document, encoding="utf-8")
