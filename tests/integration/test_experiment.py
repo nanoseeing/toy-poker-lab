@@ -6,8 +6,31 @@ from pathlib import Path
 import pytest
 
 from toy_poker.experiments.config import AnalysisConfig, ExperimentConfig
-from toy_poker.experiments.runner import rerender_artifact, run_experiment
+from toy_poker.experiments.runner import (
+    _sync_reporting_config,
+    rerender_artifact,
+    run_experiment,
+)
 from toy_poker.solvers import SolverConfig
+
+
+def test_rerender_syncs_reporting_options_from_resolved_config():
+    analysis = {"reporting": {"major_reach_threshold": 1e-3}}
+    config_data = {
+        "analysis": {
+            "major_reach_threshold": 1e-4,
+            "report_scope": "major_only",
+            "interactive_viewer": False,
+        }
+    }
+
+    _sync_reporting_config(analysis, config_data)
+
+    assert analysis["reporting"] == {
+        "major_reach_threshold": 1e-4,
+        "report_scope": "major_only",
+        "interactive_viewer": False,
+    }
 
 
 @pytest.mark.parametrize(

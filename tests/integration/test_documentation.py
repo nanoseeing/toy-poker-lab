@@ -3,6 +3,7 @@
 import tomllib
 from pathlib import Path
 
+from toy_poker.experiments.config import ExperimentConfig
 from toy_poker.games import list_games
 
 
@@ -17,6 +18,7 @@ def test_every_registered_game_has_documentation_and_standard_config():
     }
     configured_games = set()
     for path in (PROJECT_ROOT / "configs" / "experiments").glob("*.toml"):
+        ExperimentConfig.from_toml(path)
         with path.open("rb") as handle:
             config = tomllib.load(handle)
         configured_games.add(config["game"]["id"])
@@ -25,13 +27,22 @@ def test_every_registered_game_has_documentation_and_standard_config():
         else:
             assert config["solver"]["backend"] == "native_efg"
         assert config["solver"]["algorithm"] in {"cfr_plus", "dcfr"}
-        assert config["solver"]["iterations"] == 10_000
-        assert config["solver"]["snapshot_every"] == 1_000
-        assert config["solver"]["early_stopping"] is True
-        assert config["solver"]["target_exploitability"] == 1e-5
-        assert config["solver"]["min_iterations"] == 1_000
-        assert config["solver"]["patience_checkpoints"] == 2
 
     registered_games = {plugin.metadata.game_id for plugin in list_games()}
     assert registered_games <= documented_games
     assert registered_games <= configured_games
+
+    for game_id in registered_games:
+        standard_path = (
+            PROJECT_ROOT / "configs" / "experiments" / f"{game_id}_cfr_plus.toml"
+        )
+        assert standard_path.exists()
+        with standard_path.open("rb") as handle:
+            standard = tomllib.load(handle)
+        solver = standard["solver"]
+        assert solver["iterations"] == 10_000
+        assert solver["snapshot_every"] == 1_000
+        assert solver["early_stopping"] is True
+        assert solver["target_exploitability"] == 1e-5
+        assert solver["min_iterations"] == 1_000
+        assert solver["patience_checkpoints"] == 2

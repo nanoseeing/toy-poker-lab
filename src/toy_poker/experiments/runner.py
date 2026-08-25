@@ -24,6 +24,24 @@ class RunResult:
     analysis: dict
 
 
+_REPORTING_CONFIG_KEYS = (
+    "major_reach_threshold",
+    "report_scope",
+    "policy_format",
+    "interactive_viewer",
+    "viewer_grid_columns",
+)
+
+
+def _sync_reporting_config(analysis: dict, config_data: dict) -> None:
+    """Make re-rendered outputs follow the saved resolved configuration."""
+    reporting = analysis.setdefault("reporting", {})
+    saved = config_data.get("analysis", {})
+    for key in _REPORTING_CONFIG_KEYS:
+        if key in saved:
+            reporting[key] = saved[key]
+
+
 def _solver(solver_id: str):
     if solver_id == "cfr_plus":
         return CFRPlusSolverAdapter()
@@ -165,14 +183,8 @@ def run_experiment(
 
 def rerender_artifact(directory: Path) -> None:
     config_data = json.loads((directory / "resolved_config.json").read_text(encoding="utf-8"))
-    config = ExperimentConfig(
-        name=config_data["name"],
-        game_id=config_data["game_id"],
-        game_params=config_data["game_params"],
-        artifact_root=Path(config_data["artifact_root"]),
-    )
-    plugin = get_game(config.game_id)
-    game = plugin.load_game(config.game_params)
+    plugin = get_game(config_data["game_id"])
+    game = plugin.load_game(config_data["game_params"])
     from toy_poker.solvers.policy import load_policy
 
     policy_path = (
@@ -187,6 +199,7 @@ def rerender_artifact(directory: Path) -> None:
     else:
         with gzip.open(directory / "analysis.json.gz", "rt", encoding="utf-8") as handle:
             analysis = json.load(handle)
+    _sync_reporting_config(analysis, config_data)
     from toy_poker.reporting import write_report_bundle
 
     write_report_bundle(directory, analysis, game, policy, plugin)

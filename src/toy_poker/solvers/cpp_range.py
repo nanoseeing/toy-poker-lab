@@ -56,7 +56,6 @@ class CppRangeSolver:
             config.dcfr_beta,
             config.dcfr_gamma,
         )
-        node_indices = {id(node): index for index, node in enumerate(flat.nodes)}
         convergence = []
         consecutive_hits = 0
         early_stopped = False

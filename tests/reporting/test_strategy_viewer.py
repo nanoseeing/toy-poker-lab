@@ -115,7 +115,7 @@ def test_payload_flattens_rank_strategies_in_display_order():
     payload = build_strategy_viewer_payload(_analysis(), plugin, grid_columns=10)
 
     root = payload["nodes"][0]
-    assert payload["schema_version"] == 5
+    assert payload["schema_version"] == 6
     assert payload["ranks"] == [1, 2, 3]
     assert payload["grid_columns"] == 10
     assert [action["label"] for action in root["actions"]] == [
@@ -158,7 +158,7 @@ def test_payload_propagates_both_conditional_ranges_by_bayes_rule():
     ].reshape(2, 3)
     assert child_ranges[0] == pytest.approx([1.0 / 3.0] * 3)
     assert child_ranges[1] == pytest.approx([2.0 / 15.0, 1.0 / 3.0, 8.0 / 15.0])
-    assert all_in_child["range_belief"] == "bayes"
+    assert "range_belief" not in all_in_child
 
 
 def test_action_evs_are_rebased_to_the_current_node():
@@ -238,6 +238,8 @@ def test_viewer_is_a_self_contained_html_file(tmp_path: Path):
     assert created is True
     assert "Interactive strategy viewer" in document
     assert 'id="viewer-data"' in document
+    assert "DATA.schema_version!==6" in document
+    assert "Invalid viewer array length" in document
     assert "strategy-grid" in document
     assert ">Node strategy<" not in document
     assert "Conditional ranges" in document

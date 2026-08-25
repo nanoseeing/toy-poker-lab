@@ -37,4 +37,6 @@ class AKQGame(FixedOOPAllInGame):
 
 AKQState = FixedOOPAllInState
 
+__all__ = ["Action", "AKQGame", "AKQState", "IPCard", "PLAYER_IP", "PLAYER_OOP"]
+
 pyspiel.register_game(_GAME_TYPE, AKQGame)

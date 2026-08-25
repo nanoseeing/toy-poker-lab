@@ -65,7 +65,9 @@ class CFRPlusSolverAdapter:
 
         elif config.backend == "python_game":
             solver_game = game
-            translate_policy = lambda policy: clone_policy(game, policy)
+
+            def translate_policy(policy):
+                return clone_policy(game, policy)
 
             def evaluate_snapshot(policy):
                 source_policy, _ = translate_policy(policy)

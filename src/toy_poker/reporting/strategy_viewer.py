@@ -198,11 +198,9 @@ def build_strategy_viewer_payload(
         priors.append(prior / prior.sum())
     node_ranges: list[list[np.ndarray] | None] = [None] * len(nodes)
     node_range_masses: list[np.ndarray | None] = [None] * len(nodes)
-    range_beliefs: list[str | None] = [None] * len(nodes)
     root_id = history_to_id[()]
     node_ranges[root_id] = [prior.copy() for prior in priors]
     node_range_masses[root_id] = np.ones(len(priors), dtype=np.float64)
-    range_beliefs[root_id] = "prior"
     conditional_ranges: list[float] = []
     range_masses: list[float] = []
 
@@ -217,7 +215,6 @@ def build_strategy_viewer_payload(
             )
         node["ranges_offset"] = len(conditional_ranges)
         node["range_masses_offset"] = len(range_masses)
-        node["range_belief"] = range_beliefs[node["id"]]
         for player_range in ranges:
             conditional_ranges.extend(float(value) for value in player_range)
         range_masses.extend(float(value) for value in masses)
@@ -257,19 +254,11 @@ def build_strategy_viewer_payload(
             child_ranges = [player_range.copy() for player_range in ranges]
             if action_mass > 1e-15:
                 child_ranges[acting_player] = weighted / action_mass
-                child_belief = (
-                    "bayes_from_parent_fallback"
-                    if "fallback" in str(node["range_belief"])
-                    else "bayes"
-                )
-            else:
-                child_belief = "parent_fallback_at_zero_action_probability"
             child_masses = masses.copy()
             child_masses[acting_player] *= action_mass
             child_id = action["child_id"]
             node_ranges[child_id] = child_ranges
             node_range_masses[child_id] = child_masses
-            range_beliefs[child_id] = child_belief
 
     profile_returns: list[np.ndarray | None] = [None] * len(nodes)
 
@@ -302,8 +291,7 @@ def build_strategy_viewer_payload(
         ]
 
     return {
-        "schema_version": 5,
-        "title": analysis["game"]["title"],
+        "schema_version": 6,
         "ranks": ranks,
         "grid_columns": grid_columns,
         "root_id": root_id,
@@ -381,7 +369,6 @@ button,select {{font:inherit}} .app {{max-width:1500px;margin:auto;padding:18px}
 .actions {{display:flex;flex-wrap:wrap;gap:8px}}
 .action-button {{border:1px solid var(--line);border-left:8px solid var(--action-color);background:white;border-radius:8px;padding:8px 11px;cursor:pointer;text-align:left}}
 .action-button:hover {{background:#f4f6ff;border-color:#b5c2ff}} .action-button span {{display:block;color:var(--muted);font-size:12px}}
-#action-panel h3 {{margin:0}}
 .node-strategy {{display:flex;width:100%;height:38px;border-radius:7px;overflow:hidden;background:#eef1f5;margin:8px 0 12px}}
 .node-strategy-segment {{min-width:0;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 2px #0009;font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden}}
 .charts {{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
@@ -412,7 +399,7 @@ button,select {{font:inherit}} .app {{max-width:1500px;margin:auto;padding:18px}
 .details h3 {{margin:0 0 5px;font-size:16px}} .rank-equity {{margin:0 0 6px;color:var(--muted);font-size:12px}}
 table {{border-collapse:collapse;width:100%}} th,td {{padding:7px 5px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}} th:first-child,td:first-child {{text-align:left}}
 #details th,#details td {{padding:4px 3px;font-size:12px;line-height:1.2}}
-.bar {{height:8px;border-radius:4px;min-width:2px}} .terminal {{font-size:18px;line-height:1.8}}
+.terminal {{font-size:18px;line-height:1.8}}
 .empty {{color:var(--muted);padding:30px;text-align:center}}
 @media(max-width:900px) {{.layout,.charts,.range-metrics-grid {{grid-template-columns:1fr}} .strategy-grid {{overflow-x:auto}}}}
 </style></head><body><div class="app">
@@ -433,9 +420,10 @@ table {{border-collapse:collapse;width:100%}} th,td {{padding:7px 5px;border-bot
 <script id="viewer-data" type="application/json">{serialized_payload}</script>
 <script>
 const DATA=JSON.parse(document.getElementById('viewer-data').textContent);
+if(DATA.schema_version!==6)throw new Error(`Unsupported viewer schema: ${{DATA.schema_version}}`);
 const NODES=DATA.nodes; const RANKS=DATA.ranks;
-function floats(encoded){{const raw=atob(encoded),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return new Float32Array(bytes.buffer)}}
-const PROBS=floats(DATA.probabilities_f32), EVS=floats(DATA.action_evs_f32), RANGES=floats(DATA.conditional_ranges_f32), RANGE_MASSES=floats(DATA.range_masses_f32);
+function floats(encoded,expected){{const raw=atob(encoded),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);const values=new Float32Array(bytes.buffer);if(values.length!==expected)throw new Error(`Invalid viewer array length: expected ${{expected}}, got ${{values.length}}`);return values}}
+const PROBS=floats(DATA.probabilities_f32,DATA.array_counts.probabilities), EVS=floats(DATA.action_evs_f32,DATA.array_counts.action_evs), RANGES=floats(DATA.conditional_ranges_f32,DATA.array_counts.conditional_ranges), RANGE_MASSES=floats(DATA.range_masses_f32,DATA.array_counts.range_masses);
 const PLAYER_COLORS=['#0f766e','#7c3aed'];
 const ZERO_RANGE_EPSILON=1e-10;
 let current=DATA.root_id,selectedRank=0,showZeroWeightRanks=false;

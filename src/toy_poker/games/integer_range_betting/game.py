@@ -47,4 +47,13 @@ class IntegerRangeBettingGame(FixedRangeOneStreetGame):
 
 IntegerRangeBettingState = FixedRangeOneStreetState
 
+__all__ = [
+    "Action",
+    "FIRST_CUSTOM_ACTION",
+    "IntegerRangeBettingGame",
+    "IntegerRangeBettingState",
+    "PLAYER_IP",
+    "PLAYER_OOP",
+]
+
 pyspiel.register_game(_GAME_TYPE, IntegerRangeBettingGame)

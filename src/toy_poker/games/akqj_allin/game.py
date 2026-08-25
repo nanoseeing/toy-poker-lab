@@ -44,4 +44,13 @@ class AKQJGame(FixedOOPAllInGame):
 
 AKQJState = FixedOOPAllInState
 
+__all__ = [
+    "Action",
+    "AKQJGame",
+    "AKQJState",
+    "IPCard",
+    "PLAYER_IP",
+    "PLAYER_OOP",
+]
+
 pyspiel.register_game(_GAME_TYPE, AKQJGame)

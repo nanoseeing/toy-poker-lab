@@ -40,4 +40,13 @@ class AKQJTwoStreetGame(FixedOOPTwoStreetGame):
 
 AKQJTwoStreetState = FixedOOPTwoStreetState
 
+__all__ = [
+    "Action",
+    "AKQJTwoStreetGame",
+    "AKQJTwoStreetState",
+    "IPCard",
+    "PLAYER_IP",
+    "PLAYER_OOP",
+]
+
 pyspiel.register_game(_GAME_TYPE, AKQJTwoStreetGame)
