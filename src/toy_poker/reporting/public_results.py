@@ -204,6 +204,7 @@ def publish_results(
                 tree_created=(figures / "strategy_tree.png").exists(),
                 major_tree_created=(figures / "major_strategy_tree.png").exists(),
                 viewer_created=viewer_created,
+                public_bundle=True,
             )
             summary = _summary_document(analysis, manifest, run_id, viewer_created)
             (staging / "summary.json").write_text(

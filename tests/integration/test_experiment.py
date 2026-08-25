@@ -58,7 +58,7 @@ def test_experiment_writes_replayable_bundle(
     expected = {
         "manifest.json", "resolved_config.json", "policy.json", "policy.csv",
         "analysis.json", "information_sets.csv", "terminal_paths.csv",
-        "convergence.csv", "report.html",
+        "convergence.csv", "report.html", "report.md",
     }
     assert expected.issubset({path.name for path in output.iterdir()})
     assert (output / "figures" / "strategy_tree.png").exists()
@@ -84,6 +84,9 @@ def test_experiment_writes_replayable_bundle(
     report = (output / "report.html").read_text(encoding="utf-8")
     assert label in report
     assert report.index("Major strategy") < report.index("Full analysis")
+    markdown_report = (output / "report.md").read_text(encoding="utf-8")
+    assert f"# {result.analysis['game']['title']}" in markdown_report
+    assert "[Analysis data](analysis.json)" in markdown_report
 
 
 def test_compact_major_only_bundle_uses_npz_and_can_be_rerendered(tmp_path: Path):
@@ -117,3 +120,4 @@ def test_compact_major_only_bundle_uses_npz_and_can_be_rerendered(tmp_path: Path
     assert 'href="strategy_viewer.html"' in report
     rerender_artifact(output)
     assert (output / "report.html").exists()
+    assert (output / "report.md").exists()

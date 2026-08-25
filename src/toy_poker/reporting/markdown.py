@@ -54,6 +54,7 @@ def save_markdown(
     tree_created: bool,
     major_tree_created: bool,
     viewer_created: bool = False,
+    public_bundle: bool = False,
 ) -> None:
     """Write a report that renders directly in GitHub's repository view."""
     summary = analysis["summary"]
@@ -202,7 +203,38 @@ def save_markdown(
             "",
             "## Reproducibility",
             "",
-            "- [Summary](summary.json)",
+        ]
+    )
+    if public_bundle:
+        sections.extend(
+            [
+                "- [Summary](summary.json)",
+                "- [Resolved configuration](resolved_config.json)",
+                "- [Source manifest](manifest.json)",
+            ]
+        )
+    else:
+        policy_filename = reporting.get("policy_filename", "policy.json")
+        analysis_filename = reporting.get("analysis_filename", "analysis.json")
+        information_sets_filename = reporting.get(
+            "information_sets_filename", "information_sets.csv"
+        )
+        terminal_paths_filename = reporting.get(
+            "terminal_paths_filename", "terminal_paths.csv"
+        )
+        sections.extend(
+            [
+                f"- [Analysis data]({analysis_filename})",
+                f"- [Policy]({policy_filename})",
+                f"- [Information sets]({information_sets_filename})",
+                f"- [Terminal paths]({terminal_paths_filename})",
+                "- [Convergence data](convergence.csv)",
+            ]
+        )
+        if analysis["game"].get("rank_distribution") is not None:
+            sections.append("- [Rank distribution](rank_distribution.csv)")
+    sections.extend(
+        [
             "- [Resolved configuration](resolved_config.json)",
             "- [Source manifest](manifest.json)",
             "- [Standalone HTML report](report.html)",

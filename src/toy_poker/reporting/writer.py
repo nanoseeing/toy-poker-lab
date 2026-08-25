@@ -11,7 +11,7 @@ import pyspiel
 
 from toy_poker.games.base import GamePlugin
 from toy_poker.reporting.html import save_html
-from toy_poker.reporting.strategy_viewer import save_strategy_viewer
+from toy_poker.reporting.markdown import save_markdown
 from toy_poker.reporting.plots import (
     save_convergence_plot,
     save_ev_plot,
@@ -21,6 +21,7 @@ from toy_poker.reporting.plots import (
     save_strategy_plot,
     save_tree_plot,
 )
+from toy_poker.reporting.strategy_viewer import save_strategy_viewer
 
 
 def _write_csv(path: Path, rows: list[dict], fieldnames: list[str]) -> None:
@@ -220,6 +221,14 @@ def write_report_bundle(
     )
     save_html(
         directory / "report.html",
+        analysis,
+        plugin,
+        tree_created,
+        major_tree_created,
+        viewer_created,
+    )
+    save_markdown(
+        directory / "report.md",
         analysis,
         plugin,
         tree_created,
