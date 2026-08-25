@@ -54,3 +54,32 @@ def test_float32_storage_retains_low_exploitability():
 
     assert result.convergence[-1]["exploitability"] < 5e-4
     assert sum(result.convergence[-1]["returns"]) == pytest.approx(1.0, abs=1e-12)
+
+
+def test_cpp_matches_numpy_with_zero_weight_ranks():
+    game = get_game("integer_range_betting").load_game(
+        {
+            "num_ranks": 3,
+            "oop_rank_weights": "1,0,1",
+            "ip_rank_weights": "uniform",
+        }
+    )
+    common = dict(
+        algorithm="dcfr",
+        iterations=100,
+        snapshot_every=100,
+        early_stopping=False,
+    )
+    numpy_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="vectorized_range", **common)
+    )
+    cpp_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="cpp_range", **common)
+    )
+
+    assert cpp_result.convergence[-1]["exploitability"] == pytest.approx(
+        numpy_result.convergence[-1]["exploitability"], abs=1e-12
+    )
+    assert cpp_result.convergence[-1]["returns"] == pytest.approx(
+        numpy_result.convergence[-1]["returns"], abs=1e-12
+    )

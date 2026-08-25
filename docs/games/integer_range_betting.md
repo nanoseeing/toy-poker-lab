@@ -46,8 +46,8 @@ OOPの正規化済み確率を`p_oop(i)`、IPを`p_ip(j)`とすると、deal確�
 | `ip_stack` | float | 4.0 | `> 0` | IPの残りstack |
 | `bet_fractions` | string | `"0.3333333333333333,1.0"` | 正数、有限、重複なし | 使用できるpot比率 |
 | `num_ranks` | int | 10 | `>= 2` | private numberの最大値N |
-| `oop_rank_weights` | string | `"uniform"` | N個の有限な正数 | OOPの相対重み |
-| `ip_rank_weights` | string | `"uniform"` | N個の有限な正数 | IPの相対重み |
+| `oop_rank_weights` | string | `"uniform"` | N個の有限な非負数、合計は正 | OOPの相対重み |
+| `ip_rank_weights` | string | `"uniform"` | N個の有限な非負数、合計は正 | IPの相対重み |
 
 `bet_fractions`はOpenSpielのparameterとして渡せるよう、カンマ区切り文字列で指定します。
 読み込み時に数値へ変換し、昇順に正規化します。標準の1/3は表示上`33%`とします。
@@ -62,6 +62,7 @@ ip_rank_weights = "6,3,1"
 ```
 
 この場合、OOPの確率は`[0.1, 0.2, 0.7]`、IPは`[0.6, 0.3, 0.1]`になります。
+weightを`0`にすると、そのrankを当該プレイヤーのrangeから除外できます。全rankを`0`にはできません。
 
 実効stackは次のとおりです。
 
@@ -390,6 +391,41 @@ N=50・7サイズをfloat64で再確認する高精度設定は
 300,000反復の最終Exploitability `1.666e-8`で上限停止しました。最終EVはIP
 `0.5322014334`、OOP `0.4677985666`、solver時間は約668.4秒です。Exploitabilityは
 checkpointごとに単調減少するとは限らないため、最終値が最良値を上回る場合があります。
+
+### OOPがlow/high rankだけを持つ実験
+
+[`integer_range_betting_n50_7_sizes_oop_extremes_dcfr_target_1e8.toml`](../../configs/experiments/integer_range_betting_n50_7_sizes_oop_extremes_dcfr_target_1e8.toml)
+は、OOPが`1–10, 41–50`を各5%、IPが`1–50`を各2%持つ非対称rangeです。stack 4、
+7サイズ、float64 DCFR、最大300,000反復、Exploitability目標`1e-8`で実行しました。
+288,000反復でearly stoppingし、最終Exploitabilityは`9.417e-9`、最良値は263,000反復の
+`5.000e-9`、solver時間は約636.7秒でした。最終EVはIP `0.4074386373`、OOP
+`0.5925613627`です。
+
+rootでサイズ10%、20%、33%、50%、All-inは実質的に使われず、全OOP rangeで集計した
+戦略は次のとおりです。
+
+| action | frequency | betting range内のrank 1–10 |
+|---|---:|---:|
+| Check | 29.1888% | 87.3807% |
+| Bet 75% | 16.3495% | 30.0000% |
+| Bet 100% | 20.0001% | 33.3333% |
+| Bet 150% | 34.4617% | 37.5000% |
+
+potを1、bet額を`b`とすると、pure bluffの最適比率は`b / (1 + 2b)`です。したがって
+75%、100%、150% pot betのbluff比率はそれぞれ30%、1/3、37.5%となり、数値解と一致します。
+IPの集計応答も、各サイズで必要なfold率`b / (1 + b)`と一致します。
+
+| facing | Fold | Call | Raise合計 |
+|---|---:|---:|---:|
+| Bet 75% | 42.8571% | 44.6749% | 12.4680% |
+| Bet 100% | 50.0000% | 39.7436% | 10.2564% |
+| Bet 150% | 60.0000% | 31.6923% | 8.3077% |
+
+OOPのrank 1–6はcheckと3サイズへ分散するbluff、7–10はcheck、41–42は主に75%、
+43–44は100%、45–47は150%のvalueとして使われます。48–50は各betting rangeを
+必要なvalue/bluff比に保つため、checkと3サイズへ分散します。OOPがbetした条件下では
+IPのrank 11–40は「全low bluffに勝ち、全high valueに負ける」という同じequityを持つため、
+同一の混合応答になり得ます。この同価性はrank順に単調な戦略にならない理由であり、バグではありません。
 
 同じ環境での参考値では、N=10・2サイズ・1,000反復のC++ DCFRは約0.022秒でした。
 N=50・7サイズ・1,000反復はfloat64で約2.70秒、float32で約2.67秒です。N=100・10サイズは

@@ -76,12 +76,41 @@ def test_rank_weight_validation():
     assert parse_rank_weights("1,2,7", 3, "weights") == pytest.approx(
         (0.1, 0.2, 0.7)
     )
-    for invalid in ("", "1,2", "1,2,3,4", "0,1,2", "-1,2,3", "nan,1,2"):
+    assert parse_rank_weights("0,1,3", 3, "weights") == pytest.approx(
+        (0.0, 0.25, 0.75)
+    )
+    for invalid in (
+        "",
+        "1,2",
+        "1,2,3,4",
+        "0,0,0",
+        "-1,2,3",
+        "nan,1,2",
+    ):
         with pytest.raises(ValueError):
             parse_rank_weights(invalid, 3, "weights")
     for params in ({"num_ranks": 1}, {"num_ranks": 3, "oop_rank_weights": "1,2"}):
         with pytest.raises(ValueError):
             get_game("integer_range_betting").load_game(params)
+
+
+def test_zero_rank_weights_remove_cards_from_chance_range():
+    game = get_game("integer_range_betting").load_game(
+        {
+            "num_ranks": 3,
+            "oop_rank_weights": "1,0,1",
+            "ip_rank_weights": "0,1,1",
+        }
+    )
+
+    assert game.oop_rank_probabilities == pytest.approx((0.5, 0.0, 0.5))
+    assert game.ip_rank_probabilities == pytest.approx((0.0, 0.5, 0.5))
+    outcomes = dict(game.new_initial_state().chance_outcomes())
+    assert len(outcomes) == 4
+    assert set(outcomes) == {1, 2, 7, 8}
+    assert all(
+        probability == pytest.approx(0.25) for probability in outcomes.values()
+    )
 
 
 def test_opening_bets_and_raise_formula():

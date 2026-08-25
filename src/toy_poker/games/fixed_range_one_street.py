@@ -46,7 +46,7 @@ def parse_rank_weights(
     num_ranks: int,
     parameter_name: str,
 ) -> tuple[float, ...]:
-    """Parse positive relative rank weights and normalize them to probabilities."""
+    """Parse nonnegative rank weights and normalize them to probabilities."""
     if not isinstance(value, str):
         raise ValueError(f"{parameter_name} must be 'uniform' or comma-separated weights")
     if value.strip().lower() == "uniform":
@@ -57,9 +57,11 @@ def parse_rank_weights(
         raise ValueError(f"{parameter_name} contains a non-numeric value") from exc
     if len(weights) != num_ranks:
         raise ValueError(f"{parameter_name} must contain exactly {num_ranks} weights")
-    if any(not math.isfinite(weight) or weight <= 0 for weight in weights):
-        raise ValueError(f"{parameter_name} must contain finite positive weights")
+    if any(not math.isfinite(weight) or weight < 0 for weight in weights):
+        raise ValueError(f"{parameter_name} must contain finite nonnegative weights")
     total = sum(weights)
+    if total <= 0:
+        raise ValueError(f"{parameter_name} must contain at least one positive weight")
     return tuple(weight / total for weight in weights)
 
 
@@ -215,6 +217,7 @@ class FixedRangeOneStreetState(pyspiel.State):
             )
             for oop_index, oop_probability in enumerate(game.oop_rank_probabilities)
             for ip_index, ip_probability in enumerate(game.ip_rank_probabilities)
+            if oop_probability > 0.0 and ip_probability > 0.0
         ]
 
     def _amount_to_call(self, player: int) -> float:
