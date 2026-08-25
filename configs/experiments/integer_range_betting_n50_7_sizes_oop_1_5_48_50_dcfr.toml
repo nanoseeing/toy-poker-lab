@@ -1,0 +1,40 @@
+[experiment]
+name = "integer_range_betting_n50_7_sizes_oop_1_5_48_50_dcfr"
+
+[game]
+id = "integer_range_betting"
+
+[game.params]
+oop_stack = 4.0
+ip_stack = 4.0
+bet_fractions = "0.1,0.2,0.3333333333333333,0.5,0.75,1.0,1.5"
+num_ranks = 50
+oop_rank_weights = "1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1"
+ip_rank_weights = "uniform"
+
+[solver]
+id = "cfr_plus"
+backend = "cpp_range"
+algorithm = "dcfr"
+dcfr_alpha = 1.5
+dcfr_beta = 0.0
+dcfr_gamma = 2.0
+precision = "float64"
+iterations = 10000
+snapshot_every = 1000
+early_stopping = true
+target_exploitability = 1e-5
+min_iterations = 1000
+patience_checkpoints = 2
+
+[analysis]
+mode = "exact_tree"
+off_path_threshold = 1e-8
+major_reach_threshold = 1e-4
+report_scope = "major_only"
+policy_format = "npz"
+interactive_viewer = true
+viewer_grid_columns = 10
+
+[output]
+artifact_root = "artifacts"

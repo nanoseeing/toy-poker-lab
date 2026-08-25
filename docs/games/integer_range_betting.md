@@ -427,6 +427,23 @@ OOPのrank 1–6はcheckと3サイズへ分散するbluff、7–10はcheck、41�
 IPのrank 11–40は「全low bluffに勝ち、全high valueに負ける」という同じequityを持つため、
 同一の混合応答になり得ます。この同価性はrank順に単調な戦略にならない理由であり、バグではありません。
 
+#### OOPをrank 1–5・48–50へ絞った場合
+
+[`integer_range_betting_n50_7_sizes_oop_1_5_48_50_dcfr.toml`](../../configs/experiments/integer_range_betting_n50_7_sizes_oop_1_5_48_50_dcfr.toml)
+では、OOPの8 rankを各12.5%、IPの50 rankを各2%とします。標準のExploitability目標
+`1e-5`に対して3,000反復でearly stoppingし、最終値は`1.492e-6`、solver時間は約6.79秒、
+EVはIP `0.4262503046`、OOP `0.5737496954`でした。
+
+root戦略はCheck `32.5002%`、All-in `67.4987%`で、それ以外のサイズは合計約`0.0011%`の
+収束誤差です。OOPのhigh valueは全rangeの`3/8 = 37.5%`です。4 pot All-inに必要な
+value比率は`1 - 4/(1+2×4) = 5/9`なので、All-in range全体は
+`(3/8) / (5/9) = 67.5%`、low bluffは`67.5% × 4/9 = 30%`となります。残るlow
+`62.5% - 30% = 32.5%`がCheckし、数値解と一致します。IPも理論どおり80% Fold、20% Callです。
+
+前の`1–10, 41–50`実験と違い、今回のvalueは48–50だけなので、すべてAll-inに耐えられます。
+中程度のvalueから小さなCallを取る必要がなくなり、range全体を単一のAll-in価格で効率よく
+polarizeできるため、150%ではなくAll-inが選ばれます。
+
 同じ環境での参考値では、N=10・2サイズ・1,000反復のC++ DCFRは約0.022秒でした。
 N=50・7サイズ・1,000反復はfloat64で約2.70秒、float32で約2.67秒です。N=100・10サイズは
 public treeが54,201ノードへ増えるため、100反復でもfloat64約7.18秒、float32約6.40秒です。
