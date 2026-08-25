@@ -1,13 +1,24 @@
 # AKQJ two-street geometric game
 
-## 概要
+## ルール概要
 
-OOPがKを、IPがA/Q/Jのいずれかを持つAKQJゲームを、2回のbetting streetへ拡張した
-有限定和ゲームです。ランクの強さは `A > K > Q > J` で、street間で新しいカードは
-配られません。
+- River相当の情報を持ったまま2 betting streetをプレイし、street間でpublic cardは増えません。
+- OOPは常にK、IPはA・Q・Jを各1/3で持ちます。強さは`A > K > Q > J`です。
+- 初期potは1、両者の残りstackはデフォルト1で、各streetはOOPから始まります。
+- betされていなければCheck、Geometric bet、All-inが可能です。Geometric betにはFold、Call、
+  All-in raiseで応じます。
+- 1st streetがCheck-checkまたはbet-callなら2nd streetへ進み、2nd streetの同様の終了やAll-in-callで
+  showdownになります。Foldなら即終了します。
 
-各streetではCheckとAll-inに加えて、残り2 streetでスタックを幾何学的に使い切る
-Geometric betが選べます。Geometric betに対してはCallまたはAll-in raiseも可能です。
+## toyゲームの目的
+
+ハンドの強さやboardを変化させず、betting streetを増やすこと自体が戦略に与える影響を切り分けて学ぶための
+ゲームです。同じ最終All-in額でも、bluffを1st streetと2nd streetのどちらに配分するか、valueをすぐ
+betするかtrapするか、将来のAll-in脅威が現在のCallにどう影響するかを検証できます。
+
+Geometric betは、残りstreetで同じpot比率を使ってstackをちょうど使い切る実戦的なサイズ設計を学ぶ題材です。
+range更新、複数streetのequity realization、ディレイしたbluff/value、All-in raiseへの防御を観察できます。
+一方でrunoutやblockerはないため、実戦のturn/river戦略そのものではなく、street配分の基礎実験として使います。
 
 ## プレイヤーと情報構造
 

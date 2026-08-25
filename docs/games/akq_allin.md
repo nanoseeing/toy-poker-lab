@@ -1,12 +1,23 @@
 # AKQ all-in game
 
-## 概要
+## ルール概要
 
-1ストリートのヘッズアップポーカーから、カードをA/K/Qの3ランク、ベットをAll-inだけに
-限定した有限定和ゲームです。ランクの強さは `A > K > Q` です。
+- Riverの1 streetを抽象化し、追加のpublic cardは配られません。
+- OOPは常にK、IPはAまたはQを各50%で持ちます。強さは`A > K > Q`です。
+- 初期potは1、残りstackは両者ともデフォルト1で、OOPから行動します。
+- bet sizeはAll-inのみです。bet前はCheckまたはAll-in、All-inに直面したらCallまたはFoldを
+  選びます。
+- Check-checkまたはCallでshowdown、Foldで即終了します。utility合計は初期potの1です。
 
-このゲームではOOPがレンジ中央のKを必ず持ち、IPがナッツのAまたはブラフ候補のQを
-持ちます。OOPのCheck後にIPがvalue betとbluffをどの比率で混ぜるかを検証できます。
+## toyゲームの目的
+
+AKQは、「Aでvalue bet、Qでbluff、Kでbluff catch」というriverの最小構造を切り出したゲームです。
+IPのpolar rangeに対してKのCallとFoldを無差別にすることから、bet sizeに応じたvalue/bluff比を
+導けます。逆にIPのQをbluffとCheckで無差別にすることから、OOPのCall頻度も導けます。
+
+実戦的には、強いvalueとshowdown valueのないbluffで構成されたpolar側が、中間のbluff catcherだけを
+持つ側に対して大きなベットを使える理由を学べます。pot odds、minimum defense frequency、
+range advantageとpositionの影響を、blockerや複数サイズの影響から切り離して確認する題材です。
 
 ## プレイヤーと情報構造
 

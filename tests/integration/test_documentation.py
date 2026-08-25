@@ -32,6 +32,18 @@ def test_every_registered_game_has_documentation_and_standard_config():
     assert registered_games <= documented_games
     assert registered_games <= configured_games
 
+    game_docs = [
+        PROJECT_ROOT / "docs" / "games" / f"{game_id}.md"
+        for game_id in registered_games
+    ]
+    game_docs.append(PROJECT_ROOT / "docs" / "games" / "_template.md")
+    for path in game_docs:
+        document = path.read_text(encoding="utf-8")
+        assert "## 概要" not in document
+        assert "## ルール概要" in document
+        assert "## toyゲームの目的" in document
+        assert document.index("## ルール概要") < document.index("## toyゲームの目的")
+
     for game_id in registered_games:
         standard_path = (
             PROJECT_ROOT / "configs" / "experiments" / f"{game_id}_cfr_plus.toml"

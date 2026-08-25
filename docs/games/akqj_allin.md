@@ -1,12 +1,23 @@
 # AKQJ all-in game
 
-## 概要
+## ルール概要
 
-AKQ all-inゲームにJを加え、IPがA/Q/Jのいずれかを持つ有限定和ゲームです。
-ランクの強さは `A > K > Q > J` です。
+- Riverの1 streetを抽象化し、追加のpublic cardは配られません。
+- OOPは常にK、IPはA・Q・Jを各1/3で持ちます。強さは`A > K > Q > J`です。
+- 初期potは1、両者の残りstackはデフォルト4で、OOPから行動します。
+- bet sizeはAll-inのみです。bet前はCheckまたはAll-in、All-inに直面したらCallまたはFoldを
+  選びます。
+- IPのAはKに勝ち、QとJはいずれもKに負けます。utility合計は初期potの1です。
 
-OOPは常にKを持ち、IPのAには負け、QとJには勝ちます。QとJはshowdown valueが同じ
-ため、2種類のブラフ候補の間で頻度をどう配分するかが非一意になる点を検証できます。
+## toyゲームの目的
+
+AKQのvalue/bluff比とbluff-catchの無差別条件を保ったまま、showdown上は完全に同価なQとJの2種類の
+bluff候補を用意します。均衡が要求するのはQ/Jの個別頻度ではなく、bluffの合計頻度であることを
+数式とsolver結果の両方から確認できます。
+
+これは、ナッシュ均衡の戦略表示が必ずしも一意でないこと、同じEVのハンド間でsolverが異なる混合を
+返し得ることを学ぶ題材です。実戦では、個別comboの頻度よりもrange全体のvalue/bluff比と、
+blockerや将来streetが同価性を崩すかどうかを優先して読む考え方につながります。
 
 ## プレイヤーと情報構造
 

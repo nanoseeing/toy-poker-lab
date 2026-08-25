@@ -1,13 +1,25 @@
 # Integer 1-N weighted-range custom-size game
 
-## 概要
+## ルール概要
 
-OOPとIPへ1〜Nの整数をそれぞれ独立な重み付き確率で配り、1 streetでpot比率のbetと
-raiseを繰り返せる有限定和ゲームです。数字が大きい方がshowdownで勝ち、同じ数字はtieです。
+- Riverの1 streetを抽象化し、追加のpublic cardは配られません。
+- OOPとIPはそれぞれ1〜Nの整数rankを独立に持ちます。大きい数字が勝ち、同じ数字はtieです。
+  各プレイヤーのrank確率は別々に設定できます。
+- 初期potは1、両者のstackはデフォルト4で、OOPから1 streetのbettingを始めます。
+- Check、Fold、Call、All-inに加え、設定したpot比率のBet/Raiseを両者が使えます。デフォルトは
+  33% potと100% potで、no-limit hold'em標準のminimum raise制約を適用します。
+- Check-checkまたはCallでshowdown、Foldで即終了します。utility合計は初期potの1です。
 
-初期potはデッドマネーの1、両者のstackはデフォルト4です。標準サイズとして33%と
-100% potのbet/raise、およびAll-inを使用します。通常のno-limitと同じminimum raise
-制約を適用します。
+## toyゲームの目的
+
+AKQ系の少数ランクとAll-inだけの世界を拡張し、riverの連続的なrange対rangeと複数サイズ戦略に近い現象を
+観察するためのゲームです。rankごとのEVとbet頻度から、value threshold、bluff-catch threshold、
+polarな大きいbet、薄いvalueを含む小さいbet、check rangeの保護がどのように分離するかを学べます。
+
+Bet/Raiseサイズとminimum raiseが作るアクション木の中で、複数サイズの使い分け、raiseに対する防御、
+rangeのBayes更新、非一様rangeが戦略に与える影響を検証できます。実戦的にはGTO viewerのrange grid、
+node頻度、EQ、EV、EQRの読み方を練習する題材です。ただしrankは独立配布なので、実カードのblockerと
+card-removal effectはこのゲームからは学べません。
 
 ## プレイヤーと情報構造
 
