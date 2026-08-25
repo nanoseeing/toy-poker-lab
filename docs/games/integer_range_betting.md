@@ -21,6 +21,12 @@ rangeのBayes更新、非一様rangeが戦略に与える影響を検証でき�
 node頻度、EQ、EV、EQRの読み方を練習する題材です。ただしrankは独立配布なので、実カードのblockerと
 card-removal effectはこのゲームからは学べません。
 
+## 公開解析結果
+
+- [N=50・7サイズ高精度設定のReport](../../public/results/integer_range_betting/report.html)
+- [Interactive strategy viewer](../../public/results/integer_range_betting/strategy_viewer.html)
+- [計算条件と要約](../../public/results/integer_range_betting/summary.json)
+
 ## プレイヤーと情報構造
 
 | OpenSpiel index | 名前 | private number | 行動順 |

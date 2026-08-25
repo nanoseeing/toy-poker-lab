@@ -1,0 +1,8 @@
+# Representative high-precision runs committed under public/results/.
+# Change a run ID deliberately, then regenerate with `toy-poker publish-results`.
+
+[games]
+akq_allin = "20260824T171358208144Z_523ccacb"
+akqj_allin = "20260824T171358564746Z_f5a6840b"
+akqj_two_street = "20260824T171423408260Z_e4dfff20"
+integer_range_betting = "20260825T012535053821Z_9f148e42"

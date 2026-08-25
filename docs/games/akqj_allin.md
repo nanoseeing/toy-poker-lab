@@ -19,6 +19,11 @@ bluff候補を用意します。均衡が要求するのはQ/Jの個別頻度で
 返し得ることを学ぶ題材です。実戦では、個別comboの頻度よりもrange全体のvalue/bluff比と、
 blockerや将来streetが同価性を崩すかどうかを優先して読む考え方につながります。
 
+## 公開解析結果
+
+- [Stack 4・10万反復の高精度Report](../../public/results/akqj_allin/report.html)
+- [計算条件と要約](../../public/results/akqj_allin/summary.json)
+
 ## プレイヤーと情報構造
 
 | OpenSpiel index | 名前 | private card | 行動順 |

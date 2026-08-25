@@ -19,6 +19,11 @@ IPのpolar rangeに対してKのCallとFoldを無差別にすることから、b
 持つ側に対して大きなベットを使える理由を学べます。pot odds、minimum defense frequency、
 range advantageとpositionの影響を、blockerや複数サイズの影響から切り離して確認する題材です。
 
+## 公開解析結果
+
+- [10万反復の高精度Report](../../public/results/akq_allin/report.html)
+- [計算条件と要約](../../public/results/akq_allin/summary.json)
+
 ## プレイヤーと情報構造
 
 | OpenSpiel index | 名前 | private card | 行動順 |

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "game": {
+    "id": "akq_allin",
+    "title": "AKQ all-in toy poker",
+    "parameters": {
+      "initial_pot": 1.0,
+      "oop_stack": 1.0,
+      "ip_stack": 1.0
+    },
+    "utility_sum": 1.0
+  },
+  "source": {
+    "run_id": "20260824T171358208144Z_523ccacb",
+    "config_sha256": "523ccacb06ecb8c000766c72aa64b2d7fabc33979b2c4906084d715ea2cd0fba",
+    "git_commit": "9567c4233f91ebc59af902c5ac029e8ce1ec2dea"
+  },
+  "solver": {
+    "id": "cfr_plus",
+    "name": "OpenSpiel C++ CFRPlusSolver",
+    "backend": "native_efg",
+    "checkpoint_evaluation_backend": "native_efg",
+    "iterations": 100000,
+    "snapshot_every": 1000,
+    "elapsed_seconds": 0.6269543439993868
+  },
+  "summary": {
+    "returns": {
+      "IP": 0.75,
+      "OOP": 0.25
+    },
+    "exploitability": 3.7499670035856525e-11,
+    "nash_conv": 7.499934007171305e-11
+  },
+  "files": {
+    "report": "report.html",
+    "strategy_viewer": null
+  }
+}

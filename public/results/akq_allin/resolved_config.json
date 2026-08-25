@@ -1,0 +1,20 @@
+{
+  "name": "akq_allin_cfr_plus",
+  "game_id": "akq_allin",
+  "game_params": {
+    "oop_stack": 1.0,
+    "ip_stack": 1.0
+  },
+  "solver": {
+    "solver_id": "cfr_plus",
+    "backend": "native_efg",
+    "iterations": 100000,
+    "snapshot_every": 1000
+  },
+  "analysis": {
+    "mode": "exact_tree",
+    "off_path_threshold": 1e-08,
+    "major_reach_threshold": 0.0001
+  },
+  "artifact_root": "artifacts"
+}

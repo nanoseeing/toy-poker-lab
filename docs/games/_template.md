@@ -22,6 +22,11 @@
 - 戦略の一意性、off-path、solverの混合頻度を読むときの注意
 - 抽象化で意図的に除いた要素と、このtoyゲームからは結論できないこと
 
+## 公開解析結果
+
+`public/results/<game_id>/`のReportへリンクします。interactive viewerを生成できる
+ゲームではViewerにもリンクし、使用した標準または高精度設定を明記します。
+
 ## プレイヤーと情報構造
 
 - プレイヤー、行動順、private/public information

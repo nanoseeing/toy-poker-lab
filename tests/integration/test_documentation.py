@@ -1,5 +1,6 @@
 """Keep the game registry, rule documents and runnable configs in sync."""
 
+import json
 import tomllib
 from pathlib import Path
 
@@ -58,3 +59,27 @@ def test_every_registered_game_has_documentation_and_standard_config():
         assert solver["target_exploitability"] == 1e-5
         assert solver["min_iterations"] == 1_000
         assert solver["patience_checkpoints"] == 2
+
+
+def test_every_registered_game_has_a_pinned_public_result():
+    selection_path = PROJECT_ROOT / "configs" / "public_results.toml"
+    with selection_path.open("rb") as handle:
+        selections = tomllib.load(handle)["games"]
+
+    registered_games = {plugin.metadata.game_id for plugin in list_games()}
+    assert set(selections) == registered_games
+    for game_id in registered_games:
+        result_directory = PROJECT_ROOT / "public" / "results" / game_id
+        assert (result_directory / "report.html").exists()
+        summary_path = result_directory / "summary.json"
+        assert summary_path.exists()
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        assert summary["source"]["run_id"] == selections[game_id]
+
+    assert (
+        PROJECT_ROOT
+        / "public"
+        / "results"
+        / "integer_range_betting"
+        / "strategy_viewer.html"
+    ).exists()

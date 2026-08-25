@@ -43,6 +43,7 @@ def save_html(
     tree_created: bool,
     major_tree_created: bool,
     viewer_created: bool = False,
+    include_data_links: bool = True,
 ) -> None:
     summary = analysis["summary"]
     solver = analysis["solver"]
@@ -99,6 +100,21 @@ def save_html(
         if viewer_created
         else ""
     )
+    data_links = (
+        f'<p>Data: <a href="{html.escape(analysis_filename)}">analysis JSON</a>, '
+        f'<a href="{html.escape(policy_filename)}">policy</a>, '
+        f'<a href="{html.escape(information_sets_filename)}">information sets CSV</a>, '
+        f'<a href="{html.escape(terminal_paths_filename)}">terminal paths CSV</a>, '
+        '<a href="convergence.csv">convergence CSV</a>'
+        + (
+            ', <a href="rank_distribution.csv">rank distribution CSV</a>'
+            if rank_distribution
+            else ""
+        )
+        + ".</p>"
+        if include_data_links
+        else ""
+    )
     document = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>{html.escape(plugin.metadata.title)} report</title><style>
 body {{ font-family: system-ui,sans-serif; margin:2rem auto; max-width:1200px; color:#222; }}
@@ -136,7 +152,5 @@ at iteration {solver.get('best_iteration', solver.get('iterations', 0)):,}.</p>
 {'<h3>Major action EV</h3><img src="figures/action_ev.png" alt="Major action EV">' if major_only else ''}
 {full_analysis}
 <h3>Convergence</h3><img src="figures/convergence.png" alt="Convergence">
-<p>Data: <a href="{html.escape(analysis_filename)}">analysis JSON</a>, <a href="{html.escape(policy_filename)}">policy</a>,
-<a href="{html.escape(information_sets_filename)}">information sets CSV</a>, <a href="{html.escape(terminal_paths_filename)}">terminal paths CSV</a>,
-<a href="convergence.csv">convergence CSV</a>{', <a href="rank_distribution.csv">rank distribution CSV</a>' if rank_distribution else ''}.</p></body></html>"""
+{data_links}</body></html>"""
     path.write_text(document, encoding="utf-8")

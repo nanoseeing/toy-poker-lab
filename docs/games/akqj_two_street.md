@@ -20,6 +20,11 @@ Geometric betは、残りstreetで同じpot比率を使ってstackをちょう�
 range更新、複数streetのequity realization、ディレイしたbluff/value、All-in raiseへの防御を観察できます。
 一方でrunoutやblockerはないため、実戦のturn/river戦略そのものではなく、street配分の基礎実験として使います。
 
+## 公開解析結果
+
+- [Stack 4・10万反復の高精度Report](../../public/results/akqj_two_street/report.html)
+- [計算条件と要約](../../public/results/akqj_two_street/summary.json)
+
 ## プレイヤーと情報構造
 
 | OpenSpiel index | 名前 | private card | 行動順 |

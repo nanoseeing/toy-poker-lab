@@ -6,11 +6,12 @@ import argparse
 import json
 from pathlib import Path
 
-from toy_poker.experiments.comparison import compare_runs
 from toy_poker.experiments.benchmark import benchmark_experiment
+from toy_poker.experiments.comparison import compare_runs
 from toy_poker.experiments.config import ExperimentConfig
 from toy_poker.experiments.runner import rerender_artifact, run_experiment
 from toy_poker.games import list_games
+from toy_poker.reporting.public_results import load_result_selection, publish_results
 
 
 def main() -> None:
@@ -30,6 +31,18 @@ def main() -> None:
     benchmark_parser.add_argument("config", type=Path)
     benchmark_parser.add_argument("--iterations", type=int)
     benchmark_parser.add_argument("--repeat", type=int, default=1)
+    publish_parser = subparsers.add_parser(
+        "publish-results", help="Publish lightweight copies of representative results"
+    )
+    publish_parser.add_argument("--artifact-root", type=Path, default=Path("artifacts"))
+    publish_parser.add_argument(
+        "--output-root", type=Path, default=Path("public/results")
+    )
+    publish_parser.add_argument(
+        "--selection",
+        type=Path,
+        help="TOML mapping game IDs to reproducible source run IDs",
+    )
     args = parser.parse_args()
 
     if args.command == "list-games":
@@ -56,6 +69,13 @@ def main() -> None:
                 ensure_ascii=False,
             )
         )
+    elif args.command == "publish-results":
+        selections = (
+            load_result_selection(args.selection) if args.selection is not None else None
+        )
+        published = publish_results(args.artifact_root, args.output_root, selections)
+        for path in published:
+            print(f"Published: {path.resolve()}")
 
 
 if __name__ == "__main__":
