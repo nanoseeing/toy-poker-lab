@@ -82,6 +82,7 @@ def test_compact_major_only_bundle_uses_npz_and_can_be_rerendered(tmp_path: Path
     run_experiment(config, output_directory=output)
 
     assert (output / "policy.npz").exists()
+    assert (output / "strategy_viewer.html").exists()
     assert (output / "analysis.json.gz").exists()
     assert (output / "information_sets.csv.gz").exists()
     assert not (output / "policy.json").exists()
@@ -90,5 +91,6 @@ def test_compact_major_only_bundle_uses_npz_and_can_be_rerendered(tmp_path: Path
     assert (output / "figures" / "major_strategy_probabilities.png").exists()
     report = (output / "report.html").read_text(encoding="utf-8")
     assert "Full analysis" not in report
+    assert 'href="strategy_viewer.html"' in report
     rerender_artifact(output)
     assert (output / "report.html").exists()

@@ -19,6 +19,8 @@ class AnalysisConfig:
     major_reach_threshold: float = 1e-4
     report_scope: str = "full"
     policy_format: str = "json_csv"
+    interactive_viewer: bool = True
+    viewer_grid_columns: int = 10
 
 
 @dataclass(frozen=True)
@@ -70,6 +72,8 @@ class ExperimentConfig:
                 ),
                 report_scope=str(analysis.get("report_scope", "full")),
                 policy_format=str(analysis.get("policy_format", "json_csv")),
+                interactive_viewer=bool(analysis.get("interactive_viewer", True)),
+                viewer_grid_columns=int(analysis.get("viewer_grid_columns", 10)),
             ),
             artifact_root=Path(output.get("artifact_root", "artifacts")),
         )
@@ -130,6 +134,8 @@ class ExperimentConfig:
             raise ValueError("analysis.report_scope must be 'full' or 'major_only'")
         if self.analysis.policy_format not in {"json_csv", "npz"}:
             raise ValueError("analysis.policy_format must be 'json_csv' or 'npz'")
+        if not 1 <= self.analysis.viewer_grid_columns <= 50:
+            raise ValueError("analysis.viewer_grid_columns must be between 1 and 50")
 
     def to_dict(self) -> dict:
         data = asdict(self)

@@ -43,10 +43,13 @@ class IntegerRangeBettingPlugin(GamePlugin):
 
     def information_context(self, state):
         player = state.current_player()
+        game = state.get_game()
         return {
             "pot": state.pot,
             "ip_committed": state.commitments[0],
             "oop_committed": state.commitments[1],
+            "ip_remaining_stack": game.ip_stack - state.commitments[0],
+            "oop_remaining_stack": game.oop_stack - state.commitments[1],
             "amount_to_call": state._amount_to_call(player),
             "minimum_raise_increment": state.last_full_raise_increment,
         }

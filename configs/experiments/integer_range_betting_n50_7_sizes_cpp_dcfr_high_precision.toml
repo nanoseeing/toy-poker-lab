@@ -1,5 +1,5 @@
 [experiment]
-name = "integer_range_betting_n50_7_sizes_cpp_cfr_plus"
+name = "integer_range_betting_n50_7_sizes_cpp_dcfr_high_precision"
 
 [game]
 id = "integer_range_betting"
@@ -15,11 +15,15 @@ ip_rank_weights = "uniform"
 [solver]
 id = "cfr_plus"
 backend = "cpp_range"
-algorithm = "cfr_plus"
-iterations = 10000
+algorithm = "dcfr"
+dcfr_alpha = 1.5
+dcfr_beta = 0.0
+dcfr_gamma = 2.0
+precision = "float64"
+iterations = 1000000
 snapshot_every = 1000
 early_stopping = true
-target_exploitability = 1e-5
+target_exploitability = 1e-6
 min_iterations = 1000
 patience_checkpoints = 2
 

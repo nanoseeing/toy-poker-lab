@@ -31,6 +31,8 @@ patience_checkpoints = 2
 mode = "exact_tree"
 off_path_threshold = 1e-8
 major_reach_threshold = 1e-4
+interactive_viewer = true
+viewer_grid_columns = 10
 
 [output]
 artifact_root = "artifacts"

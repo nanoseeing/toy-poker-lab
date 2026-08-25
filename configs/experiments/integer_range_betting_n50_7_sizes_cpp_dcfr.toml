@@ -30,9 +30,11 @@ patience_checkpoints = 2
 [analysis]
 mode = "exact_tree"
 off_path_threshold = 1e-8
-major_reach_threshold = 1e-3
+major_reach_threshold = 1e-4
 report_scope = "major_only"
 policy_format = "npz"
+interactive_viewer = true
+viewer_grid_columns = 10
 
 [output]
 artifact_root = "artifacts"

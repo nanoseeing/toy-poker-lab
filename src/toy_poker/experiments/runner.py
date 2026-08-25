@@ -121,6 +121,8 @@ def run_experiment(
             "major_reach_threshold": config.analysis.major_reach_threshold,
             "report_scope": config.analysis.report_scope,
             "policy_format": config.analysis.policy_format,
+            "interactive_viewer": config.analysis.interactive_viewer,
+            "viewer_grid_columns": config.analysis.viewer_grid_columns,
             "policy_filename": (
                 "policy.npz"
                 if config.analysis.policy_format == "npz"

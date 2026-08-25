@@ -39,6 +39,8 @@ off_path_threshold = 1e-8
 major_reach_threshold = 1e-4
 report_scope = "full"
 policy_format = "json_csv"
+interactive_viewer = true
+viewer_grid_columns = 10
 
 [output]
 artifact_root = "artifacts"
@@ -103,6 +105,14 @@ report後段のfull版と`information_sets.csv`にはすべて残ります。
 `policy_format="npz"`は方策を
 pickle不使用の圧縮`policy.npz`へ保存し、再描画にも使用できます。
 
+numeric rangeゲームでは`interactive_viewer=true`により、履歴をたどりながら戦略を確認する
+自己完結型`strategy_viewer.html`を生成します。`viewer_grid_columns`はprivate numberを並べる
+1行あたりのマス数で、デフォルトは10です。viewerはartifact内のデータだけで動作し、
+Webサーバーや外部JavaScriptを必要としません。各局面ではrank別strategyに加えて、条件付き
+rangeで集約したノード全体のaction頻度、履歴でBayes更新したOOP/IP両range、および相手range
+に対するEquity Distributionとrange全体の即時showdown EQを表示します。Equity Distribution
+の横軸はEQ順に並べた自分の条件付きrange percentile、縦軸は相手rangeに対するEQです。
+
 ## CLI
 
 ```bash
@@ -132,6 +142,7 @@ artifacts/<game_id>/<run-id>/
 ├── terminal_paths.csv
 ├── convergence.csv
 ├── figures/
+├── strategy_viewer.html
 └── report.html
 ```
 

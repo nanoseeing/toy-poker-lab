@@ -28,6 +28,8 @@ def test_native_efg_solver_preserves_dynamic_actions_and_analysis_context():
         "pot": 1.0,
         "ip_committed": 0.0,
         "oop_committed": 0.0,
+        "ip_remaining_stack": 4.0,
+        "oop_remaining_stack": 4.0,
         "amount_to_call": 0.0,
         "minimum_raise_increment": 0.0,
     }

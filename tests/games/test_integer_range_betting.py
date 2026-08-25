@@ -90,6 +90,9 @@ def test_opening_bets_and_raise_formula():
     state.apply_action(BET_100)
     assert state.commitments == [0.0, 1.0]
     assert math.isclose(state.pot, 2.0)
+    context = get_game("integer_range_betting").information_context(state)
+    assert context["ip_remaining_stack"] == pytest.approx(4.0)
+    assert context["oop_remaining_stack"] == pytest.approx(3.0)
 
     # B + x(P + 2B) = 1 + (1/3)(1 + 2) = 2 total chips added.
     assert math.isclose(state.custom_target(0, BET_33), 2.0)

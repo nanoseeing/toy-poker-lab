@@ -13,7 +13,10 @@ toy-poker benchmark configs/experiments/integer_range_betting_dcfr.toml --iterat
 ```
 
 各runは `artifacts/<game>/<run-id>/` に分けて保存されます。保存された
-`policy.json` はC++ソルバーから独立しており、再求解せずレポートを再生成できます。
+`policy.json`または`policy.npz`はC++ソルバーから独立しており、再求解せずレポートを
+再生成できます。
+numeric rangeゲームでは、履歴選択と1〜Nの混合戦略gridを備えた
+`strategy_viewer.html`も生成されます。
 
 ```bash
 toy-poker report artifacts/akq_allin/<run-id>

@@ -197,6 +197,153 @@ CSVには低到達確率局面を含む全データを残します。private dea
 paths上では到達確率で重み付けした1本のpublic treeへ集約します。正規化後の両rangeは
 `rank_distribution.csv`とレポートの分布図にも保存します。
 
+`strategy_viewer.html`では、ROOTから合法actionを順に選んで任意のpublic historyへ移動し、
+その局面の手番プレイヤーの1〜N戦略を方眼状に表示します。各マスはAll-in、サイズの大きい
+bet/raiseから小さいbet/raise、Call、Check、Foldの順に左から塗り分けます。Checkは黄緑、
+bet/raiseは薄い赤から濃い赤、All-inは青です。マスを選ぶと正確なaction頻度、Action EV、
+rootからのrange残存率、条件付きrange weight、showdown EQを確認できます。
+
+方眼の横方向はrankごとのaction頻度、縦方向はそのrankがrootから当該nodeまで残っている
+割合です。残存率が40%ならマスの上60%を白、下40%をaction色で横分割します。これは
+[GTO WizardのRange height表示](https://help.gtowizard.com/study-mode/)に対応する考え方です。
+
+Historyとbreadcrumbは、単なるaction列ではなく、actionを選択したプレイヤーを付けて
+`[OOP] Bet 10% → [IP] Raise 33% → [OOP] ?`のように表示します。末尾の`?`は現在の
+手番プレイヤーを表し、terminal historyには付けません。
+
+viewer最上段はbreadcrumb、history選択リスト、node情報を縦に配置します。node情報には
+reach probabilityとhistory depthを表示します。rangeの更新方法は表示しません。
+reach probabilityが`major_reach_threshold`未満の場合は、局所戦略が十分に収束していない
+可能性を示す警告バナーをページ最上段に表示します。閾値はreportの主要局面
+抽出とviewer警告で共通の`1e-4`（0.01%）です。
+
+pot stateは戦略方眼の右側、選択rankの詳細パネルの上に配置します。手番名の見出しは置かず、
+potを上段、OOP/IPを下段にまとめ、両者の残stackとtable上のcommit、現在pot、to call、直前の
+bet/raise名とpot比率を表示します。通常サイズはaction前のpotとcall額を基準にし、All-inも
+親nodeから増えたcommit額から実際のpot比率を逆算します。右カラムの上下端は戦略方眼の
+パネルに揃え、stackやcommitはラベルと値を横並びにして縦方向を圧縮します。選択rankの
+詳細パネルにはEQとaction別の頻度・EVだけを表示します。
+
+`Range metrics`は戦略方眼と`Manhattan strategy`の間に配置し、現在のhistoryにおけるOOP/IP
+それぞれのrange全体のEV、EQ、EQRを表示します。
+EVは現在nodeより前に支払ったcommitをsunk costとして戻したcurrent-node基準です。保存されて
+いるroot基準utilityを (U_p(h))、現在までのcommitを (C_p(h)) とすると、表示EVは次です。
+
+\[
+EV_p(h)=U_p(h)+C_p(h)
+\]
+
+viewer内の`Node strategy`、rank詳細、tooltipのAction EVもすべて同じcurrent-node基準へ
+変換します。したがってbetに直面した局面のFold EVは0です。元の`analysis.json`とCSVは
+実験全体で統一しているroot基準utilityを保持し、表示時だけrebaseします。
+
+この基準では両プレイヤーの表示EV合計が現在potと一致し、現在foldした場合の追加EVは0です。
+EQは現在の両条件付きrangeをそのままshowdownさせたときのrange equityです。EQRは
+[GTO Wizard公式の定義](https://blog.gtowizard.com/what-is-equity-in-poker/#eqr-defined)に従います。
+
+\[
+EQR_p(h)=\frac{EV_p(h)}{Pot(h)\times EQ_p(h)}
+\]
+
+たとえばEVがpotの75%、EQが50%ならEQRは150%です。EQが実質0の場合はゼロ除算を避けて
+EQRを未定義として表示します。
+
+戦略方眼上のnode集計strategyは、rankごとのstrategyを、その履歴における手番プレイヤーの
+条件付きrangeで重み付けしたaction頻度です。履歴 (h)、手番プレイヤーのrank (r)、action
+(a)に対して次の値を表示します。
+
+\[
+F(a\mid h)=\sum_r P(r\mid h)\,\sigma(a\mid r,h)
+\]
+
+actionを選んで次の局面へ進むと、実際にそのactionを取る頻度を使って、手番プレイヤーの
+rangeをBayes更新します。
+
+\[
+P(r\mid h,a)=
+\frac{P(r\mid h)\,\sigma(a\mid r,h)}
+{\sum_{r'}P(r'\mid h)\,\sigma(a\mid r',h)}
+\]
+
+プレイヤー (p) のrank (r) がrootから履歴 (h) まで残っている割合を
+(W_p(r,h)) とします。rootでは全rankが100%残っています。
+
+\[
+W_p(r,\emptyset)=1
+\]
+
+プレイヤー (p) 自身がaction (a) を選んだときだけ、そのaction頻度を乗算します。
+相手がactionした場合、自分の残存率は変わりません。
+
+\[
+W_p(r,h+a)=
+\begin{cases}
+W_p(r,h)\,\sigma_p(a\mid r,h) & \text{if player}(h)=p \\
+W_p(r,h) & \text{otherwise}
+\end{cases}
+\]
+
+条件付きrangeはrootの事前分布 (P_{0,p}) と残存率を使って正規化した別の値です。
+
+\[
+P_p(r\mid h)=
+\frac{P_{0,p}(r)W_p(r,h)}
+{\sum_{r'}P_{0,p}(r')W_p(r',h)}
+\]
+
+このため、重み付きroot rangeでもrootにある全rankの表示高は100%です。元々の出現確率は
+`Conditional range weight`、rootから同rankが残った割合は`Range retained`として区別します。
+
+`Manhattan strategy`は、手番プレイヤーのrange内にある各rankを相手の条件付きrangeに
+対するshowdown EQが低い順に並べ、rankごとのaction頻度を高さ100%の積み上げbarとして
+表示します。[GTO WizardのBreakdown Tab](https://help.gtowizard.com/breakdown-tab/)で使われる
+Manhattan plotと同じく、横座標は連続値としてのEQではなく、EQでsortしたhandの位置です。
+横軸の目盛りには、その位置にあるrankの実際のEQを表示します。
+
+各rankの横幅は等しく、条件付きrange weightには比例しません。そのため、range weightが
+一様でない局面では、グラフ上の色面積比と上段の`Node strategy`のaction頻度は一致しない
+場合があります。正確な集計頻度には`Node strategy`を使用します。
+
+デフォルトでは条件付きweightが実質0のrankを除外します。`Show zero-weight ranks`を有効に
+すると全rankを表示し、range外のrankは斜線で区別します。barを選択すると方眼strategyと
+rank詳細も同じrankへ移動します。
+
+`Conditional ranges`はこの更新後のOOP/IP両rangeをrank軸で表示します。`Equity
+distribution`は[GTO WizardのEquity Graph](https://blog.gtowizard.com/what-is-equity-in-poker/#equity-graphs)
+と同様に、各プレイヤーのrankを相手rangeに対するEQが低い順に並べ、横軸を自分の条件付き
+range percentile、縦軸をshowdown EQとして表示します。rank \(r\) のEQは、相手が弱い確率と
+同rankの半分です。
+
+\[
+EQ(r)=P(R_{opp}<r)+\frac12P(R_{opp}=r)
+\]
+
+EQ順のrankを \(r_1,\ldots,r_N\) とすると、rank \(r_i\) は横軸の次の区間を占めます。
+
+\[
+\left[
+\sum_{j<i}P(r_j\mid h),
+\sum_{j\le i}P(r_j\mid h)
+\right]
+\]
+
+したがって、action後にBayes更新された重みの大きいrankほど、Equity Distribution上でも
+広い横幅を占めます。
+
+`range EQ`はこれを自分の条件付きrangeで平均した値です。これはfold equity、pot odds、
+将来のactionを含む戦略EVではなく、現在の両rangeをそのままshowdownさせたときのequityです。
+到達確率0のactionではBayes分母も0になるため、viewerは親局面のrangeを引き継いだ参考表示に
+切り替え、警告を表示します。
+
+```toml
+[analysis]
+interactive_viewer = true
+viewer_grid_columns = 10
+```
+
+到達確率が`major_reach_threshold`未満の局面も移動先として残しますが、off-pathに近い戦略を
+均衡上重要な混合と誤解しないようviewer内に警告を表示します。
+
 `vectorized_range` backendはpublic betting treeを1本だけ保持し、rank別のregret、strategy、
 reachをNumPy配列で更新します。showdown EV、Expected Returns、best response、
 Exploitabilityはrank順序の累積和で厳密に計算するため、N²個のdealを列挙しません。
@@ -211,6 +358,20 @@ tree traversalをC++20で実行します。Python/NumPy版は参照実装、Open
 100反復ではfloat64の約7.18秒に対してfloat32は約6.40秒でした。混合精度はメモリ削減が
 主目的であり、小さな木では速度差がほとんどないため、再現性を優先する標準N=10設定は
 float64のままです。
+
+N=50・7サイズをfloat64で再確認する高精度設定は
+[`integer_range_betting_n50_7_sizes_cpp_dcfr_high_precision.toml`](../../configs/experiments/integer_range_betting_n50_7_sizes_cpp_dcfr_high_precision.toml)
+です。最大1,000,000反復、Exploitability目標`1e-6`で実行したところ、38,000反復の
+`9.05e-7`と39,000反復の`8.42e-7`で目標を連続して満たし、early stoppingしました。
+最終EVはIP `0.5322014584`、OOP `0.4677985416`、solver時間は約91.1秒でした。
+
+さらに厳しい
+[`integer_range_betting_n50_7_sizes_cpp_dcfr_target_1e8.toml`](../../configs/experiments/integer_range_betting_n50_7_sizes_cpp_dcfr_target_1e8.toml)
+では、目標`1e-8`、最大300,000反復で実行しました。100,000反復で`7.58e-8`、
+200,000反復で`2.12e-8`、最良は295,000反復の`1.319e-8`でした。目標には届かず、
+300,000反復の最終Exploitability `1.666e-8`で上限停止しました。最終EVはIP
+`0.5322014334`、OOP `0.4677985666`、solver時間は約668.4秒です。Exploitabilityは
+checkpointごとに単調減少するとは限らないため、最終値が最良値を上回る場合があります。
 
 同じ環境での参考値では、N=10・2サイズ・1,000反復のC++ DCFRは約0.022秒でした。
 N=50・7サイズ・1,000反復はfloat64で約2.70秒、float32で約2.67秒です。N=100・10サイズは

@@ -11,6 +11,7 @@ import pyspiel
 
 from toy_poker.games.base import GamePlugin
 from toy_poker.reporting.html import save_html
+from toy_poker.reporting.strategy_viewer import save_strategy_viewer
 from toy_poker.reporting.plots import (
     save_convergence_plot,
     save_ev_plot,
@@ -58,6 +59,17 @@ def write_report_bundle(
     )
     reporting["terminal_paths_filename"] = (
         "terminal_paths.csv.gz" if major_only else "terminal_paths.csv"
+    )
+    viewer_created = False
+    if bool(reporting.setdefault("interactive_viewer", True)):
+        viewer_created = save_strategy_viewer(
+            directory / "strategy_viewer.html",
+            analysis,
+            plugin,
+            grid_columns=int(reporting.setdefault("viewer_grid_columns", 10)),
+        )
+    reporting["strategy_viewer_filename"] = (
+        "strategy_viewer.html" if viewer_created else None
     )
     serialized = json.dumps(analysis, indent=2, ensure_ascii=False)
     if major_only:
@@ -212,4 +224,5 @@ def write_report_bundle(
         plugin,
         tree_created,
         major_tree_created,
+        viewer_created,
     )

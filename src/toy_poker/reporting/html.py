@@ -42,6 +42,7 @@ def save_html(
     plugin: GamePlugin,
     tree_created: bool,
     major_tree_created: bool,
+    viewer_created: bool = False,
 ) -> None:
     summary = analysis["summary"]
     solver = analysis["solver"]
@@ -91,6 +92,13 @@ def save_html(
         if analysis["game"].get("rank_distribution") is not None
         else ""
     )
+    viewer = (
+        '<section class="viewer-cta"><div><strong>Interactive strategy viewer</strong>'
+        '<br><span>履歴を選び、各private numberの混合戦略とAction EVを確認できます。</span></div>'
+        '<a href="strategy_viewer.html">Open viewer →</a></section>'
+        if viewer_created
+        else ""
+    )
     document = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>{html.escape(plugin.metadata.title)} report</title><style>
 body {{ font-family: system-ui,sans-serif; margin:2rem auto; max-width:1200px; color:#222; }}
@@ -100,6 +108,8 @@ th,td {{ border-bottom:1px solid #ddd; padding:.65rem; text-align:left; vertical
 img {{ width:100%; height:auto; margin-bottom:2rem; }} .tag {{ font-size:.75rem; background:#eee; border-radius:4px; padding:.15rem .3rem; }}
 .context {{ color:#666; font-size:.8rem; }} .section-note {{ color:#555; }}
 hr {{ border:0; border-top:2px solid #ddd; margin:3rem 0; }}
+.viewer-cta {{ display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:1rem 1.2rem;margin:1.5rem 0; }}
+.viewer-cta a {{ background:#315efb;color:white;text-decoration:none;border-radius:7px;padding:.7rem 1rem;font-weight:700; }}
 </style></head><body><h1>{html.escape(plugin.metadata.title)}</h1>
 <p>EV is {html.escape(plugin.metadata.utility_unit)} for the acting player, conditional on reaching the information set.
 {html.escape(plugin.metadata.utility_convention)} This game has terminal utility sum
@@ -113,6 +123,7 @@ checkpoint evaluation: <code>{html.escape(analysis['solver'].get('checkpoint_eva
 target exploitability: <code>{solver.get('target_exploitability', float('nan')):.1e}</code>;
 best checkpoint: <code>{solver.get('best_exploitability', summary['exploitability']):.8g}</code>
 at iteration {solver.get('best_iteration', solver.get('iterations', 0)):,}.</p>
+{viewer}
 {rank_distribution}
 <h2>Major strategy</h2>
 <p class="section-note">Information sets and tree nodes with reach probability below
