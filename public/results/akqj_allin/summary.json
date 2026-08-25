@@ -33,7 +33,8 @@
     "nash_conv": 1.3607735077414418e-05
   },
   "files": {
-    "report": "report.html",
+    "report": "report.md",
+    "html_report": "report.html",
     "strategy_viewer": null
   }
 }

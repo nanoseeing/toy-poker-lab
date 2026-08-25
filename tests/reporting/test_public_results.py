@@ -99,6 +99,7 @@ def test_publish_results_writes_browsable_lightweight_bundle(tmp_path: Path):
     assert published == [target]
     assert not stale.exists()
     assert (target / "report.html").exists()
+    assert (target / "report.md").exists()
     assert (target / "strategy_viewer.html").read_text(encoding="utf-8") == "viewer"
     assert (target / "figures" / "convergence.png").exists()
     assert (target / "summary.json").exists()
@@ -107,10 +108,18 @@ def test_publish_results_writes_browsable_lightweight_bundle(tmp_path: Path):
     report = (target / "report.html").read_text(encoding="utf-8")
     assert 'href="strategy_viewer.html"' in report
     assert "Data:" not in report
+    markdown = (target / "report.md").read_text(encoding="utf-8")
+    assert "# AKQ all-in toy poker" in markdown
+    assert "![Major strategy tree](figures/major_strategy_tree.png)" in markdown
+    assert "[Interactive strategy viewer](strategy_viewer.html)" in markdown
+    summary = json.loads((target / "summary.json").read_text(encoding="utf-8"))
+    assert summary["files"]["report"] == "report.md"
+    assert summary["files"]["html_report"] == "report.html"
     index = (output_root / "index.html").read_text(encoding="utf-8")
-    assert 'akq_allin/report.html' in index
+    assert 'akq_allin/report.md' in index
     assert 'akq_allin/strategy_viewer.html' in index
     readme = (output_root / "README.md").read_text(encoding="utf-8")
+    assert "[Report](akq_allin/report.md)" in readme
     assert "toy-poker publish-results" in readme
 
 

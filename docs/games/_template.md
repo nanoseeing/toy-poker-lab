@@ -24,7 +24,7 @@
 
 ## 公開解析結果
 
-`public/results/<game_id>/`のReportへリンクします。interactive viewerを生成できる
+`public/results/<game_id>/report.md`へリンクします。interactive viewerを生成できる
 ゲームではViewerにもリンクし、使用した標準または高精度設定を明記します。
 
 ## プレイヤーと情報構造

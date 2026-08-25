@@ -13,6 +13,7 @@ from pathlib import Path
 
 from toy_poker.games import get_game
 from toy_poker.reporting.html import save_html
+from toy_poker.reporting.markdown import save_markdown
 
 
 def _load_analysis(run_directory: Path) -> dict:
@@ -74,7 +75,8 @@ def _summary_document(
         "solver": analysis["solver"],
         "summary": analysis["summary"],
         "files": {
-            "report": "report.html",
+            "report": "report.md",
+            "html_report": "report.html",
             "strategy_viewer": "strategy_viewer.html" if viewer_created else None,
         },
     }
@@ -93,7 +95,7 @@ def _write_index(output_root: Path, entries: list[dict]) -> None:
         rows.append(
             "<tr>"
             f"<td>{html.escape(entry['title'])}</td>"
-            f"<td><a href=\"{html.escape(game_id)}/report.html\">Report</a></td>"
+            f"<td><a href=\"{html.escape(game_id)}/report.md\">Report</a></td>"
             f"<td>{viewer_link}</td>"
             f"<td>{entry['iterations']:,}</td>"
             f"<td>{entry['exploitability']:.8g}</td>"
@@ -104,7 +106,7 @@ def _write_index(output_root: Path, entries: list[dict]) -> None:
             f"[Viewer]({game_id}/strategy_viewer.html)" if entry["viewer"] else "—"
         )
         markdown_rows.append(
-            f"| `{game_id}` | [Report]({game_id}/report.html) | {viewer_markdown} | "
+            f"| `{game_id}` | [Report]({game_id}/report.md) | {viewer_markdown} | "
             f"{entry['iterations']:,} | `{entry['exploitability']:.8g}` |"
         )
 
@@ -194,6 +196,14 @@ def publish_results(
                 major_tree_created=(figures / "major_strategy_tree.png").exists(),
                 viewer_created=viewer_created,
                 include_data_links=False,
+            )
+            save_markdown(
+                staging / "report.md",
+                analysis,
+                plugin,
+                tree_created=(figures / "strategy_tree.png").exists(),
+                major_tree_created=(figures / "major_strategy_tree.png").exists(),
+                viewer_created=viewer_created,
             )
             summary = _summary_document(analysis, manifest, run_id, viewer_created)
             (staging / "summary.json").write_text(

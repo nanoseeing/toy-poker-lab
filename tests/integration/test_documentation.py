@@ -70,6 +70,7 @@ def test_every_registered_game_has_a_pinned_public_result():
     assert set(selections) == registered_games
     for game_id in registered_games:
         result_directory = PROJECT_ROOT / "public" / "results" / game_id
+        assert (result_directory / "report.md").exists()
         assert (result_directory / "report.html").exists()
         summary_path = result_directory / "summary.json"
         assert summary_path.exists()

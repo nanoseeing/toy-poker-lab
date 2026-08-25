@@ -133,7 +133,8 @@ toy-poker publish-results --selection configs/public_results.toml \
   --artifact-root artifacts --output-root public/results
 ```
 
-`publish-results`はreport、必要な図、viewer、設定と軽量summaryだけを
+`publish-results`はGit上で表示できるMarkdown report、standalone HTML report、必要な図、
+viewer、設定と軽量summaryだけを
 `public/results/`へ書き出します。公開するrun IDは`configs/public_results.toml`で固定し、
 再生成時に意図せず結果が変わらないようにします。容量の大きいpolicy、全analysis、CSVは
 `artifacts/`に残します。`--selection`を省略した場合だけ、各ゲームの`latest.json`を使います。

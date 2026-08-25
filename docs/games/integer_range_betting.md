@@ -23,7 +23,7 @@ card-removal effectはこのゲームからは学べません。
 
 ## 公開解析結果
 
-- [N=50・7サイズ高精度設定のReport](../../public/results/integer_range_betting/report.html)
+- [N=50・7サイズ高精度設定のReport](../../public/results/integer_range_betting/report.md)
 - [Interactive strategy viewer](../../public/results/integer_range_betting/strategy_viewer.html)
 - [計算条件と要約](../../public/results/integer_range_betting/summary.json)
 

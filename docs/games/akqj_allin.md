@@ -21,7 +21,7 @@ blockerや将来streetが同価性を崩すかどうかを優先して読む考�
 
 ## 公開解析結果
 
-- [Stack 4・10万反復の高精度Report](../../public/results/akqj_allin/report.html)
+- [Stack 4・10万反復の高精度Report](../../public/results/akqj_allin/report.md)
 - [計算条件と要約](../../public/results/akqj_allin/summary.json)
 
 ## プレイヤーと情報構造

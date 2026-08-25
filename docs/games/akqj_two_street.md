@@ -22,7 +22,7 @@ range更新、複数streetのequity realization、ディレイしたbluff/value�
 
 ## 公開解析結果
 
-- [Stack 4・10万反復の高精度Report](../../public/results/akqj_two_street/report.html)
+- [Stack 4・10万反復の高精度Report](../../public/results/akqj_two_street/report.md)
 - [計算条件と要約](../../public/results/akqj_two_street/summary.json)
 
 ## プレイヤーと情報構造

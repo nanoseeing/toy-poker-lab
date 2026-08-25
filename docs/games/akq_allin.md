@@ -21,7 +21,7 @@ range advantageとpositionの影響を、blockerや複数サイズの影響か�
 
 ## 公開解析結果
 
-- [10万反復の高精度Report](../../public/results/akq_allin/report.html)
+- [10万反復の高精度Report](../../public/results/akq_allin/report.md)
 - [計算条件と要約](../../public/results/akq_allin/summary.json)
 
 ## プレイヤーと情報構造
