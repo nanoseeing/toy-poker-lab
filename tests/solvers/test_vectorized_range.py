@@ -5,7 +5,7 @@ import pytest
 
 from toy_poker.analysis import expected_returns
 from toy_poker.games import get_game
-from toy_poker.solvers import CFRPlusSolverAdapter, SolverConfig
+from toy_poker.solvers import CFRPlusSolverAdapter, NodeLock, SolverConfig
 
 
 def test_vectorized_weighted_evaluation_matches_open_spiel():
@@ -87,3 +87,34 @@ def test_dcfr_reaches_a_low_exploitability_and_preserves_constant_sum():
     checkpoint = result.convergence[-1]
     assert checkpoint["exploitability"] < 5e-4
     assert sum(checkpoint["returns"]) == pytest.approx(1.0, abs=1e-12)
+
+
+def test_node_lock_fixes_strategy_and_uses_constrained_best_response():
+    game = get_game("integer_range_betting").load_game(
+        {
+            "num_ranks": 3,
+            "oop_stack": 1.0,
+            "ip_stack": 1.0,
+            "bet_fractions": "0.1,0.2,0.3333333333333333,0.5,0.75",
+        }
+    )
+    result = CFRPlusSolverAdapter().solve(
+        game,
+        SolverConfig(
+            backend="vectorized_range",
+            algorithm="dcfr",
+            iterations=2_000,
+            snapshot_every=1_000,
+            early_stopping=False,
+            node_locks=(
+                NodeLock("OOP", 2, "ROOT", (("check", 1.0),)),
+            ),
+        ),
+    )
+
+    assert dict(result.policy_table["P1|2|ROOT"])[0] == 1.0
+    assert sum(dict(result.policy_table["P1|2|ROOT"]).values()) == 1.0
+    assert result.convergence[-1]["exploitability"] < 1e-4
+    assert pyspiel.exploitability(game, result.policy) > result.convergence[-1][
+        "exploitability"
+    ]

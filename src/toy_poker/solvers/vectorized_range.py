@@ -14,6 +14,7 @@ from toy_poker.games.fixed_range_one_street import (
     PLAYER_OOP,
     FixedRangeOneStreetGame,
 )
+from toy_poker.solvers.node_lock import apply_node_locks, locked_rows
 from toy_poker.solvers.policy import PolicyTable, standalone_policy
 from toy_poker.solvers.result import SolveResult, SolverConfig
 
@@ -26,6 +27,7 @@ class _PublicNode:
     children: tuple["_PublicNode", ...]
     regrets: np.ndarray | None
     strategy_sum: np.ndarray | None
+    locked_strategy: np.ndarray | None = None
 
 
 class VectorizedRangeEvaluator:
@@ -115,7 +117,10 @@ class VectorizedRangeEvaluator:
         return result
 
     def best_response_value(
-        self, strategies: dict[int, np.ndarray], best_responder: int
+        self,
+        strategies: dict[int, np.ndarray],
+        best_responder: int,
+        honor_locks: bool = True,
     ) -> float:
         def visit(node: _PublicNode, opponent_reach: np.ndarray) -> np.ndarray:
             if node.player is None:
@@ -137,7 +142,13 @@ class VectorizedRangeEvaluator:
             children = np.stack(
                 [visit(child, opponent_reach) for child in node.children], axis=1
             )
-            return np.max(children, axis=1)
+            result = np.max(children, axis=1)
+            rows = locked_rows(node) if honor_locks else None
+            if rows is not None and np.any(rows):
+                result[rows] = np.sum(
+                    node.locked_strategy[rows] * children[rows], axis=1
+                )
+            return result
 
         values = visit(self.root, np.ones(self.game.num_ranks, dtype=float))
         own_probability = (
@@ -148,11 +159,13 @@ class VectorizedRangeEvaluator:
         return float(np.dot(own_probability, values))
 
     def evaluate(
-        self, strategies: dict[int, np.ndarray]
+        self,
+        strategies: dict[int, np.ndarray],
+        honor_locks: bool = True,
     ) -> tuple[float, list[float]]:
         returns = self.expected_returns(strategies)
         improvements = [
-            self.best_response_value(strategies, player) - returns[player]
+            self.best_response_value(strategies, player, honor_locks) - returns[player]
             for player in range(2)
         ]
         return float(sum(improvements) / 2.0), returns
@@ -174,6 +187,7 @@ class VectorizedRangeCFRPlusSolver:
             raise ValueError(f"Unsupported vectorized algorithm: {config.algorithm}")
         root = self._build_public_tree(game)
         decision_nodes = self._decision_nodes(root)
+        apply_node_locks(game, decision_nodes, config.node_locks)
         evaluator = VectorizedRangeEvaluator(game, root)
         convergence = []
         consecutive_hits = 0
@@ -184,10 +198,7 @@ class VectorizedRangeCFRPlusSolver:
 
         for iteration in range(1, config.iterations + 1):
             for updating_player in (PLAYER_IP, PLAYER_OOP):
-                strategies = {
-                    id(node): self._regret_matching(node.regrets)
-                    for node in decision_nodes
-                }
+                strategies = self._current_strategies(decision_nodes)
                 deltas: dict[int, np.ndarray] = {}
                 self._cfr_update(
                     root,
@@ -208,9 +219,7 @@ class VectorizedRangeCFRPlusSolver:
                         else:
                             self._discount_dcfr_regrets(node.regrets, iteration, config)
                             node.regrets += deltas[id(node)]
-            strategies = {
-                id(node): self._regret_matching(node.regrets) for node in decision_nodes
-            }
+            strategies = self._current_strategies(decision_nodes)
             if config.algorithm == "dcfr":
                 average_discount = ((iteration - 1.0) / iteration) ** config.dcfr_gamma
                 for node in decision_nodes:
@@ -227,13 +236,16 @@ class VectorizedRangeCFRPlusSolver:
             if iteration % config.snapshot_every == 0 or iteration == config.iterations:
                 average = self._average_strategies(decision_nodes)
                 gap, returns = evaluator.evaluate(average)
-                convergence.append(
-                    {
-                        "iteration": iteration,
-                        "exploitability": gap,
-                        "returns": returns,
-                    }
-                )
+                checkpoint = {
+                    "iteration": iteration,
+                    "exploitability": gap,
+                    "returns": returns,
+                }
+                if config.node_locks:
+                    checkpoint["unconstrained_exploitability"] = evaluator.evaluate(
+                        average, honor_locks=False
+                    )[0]
+                convergence.append(checkpoint)
                 if (
                     iteration >= config.min_iterations
                     and gap <= config.target_exploitability
@@ -304,6 +316,18 @@ class VectorizedRangeCFRPlusSolver:
         uniform = np.full_like(regrets, 1.0 / regrets.shape[1])
         return np.divide(positive, totals, out=uniform, where=totals > 0.0)
 
+    def _current_strategies(
+        self, nodes: list[_PublicNode]
+    ) -> dict[int, np.ndarray]:
+        result = {}
+        for node in nodes:
+            strategy = self._regret_matching(node.regrets)
+            rows = locked_rows(node)
+            if rows is not None and np.any(rows):
+                strategy[rows] = node.locked_strategy[rows]
+            result[id(node)] = strategy
+        return result
+
     @staticmethod
     def _discount_dcfr_regrets(
         regrets: np.ndarray, iteration: int, config: SolverConfig
@@ -328,6 +352,9 @@ class VectorizedRangeCFRPlusSolver:
             result[id(node)] = np.divide(
                 node.strategy_sum, totals, out=uniform, where=totals > 0.0
             )
+            rows = locked_rows(node)
+            if rows is not None and np.any(rows):
+                result[id(node)][rows] = node.locked_strategy[rows]
         return result
 
     def _cfr_update(
@@ -393,7 +420,11 @@ class VectorizedRangeCFRPlusSolver:
         children = np.stack(child_values, axis=1)
         if node.player == updating_player:
             result = np.sum(strategy * children, axis=1)
-            deltas[id(node)] = children - result[:, None]
+            delta = children - result[:, None]
+            rows = locked_rows(node)
+            if rows is not None:
+                delta[rows] = 0.0
+            deltas[id(node)] = delta
             return result
         return np.sum(children, axis=1)
 

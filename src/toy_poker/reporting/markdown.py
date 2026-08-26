@@ -79,6 +79,14 @@ def save_markdown(
         f"| {_text(player)} EV | {value:+.6f} |"
         for player, value in summary["returns"].items()
     )
+    unconstrained_rows = (
+        [
+            f"| Unconstrained exploitability | "
+            f"{float(summary['unconstrained_exploitability']):.8g} |"
+        ]
+        if summary.get("unconstrained_exploitability") is not None
+        else []
+    )
 
     sections = [
         f"# {_text(plugin.metadata.title)}",
@@ -93,7 +101,8 @@ def save_markdown(
         "| Metric | Value |",
         "|---|---:|",
         f"| Iterations | {completed_iterations:,} / {requested_iterations:,} |",
-        f"| Exploitability | {summary['exploitability']:.8g} |",
+        f"| {'Constrained Nash gap' if solver.get('exploitability_definition') == 'constrained_nash_gap' else 'Exploitability'} | {summary['exploitability']:.8g} |",
+        *unconstrained_rows,
         returns,
         "",
         f"- Backend: `{_text(solver['backend'])}`",
@@ -107,6 +116,30 @@ def save_markdown(
         f"iteration {solver.get('best_iteration', solver.get('iterations', 0)):,}",
         "",
     ]
+
+    node_locks = solver.get("node_locks", [])
+    if node_locks:
+        lock_lines = []
+        for lock in node_locks:
+            actions = ", ".join(
+                f"{_text(action)} {float(probability):.2%}"
+                for action, probability in lock["actions"].items()
+            )
+            lock_lines.append(
+                f"- `{_text(lock['player'])}` rank `{lock['rank']}` at "
+                f"`{_text(lock['history'])}`: {actions}"
+            )
+        sections.extend(
+            [
+                "### Node locks",
+                "",
+                *lock_lines,
+                "",
+                "The convergence metric is the constrained Nash gap: locked actions "
+                "cannot be changed by the best response.",
+                "",
+            ]
+        )
 
     if viewer_created:
         sections.extend(

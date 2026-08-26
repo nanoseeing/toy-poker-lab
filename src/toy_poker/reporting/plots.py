@@ -282,7 +282,23 @@ def save_convergence_plot(
     rows = 2 if analytic is not None else 1
     fig, axes = plt.subplots(rows, 1, figsize=(10, 7.5 if rows == 2 else 4.5), sharex=True, squeeze=False)
     ax_gap = axes[0][0]
-    ax_gap.semilogy(iterations, gaps, color="#E45756", linewidth=2)
+    constrained = all("unconstrained_exploitability" in row for row in convergence)
+    ax_gap.semilogy(
+        iterations,
+        gaps,
+        color="#E45756",
+        linewidth=2,
+        label="Constrained Nash gap" if constrained else None,
+    )
+    if constrained:
+        ax_gap.semilogy(
+            iterations,
+            [row["unconstrained_exploitability"] for row in convergence],
+            color="#4C78A8",
+            linestyle=":",
+            linewidth=1.5,
+            label="Unconstrained exploitability",
+        )
     if target_exploitability is not None:
         ax_gap.axhline(
             target_exploitability,
@@ -299,9 +315,9 @@ def save_convergence_plot(
             linewidth=1.2,
             label=f"Stopped ({stopped_iteration:,})",
         )
-    if target_exploitability is not None or stopped_iteration is not None:
+    if constrained or target_exploitability is not None or stopped_iteration is not None:
         ax_gap.legend()
-    ax_gap.set_ylabel("Exploitability")
+    ax_gap.set_ylabel("Nash gap" if constrained else "Exploitability")
     ax_gap.set_title("Solver convergence")
     ax_gap.grid(alpha=0.25)
     if analytic is not None:

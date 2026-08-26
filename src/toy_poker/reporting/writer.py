@@ -122,6 +122,10 @@ def write_report_bundle(
     convergence_rows = []
     for snapshot in analysis["convergence"]:
         row = {"iteration": snapshot["iteration"], "exploitability": snapshot["exploitability"]}
+        if "unconstrained_exploitability" in snapshot:
+            row["unconstrained_exploitability"] = snapshot[
+                "unconstrained_exploitability"
+            ]
         row.update(
             {
                 f"return_{plugin.player_name(player).lower()}": value

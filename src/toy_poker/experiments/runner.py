@@ -75,6 +75,18 @@ def run_experiment(
         )
         paths = terminal_paths(game, policy, plugin)
     reference_returns = plugin.analytic_returns(game)
+    node_locks = [
+        {
+            "player": lock.player,
+            "rank": lock.rank,
+            "history": lock.history,
+            "actions": dict(lock.action_probabilities),
+        }
+        for lock in config.solver.node_locks
+    ]
+    exploitability_definition = (
+        "constrained_nash_gap" if node_locks else "exploitability"
+    )
     analysis = {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -127,13 +139,19 @@ def run_experiment(
             "best_exploitability": solver_result.best_exploitability,
             "best_iteration": solver_result.best_iteration,
             "elapsed_seconds": solver_result.elapsed_seconds,
+            "node_locks": node_locks,
+            "exploitability_definition": exploitability_definition,
         },
         "summary": {
             "returns": {
                 plugin.player_name(player): value for player, value in enumerate(returns)
             },
             "exploitability": gap,
+            "exploitability_definition": exploitability_definition,
             "nash_conv": gap * game.num_players(),
+            "unconstrained_exploitability": final_checkpoint.get(
+                "unconstrained_exploitability"
+            ),
         },
         "reporting": {
             "major_reach_threshold": config.analysis.major_reach_threshold,

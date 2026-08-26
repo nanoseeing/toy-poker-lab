@@ -51,6 +51,12 @@ def save_html(
         f'<div class="card">{html.escape(player)} EV<div class="value">{value:+.6f}</div></div>'
         for player, value in summary["returns"].items()
     )
+    unconstrained_card = (
+        '<div class="card">Unconstrained exploitability<div class="value">'
+        f"{float(summary['unconstrained_exploitability']):.8f}</div></div>"
+        if summary.get("unconstrained_exploitability") is not None
+        else ""
+    )
     major_reach_threshold = float(
         analysis.get("reporting", {}).get("major_reach_threshold", 1e-4)
     )
@@ -100,6 +106,25 @@ def save_html(
         if viewer_created
         else ""
     )
+    node_locks = analysis["solver"].get("node_locks", [])
+    node_lock_html = ""
+    if node_locks:
+        items = []
+        for lock in node_locks:
+            actions = ", ".join(
+                f"{html.escape(action)} {float(probability):.2%}"
+                for action, probability in lock["actions"].items()
+            )
+            items.append(
+                f"<li><code>{html.escape(lock['player'])}</code> rank "
+                f"<code>{lock['rank']}</code> at <code>{html.escape(lock['history'])}</code>: "
+                f"{actions}</li>"
+            )
+        node_lock_html = (
+            "<h3>Node locks</h3><ul>" + "".join(items) + "</ul>"
+            "<p>The convergence metric is the constrained Nash gap: locked actions "
+            "cannot be changed by the best response.</p>"
+        )
     data_links = (
         f'<p>Data: <a href="{html.escape(analysis_filename)}">analysis JSON</a>, '
         f'<a href="{html.escape(policy_filename)}">policy</a>, '
@@ -134,11 +159,12 @@ hr {{ border:0; border-top:2px solid #ddd; margin:3rem 0; }}
 algorithm: <code>{html.escape(analysis['solver'].get('algorithm', 'cfr_plus'))}</code>;
 checkpoint evaluation: <code>{html.escape(analysis['solver'].get('checkpoint_evaluation_backend', analysis['solver']['backend']))}</code>.</p>
 <div class="cards"><div class="card">Iterations<div class="value">{solver.get('completed_iterations', solver['iterations']):,} / {solver.get('requested_iterations', solver['iterations']):,}</div></div>
-<div class="card">Exploitability<div class="value">{summary['exploitability']:.8f}</div></div>{cards}</div>
+<div class="card">{'Constrained Nash gap' if solver.get('exploitability_definition') == 'constrained_nash_gap' else 'Exploitability'}<div class="value">{summary['exploitability']:.8f}</div></div>{unconstrained_card}{cards}</div>
 <p>Stop reason: <code>{html.escape(solver.get('stop_reason', 'max_iterations'))}</code>;
 target exploitability: <code>{solver.get('target_exploitability', float('nan')):.1e}</code>;
 best checkpoint: <code>{solver.get('best_exploitability', summary['exploitability']):.8g}</code>
 at iteration {solver.get('best_iteration', solver.get('iterations', 0)):,}.</p>
+{node_lock_html}
 {viewer}
 {rank_distribution}
 <h2>Major strategy</h2>

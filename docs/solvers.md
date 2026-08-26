@@ -18,6 +18,28 @@ rank vectorを分離したfull-tree CFRを使います。既定の高速経路�
 `DCFR(1.5, 0, 2)`を実装します。DCFRでは正・負の累積regretを別々にdiscountし、平均方策も
 discountします。
 
+## Node lock
+
+`vectorized_range`と`cpp_range`では、特定のplayer・private rank・public historyの方策を固定し、
+残りのinformation setだけを最適化できます。例えばrootでOOPのrank 2を100% checkに固定する
+設定は次の通りです。
+
+```toml
+[[solver.node_locks]]
+player = "OOP"
+rank = 2
+history = "ROOT"
+actions = { check = 1.0 }
+```
+
+actionには`check`、`fold`、`call`、`allin`、`bet50%`、`raise33%`のような表示名、または
+game内のaction IDを指定できます。複数actionを指定する場合も確率合計は1にします。
+
+lockありのcheckpoint値は、固定方策からの逸脱をbest responseに許さない
+`constrained_nash_gap`です。通常のExploitabilityはlockを破る逸脱も含むため、lockした戦略が
+本来の均衡と異なる場合には0へ収束しません。Expected Returnsは実際のlock済み方策そのものを
+評価します。
+
 ## データ配置
 
 public treeはnodeごとのPython objectではなく、`players`、`action_offsets`、`children`、

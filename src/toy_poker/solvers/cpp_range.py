@@ -9,6 +9,7 @@ import pyspiel
 
 from toy_poker.games.fixed_range_one_street import FixedRangeOneStreetGame
 from toy_poker.solvers.flat_range import FlatPublicTree, flatten_public_tree
+from toy_poker.solvers.node_lock import apply_node_locks
 from toy_poker.solvers.policy import standalone_policy
 from toy_poker.solvers.result import SolveResult, SolverConfig
 from toy_poker.solvers.vectorized_range import (
@@ -39,7 +40,9 @@ class CppRangeSolver:
         reference = VectorizedRangeCFRPlusSolver()
         root = reference._build_public_tree(game)
         decision_nodes = reference._decision_nodes(root)
+        apply_node_locks(game, decision_nodes, config.node_locks)
         flat = flatten_public_tree(root)
+        locked_strategy = self._flat_locked_strategy(flat, game.num_ranks)
         evaluator = VectorizedRangeEvaluator(game, root)
         core_type = RangeSolverCoreFloat32 if config.precision == "float32" else RangeSolverCore
         core = core_type(
@@ -51,6 +54,7 @@ class CppRangeSolver:
             flat.matched_commitments,
             np.asarray(game.oop_rank_probabilities, dtype=np.float64),
             np.asarray(game.ip_rank_probabilities, dtype=np.float64),
+            locked_strategy,
             config.algorithm,
             config.dcfr_alpha,
             config.dcfr_beta,
@@ -66,13 +70,16 @@ class CppRangeSolver:
             core.run_until(checkpoint)
             average = self._strategies(flat, core.average_strategy())
             gap, returns = evaluator.evaluate(average)
-            convergence.append(
-                {
-                    "iteration": checkpoint,
-                    "exploitability": gap,
-                    "returns": returns,
-                }
-            )
+            checkpoint_result = {
+                "iteration": checkpoint,
+                "exploitability": gap,
+                "returns": returns,
+            }
+            if config.node_locks:
+                checkpoint_result["unconstrained_exploitability"] = evaluator.evaluate(
+                    average, honor_locks=False
+                )[0]
+            convergence.append(checkpoint_result)
             if checkpoint >= config.min_iterations and gap <= config.target_exploitability:
                 consecutive_hits += 1
             else:
@@ -114,4 +121,17 @@ class CppRangeSolver:
             result[id(node)] = np.asarray(
                 slot_rank_strategy[begin:end].T, dtype=np.float64
             )
+        return result
+
+    @staticmethod
+    def _flat_locked_strategy(
+        flat: FlatPublicTree, num_ranks: int
+    ) -> np.ndarray:
+        result = np.full((flat.num_action_slots, num_ranks), np.nan, dtype=np.float64)
+        for node_index, node in enumerate(flat.nodes):
+            if node.player is None or node.locked_strategy is None:
+                continue
+            begin = int(flat.action_offsets[node_index])
+            end = int(flat.action_offsets[node_index + 1])
+            result[begin:end] = node.locked_strategy.T
         return result

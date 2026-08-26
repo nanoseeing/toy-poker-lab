@@ -9,7 +9,35 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from toy_poker.solvers.result import SolverConfig
+from toy_poker.solvers.result import NodeLock, SolverConfig
+
+
+def _parse_node_locks(raw_locks: Any) -> tuple[NodeLock, ...]:
+    if raw_locks is None:
+        return ()
+    if not isinstance(raw_locks, list):
+        raise ValueError("solver.node_locks must be an array of tables")
+    result = []
+    for index, raw in enumerate(raw_locks):
+        if not isinstance(raw, dict):
+            raise ValueError(f"solver.node_locks[{index}] must be a table")
+        actions = raw.get("actions")
+        if not isinstance(actions, dict) or not actions:
+            raise ValueError(
+                f"solver.node_locks[{index}].actions must be a non-empty table"
+            )
+        result.append(
+            NodeLock(
+                player=str(raw.get("player", "")).upper(),
+                rank=int(raw["rank"]),
+                history=str(raw.get("history", "ROOT")).upper(),
+                action_probabilities=tuple(
+                    (str(action), float(probability))
+                    for action, probability in actions.items()
+                ),
+            )
+        )
+    return tuple(result)
 
 
 @dataclass(frozen=True)
@@ -63,6 +91,7 @@ class ExperimentConfig:
                 dcfr_beta=float(solver.get("dcfr_beta", 0.0)),
                 dcfr_gamma=float(solver.get("dcfr_gamma", 2.0)),
                 precision=str(solver.get("precision", "float64")),
+                node_locks=_parse_node_locks(solver.get("node_locks")),
             ),
             analysis=AnalysisConfig(
                 mode=str(analysis.get("mode", "exact_tree")),
@@ -107,6 +136,30 @@ class ExperimentConfig:
             raise ValueError("solver.precision must be 'float64' or 'float32'")
         if self.solver.precision == "float32" and self.solver.backend != "cpp_range":
             raise ValueError("float32 storage is currently supported only by cpp_range")
+        if self.solver.node_locks and self.solver.backend not in {
+            "vectorized_range",
+            "cpp_range",
+        }:
+            raise ValueError(
+                "node locks are currently supported only by vectorized_range and cpp_range"
+            )
+        seen_locks = set()
+        for lock in self.solver.node_locks:
+            if lock.player not in {"OOP", "IP"}:
+                raise ValueError("node lock player must be 'OOP' or 'IP'")
+            if not lock.history:
+                raise ValueError("node lock history cannot be empty")
+            if not lock.action_probabilities:
+                raise ValueError("node lock actions cannot be empty")
+            probabilities = [probability for _, probability in lock.action_probabilities]
+            if any(not math.isfinite(value) or value < 0 for value in probabilities):
+                raise ValueError("node lock probabilities must be finite and nonnegative")
+            if not math.isclose(sum(probabilities), 1.0, abs_tol=1e-12):
+                raise ValueError("node lock action probabilities must sum to 1")
+            lock_key = (lock.player, lock.rank, lock.history)
+            if lock_key in seen_locks:
+                raise ValueError(f"duplicate node lock: {lock_key}")
+            seen_locks.add(lock_key)
         if self.solver.backend not in {
             "python_game",
             "native_efg",

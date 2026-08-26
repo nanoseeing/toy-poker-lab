@@ -9,6 +9,16 @@ import pyspiel
 
 
 @dataclass(frozen=True)
+class NodeLock:
+    """A fixed behavioral strategy at one private-rank information set."""
+
+    player: str
+    rank: int
+    history: str
+    action_probabilities: tuple[tuple[str, float], ...]
+
+
+@dataclass(frozen=True)
 class SolverConfig:
     solver_id: str = "cfr_plus"
     backend: str = "native_efg"
@@ -23,6 +33,7 @@ class SolverConfig:
     dcfr_beta: float = 0.0
     dcfr_gamma: float = 2.0
     precision: str = "float64"
+    node_locks: tuple[NodeLock, ...] = ()
 
 
 @dataclass

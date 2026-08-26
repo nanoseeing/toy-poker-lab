@@ -3,7 +3,7 @@
 import pytest
 
 from toy_poker.games import get_game
-from toy_poker.solvers import CFRPlusSolverAdapter, SolverConfig
+from toy_poker.solvers import CFRPlusSolverAdapter, NodeLock, SolverConfig
 
 
 @pytest.mark.parametrize("algorithm", ["cfr_plus", "dcfr"])
@@ -83,3 +83,36 @@ def test_cpp_matches_numpy_with_zero_weight_ranks():
     assert cpp_result.convergence[-1]["returns"] == pytest.approx(
         numpy_result.convergence[-1]["returns"], abs=1e-12
     )
+
+
+def test_cpp_matches_numpy_with_node_lock():
+    game = get_game("integer_range_betting").load_game(
+        {
+            "num_ranks": 3,
+            "oop_stack": 1.0,
+            "ip_stack": 1.0,
+            "bet_fractions": "0.1,0.2,0.3333333333333333,0.5,0.75",
+        }
+    )
+    common = dict(
+        algorithm="dcfr",
+        iterations=100,
+        snapshot_every=100,
+        early_stopping=False,
+        node_locks=(NodeLock("OOP", 2, "ROOT", (("check", 1.0),)),),
+    )
+    numpy_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="vectorized_range", **common)
+    )
+    cpp_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="cpp_range", **common)
+    )
+
+    assert cpp_result.convergence[-1]["exploitability"] == pytest.approx(
+        numpy_result.convergence[-1]["exploitability"], abs=1e-12
+    )
+    assert cpp_result.convergence[-1]["returns"] == pytest.approx(
+        numpy_result.convergence[-1]["returns"], abs=1e-12
+    )
+    for key, actions in numpy_result.policy_table.items():
+        assert dict(cpp_result.policy_table[key]) == pytest.approx(dict(actions), abs=1e-12)

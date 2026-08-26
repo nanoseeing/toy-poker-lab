@@ -38,6 +38,25 @@ class CFRPlusSolverAdapter:
             raise ValueError("DCFR exponents must be finite")
         if config.precision not in {"float64", "float32"}:
             raise ValueError(f"Unsupported precision: {config.precision}")
+        if config.node_locks and config.backend not in {
+            "vectorized_range",
+            "cpp_range",
+        }:
+            raise ValueError(
+                "node locks are currently supported only by vectorized_range and cpp_range"
+            )
+        for lock in config.node_locks:
+            if lock.player not in {"OOP", "IP"}:
+                raise ValueError("node lock player must be 'OOP' or 'IP'")
+            probabilities = [value for _, value in lock.action_probabilities]
+            if (
+                not probabilities
+                or any(not math.isfinite(value) or value < 0 for value in probabilities)
+                or not math.isclose(sum(probabilities), 1.0, abs_tol=1e-12)
+            ):
+                raise ValueError(
+                    "node lock action probabilities must be finite, nonnegative, and sum to 1"
+                )
         if config.backend == "vectorized_range":
             return VectorizedRangeCFRPlusSolver().solve(game, config)
         if config.backend == "cpp_range":

@@ -24,6 +24,7 @@ class RangeSolverCoreT {
       py::array_t<double, py::array::c_style | py::array::forcecast> matched,
       py::array_t<double, py::array::c_style | py::array::forcecast> oop_probability,
       py::array_t<double, py::array::c_style | py::array::forcecast> ip_probability,
+      py::array_t<double, py::array::c_style | py::array::forcecast> locked_strategy,
       std::string algorithm, double alpha, double beta, double gamma)
       : players_(copy_1d(players)),
         offsets_(copy_1d(offsets)),
@@ -33,6 +34,7 @@ class RangeSolverCoreT {
         matched_(copy_1d(matched)),
         oop_probability_(copy_1d(oop_probability)),
         ip_probability_(copy_1d(ip_probability)),
+        locked_strategy_(copy_flat(locked_strategy)),
         algorithm_(std::move(algorithm)),
         alpha_(alpha),
         beta_(beta),
@@ -49,6 +51,9 @@ class RangeSolverCoreT {
     }
     num_ranks_ = oop_probability_.size();
     num_slots_ = children_.size();
+    if (locked_strategy_.size() != num_slots_ * num_ranks_) {
+      throw std::invalid_argument("locked strategy must have shape [slots, ranks]");
+    }
     regrets_.assign(num_slots_ * num_ranks_, 0.0);
     strategy_sum_.assign(num_slots_ * num_ranks_, 0.0);
     strategy_.assign(num_slots_ * num_ranks_, 0.0);
@@ -108,9 +113,11 @@ class RangeSolverCoreT {
           total += strategy_sum_[index(slot, rank)];
         }
         for (std::size_t slot = begin; slot < end; ++slot) {
-          out(slot, rank) = total > 0.0
-              ? static_cast<double>(strategy_sum_[index(slot, rank)]) / total
-              : uniform;
+          out(slot, rank) = rank_locked(begin, rank)
+              ? locked_strategy_[index(slot, rank)]
+              : (total > 0.0
+                    ? static_cast<double>(strategy_sum_[index(slot, rank)]) / total
+                    : uniform);
         }
       }
     }
@@ -137,6 +144,10 @@ class RangeSolverCoreT {
 
   std::size_t index(std::size_t slot, std::size_t rank) const {
     return slot * num_ranks_ + rank;
+  }
+
+  bool rank_locked(std::size_t begin, std::size_t rank) const {
+    return std::isfinite(locked_strategy_[index(begin, rank)]);
   }
 
   std::size_t tree_depth(std::size_t node) const {
@@ -167,6 +178,13 @@ class RangeSolverCoreT {
       const std::size_t end = offsets_[node + 1];
       const double uniform = 1.0 / static_cast<double>(end - begin);
       for (std::size_t rank = 0; rank < num_ranks_; ++rank) {
+        if (rank_locked(begin, rank)) {
+          for (std::size_t slot = begin; slot < end; ++slot) {
+            strategy_[index(slot, rank)] = static_cast<Storage>(
+                locked_strategy_[index(slot, rank)]);
+          }
+          continue;
+        }
         double total = 0.0;
         for (std::size_t slot = begin; slot < end; ++slot) {
           total += std::max(static_cast<double>(regrets_[index(slot, rank)]), 0.0);
@@ -245,6 +263,7 @@ class RangeSolverCoreT {
     std::fill(result, result + num_ranks_, 0.0);
     if (player == updating_player) {
       for (std::size_t rank = 0; rank < num_ranks_; ++rank) {
+        if (rank_locked(begin, rank)) continue;
         for (std::size_t action = 0; action < action_count; ++action) {
           const std::size_t slot = begin + action;
           result[rank] += strategy_[index(slot, rank)] *
@@ -315,6 +334,7 @@ class RangeSolverCoreT {
   std::vector<int32_t> players_, offsets_, children_, folders_;
   std::vector<double> terminal_returns_, matched_;
   std::vector<double> oop_probability_, ip_probability_;
+  std::vector<double> locked_strategy_;
   std::vector<Storage> regrets_, strategy_sum_, strategy_;
   std::vector<double> child_scratch_, oop_reach_scratch_, ip_reach_scratch_;
   std::string algorithm_;
@@ -341,6 +361,7 @@ PYBIND11_MODULE(_range_solver_cpp, module) {
            py::array_t<double, py::array::c_style | py::array::forcecast>,
            py::array_t<double, py::array::c_style | py::array::forcecast>,
            py::array_t<double, py::array::c_style | py::array::forcecast>,
+           py::array_t<double, py::array::c_style | py::array::forcecast>,
            std::string, double, double, double>())
       .def("run_until", &RangeSolverCore::run_until)
       .def("average_strategy", &RangeSolverCore::average_strategy)
@@ -351,6 +372,7 @@ PYBIND11_MODULE(_range_solver_cpp, module) {
            py::array_t<int32_t, py::array::c_style | py::array::forcecast>,
            py::array_t<int32_t, py::array::c_style | py::array::forcecast>,
            py::array_t<int32_t, py::array::c_style | py::array::forcecast>,
+           py::array_t<double, py::array::c_style | py::array::forcecast>,
            py::array_t<double, py::array::c_style | py::array::forcecast>,
            py::array_t<double, py::array::c_style | py::array::forcecast>,
            py::array_t<double, py::array::c_style | py::array::forcecast>,
