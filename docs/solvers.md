@@ -9,7 +9,7 @@ rank vectorを分離したfull-tree CFRを使います。既定の高速経路�
 
 | 層 | 実装 | 役割 |
 |---|---|---|
-| 独立oracle | OpenSpiel `native_efg` CFR+ | 小さい木でutility・方策・Exploitabilityを照合 |
+| 独立oracle | OpenSpiel `native_efg` CFR+ | 小さい木で利得・方策・Exploitabilityを照合 |
 | 読みやすい参照 | NumPy `vectorized_range` | CFR+/DCFR式とrange評価を検証 |
 | 実運用 | C++20 `cpp_range` | flat public tree、連続rank配列、allocation-free traversal |
 | checkpoint | Python/NumPy exact evaluator | Expected Returns、best response、Exploitabilityをfloat64評価 |
@@ -43,17 +43,17 @@ lockありのcheckpoint値は、固定方策からの逸脱をbest responseに�
 ## データ配置
 
 public treeはnodeごとのPython objectではなく、`players`、`action_offsets`、`children`、
-terminal metadataからなるCSR風structure-of-arraysへ一度だけ変換します。regret、現在方策、
+終端metadataからなるCSR風structure-of-arraysへ一度だけ変換します。regret、現在方策、
 平均方策は`[public action slot, private rank]`の連続配列です。反復中のchild EVとreachは
 最大tree depth分のarenaを再利用し、node/actionごとのheap allocationを行いません。
 
-showdown EVはrank順のprefix sumで計算するため、各terminalでO(N²)ではなくO(N)です。
-OOPとIPの非一様rangeは別々の確率vectorとしてterminal counterfactual valueへ入ります。
+showdown EVはrank順のprefix sumで計算するため、各終端でO(N²)ではなくO(N)です。
+OOPとIPの非一様rangeは別々の確率vectorとして終端counterfactual valueへ入ります。
 
 ## 精度
 
 `precision="float64"`はregret・strategyもdoubleで保持する基準モードです。
-`precision="float32"`はこの3配列だけをfloatへ圧縮し、EV、reach、terminal集計、checkpoint
+`precision="float32"`はこの3配列だけをfloatへ圧縮し、EV、reach、終端集計、checkpoint
 評価はdoubleのままです。大規模木では状態メモリを半減できますが、丸めによって均衡の
 非一意な混合や収束経路は変わり得るため、最終品質は必ずfloat64 Exploitabilityで判定します。
 

@@ -40,7 +40,7 @@ range更新、複数streetのequity realization、ディレイしたbluff/value�
 ## ポット、スタック、Geometric bet
 
 初期potは1で固定です。この1は両者の現在の拠出ではないデッドマネーとして扱います。
-utilityはゲーム開始後に得る初期potと追加commitの純増減で表します。
+利得はゲーム開始後に得る初期potと追加commitの純増減で表します。
 
 | パラメータ | 型 | デフォルト | 制約 | 意味 |
 |---|---|---:|---|---|
@@ -91,13 +91,13 @@ All-inになります。例えば \(S=1\) では \(e\simeq0.366025\)、bet額は
 
 - IPがAならIPの勝ちです。
 - IPがQまたはJならOOPのKが勝ちです。
-- showdownで両者が追加で \(c\) ずつcommitしていれば、勝者utilityは
-  \(1+c\)、敗者utilityは \(-c\) です。
-- Foldしたプレイヤーが追加で \(c_f\) をcommitしていれば、そのプレイヤーのutilityは
+- showdownで両者が追加で \(c\) ずつcommitしていれば、勝者利得は
+  \(1+c\)、敗者利得は \(-c\) です。
+- Foldしたプレイヤーが追加で \(c_f\) をcommitしていれば、そのプレイヤーの利得は
   \(-c_f\)、勝者は \(1+c_f\) です。相手の未call分は返却されます。
-- utilityの合計はすべてのterminalで初期pot額の1です。
+- 利得の合計はすべての終端で初期pot額の1です。
 
-これは従来の中心化したutilityへ両プレイヤーとも一律に+0.5した規約です。そのため、
+これは従来の中心化した利得へ両プレイヤーとも一律に+0.5した規約です。そのため、
 戦略確率、アクション間のEV差、Exploitabilityは変わらず、各Player EVとAction EVの
 絶対値だけが+0.5されます。
 
@@ -199,7 +199,7 @@ e=\frac{-1+\sqrt{1+2\times4}}{2}=1
 \]
 
 1st streetではpot 1へ1をbetし、call後のpot 3へ2nd streetで残り3をAll-inします。
-両方がcallされると最終potは9、showdownのutilityは勝者`+5`、敗者`-4`です。
+両方がcallされると最終potは9、showdownの利得は勝者`+5`、敗者`-4`です。
 
 10,000反復の主要戦略は次のとおりです。
 

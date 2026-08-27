@@ -18,6 +18,7 @@ toy-poker benchmark configs/experiments/integer_range_betting_dcfr.toml --iterat
 numeric rangeゲームでは、履歴選択と1〜Nの混合戦略gridを備えた
 `strategy_viewer.html`も生成されます。
 コミット済みの代表結果は[public results](public/results/README.md)から閲覧できます。
+理論、最適戦略、実戦への読み替えは[strategy studies](docs/studies/README.md)にまとめています。
 
 ```bash
 toy-poker report artifacts/akq_allin/<run-id>
@@ -33,6 +34,8 @@ toy-poker publish-results --selection configs/public_results.toml \
 - [AKQJ all-inゲーム](docs/games/akqj_allin.md)
 - [AKQJ two-street geometricゲーム](docs/games/akqj_two_street.md)
 - [Integer 1-N weighted-range custom-sizeゲーム](docs/games/integer_range_betting.md)
+- [Integer 1-N two-streetゲーム](docs/games/integer_range_betting_two_street.md)
+- [戦略Study一覧](docs/studies/README.md)
 - [実験設定・CLI・artifact](docs/experiments.md)
 - [Solver構成・高速化・benchmark](docs/solvers.md)
 - [公開済みの解析結果](public/results/README.md)

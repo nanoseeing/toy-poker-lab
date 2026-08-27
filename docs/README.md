@@ -9,6 +9,7 @@
 | `docs/games/README.md` | 利用可能なゲームのカタログ | ゲームを追加・削除したとき |
 | `docs/experiments.md` | 全ゲーム共通のTOML、CLI、artifact仕様 | 実験基盤を変更したとき |
 | `docs/solvers.md` | solver更新則、データ配置、高速化・benchmark方針 | solverを変更したとき |
+| `docs/studies/*.md` | 最適戦略、数学的導出、solver再現、実戦への応用 | 教材または代表実験を追加したとき |
 | `configs/experiments/*.toml` | そのまま実行できる実験設定 | 標準実験を追加・変更したとき |
 | `artifacts/<game>/<run-id>/` | 方策、生データ、図、run固有レポート | 実験実行時に自動生成 |
 | `src/toy_poker/games/` | OpenSpielが実行する機械可読な仕様 | 実装変更時 |

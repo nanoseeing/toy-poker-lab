@@ -9,7 +9,7 @@
 - OOP/IPのprivate range、配布確率、強さの順序
 - 初期pot、stack、行動順
 - 使えるCheck・Bet・Raise・Call・Foldとサイズ制約
-- showdownとutilityの要点
+- showdownと利得の要点
 
 実装上のaction IDや厳密な計算式は後続sectionへ分け、ここに重複させません。
 
@@ -47,7 +47,7 @@
 
 ## ペイオフ
 
-utilityの基準、単位、定和性、初期ポットの扱い、全終端パターンを記載します。
+利得の基準、単位、定和性、初期ポットの扱い、全終端パターンを記載します。
 
 ## 解析解
 

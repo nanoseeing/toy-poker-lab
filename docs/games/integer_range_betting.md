@@ -8,7 +8,7 @@
 - 初期potは1、両者のstackはデフォルト4で、OOPから1 streetのbettingを始めます。
 - Check、Fold、Call、All-inに加え、設定したpot比率のBet/Raiseを両者が使えます。デフォルトは
   33% potと100% potで、no-limit hold'em標準のminimum raise制約を適用します。
-- Check-checkまたはCallでshowdown、Foldで即終了します。utility合計は初期potの1です。
+- Check-checkまたはCallでshowdown、Foldで即終了します。利得合計は初期potの1です。
 
 ## toyゲームの目的
 
@@ -48,6 +48,8 @@ OOPの正規化済み確率を`p_oop(i)`、IPを`p_ip(j)`とすると、deal確�
 | `num_ranks` | int | 10 | `>= 2` | private numberの最大値N |
 | `oop_rank_weights` | string | `"uniform"` | N個の有限な非負数、合計は正 | OOPの相対重み |
 | `ip_rank_weights` | string | `"uniform"` | N個の有限な非負数、合計は正 | IPの相対重み |
+| `oop_can_raise` | bool | `true` | boolean | OOPがbetにRaiseできるか |
+| `ip_can_raise` | bool | `true` | boolean | IPがbetにRaiseできるか |
 
 `bet_fractions`はOpenSpielのparameterとして渡せるよう、カンマ区切り文字列で指定します。
 読み込み時に数値へ変換し、昇順に正規化します。標準の1/3は表示上`33%`とします。
@@ -130,18 +132,18 @@ stack上限によるAll-inだけはminimum未満のshort raiseを許可します
 
 raise incrementは1で直前のbet increment 1と等しいため、minimum raiseを満たします。
 
-## Showdownとutility
+## Showdownと利得
 
 両者が追加で \(c\) ずつcommitしている場合は次のとおりです。
 
-| 結果 | IP utility | OOP utility |
+| 結果 | IP利得 | OOP利得 |
 |---|---:|---:|
 | IPの数字が大きい | \(1+c\) | \(-c\) |
 | OOPの数字が大きい | \(-c\) | \(1+c\) |
 | tie | 0.5 | 0.5 |
 
 Fold側が \(c_f\) commitしている場合、Fold側は \(-c_f\)、勝者は \(1+c_f\) です。
-すべてのterminalでutility合計は初期pot額の1になります。
+すべての終端で利得合計は初期pot額の1になります。
 
 ## 設定と実行
 
@@ -212,7 +214,7 @@ information setごとのAction EVで収束を確認します。
 
 数字1〜Nを比較しやすくするため、strategyとAction EVは、private numberを列、actionを
 行、公開履歴をパネルとするヒートマップで出力します。HTML後段のfull information set表と
-CSVには低到達確率局面を含む全データを残します。private dealは、action treeとterminal
+CSVには低到達確率局面を含む全データを残します。private dealは、action treeと終端
 paths上では到達確率で重み付けした1本のpublic treeへ集約します。正規化後の両rangeは
 `rank_distribution.csv`とレポートの分布図にも保存します。
 
@@ -228,7 +230,7 @@ rootからのrange残存率、条件付きrange weight、showdown EQを確認で
 
 Historyとbreadcrumbは、単なるaction列ではなく、actionを選択したプレイヤーを付けて
 `[OOP] Bet 10% → [IP] Raise 33% → [OOP] ?`のように表示します。末尾の`?`は現在の
-手番プレイヤーを表し、terminal historyには付けません。
+手番プレイヤーを表し、終端履歴には付けません。
 
 viewer最上段はbreadcrumb、history選択リスト、node情報を縦に配置します。node情報には
 reach probabilityとhistory depthを表示します。rangeの更新方法は表示しません。
@@ -246,7 +248,7 @@ bet/raise名とpot比率を表示します。通常サイズはaction前のpot�
 `Range metrics`は戦略方眼と`Manhattan strategy`の間に配置し、現在のhistoryにおけるOOP/IP
 それぞれのrange全体のEV、EQ、EQRを表示します。
 EVは現在nodeより前に支払ったcommitをsunk costとして戻したcurrent-node基準です。保存されて
-いるroot基準utilityを (U_p(h))、現在までのcommitを (C_p(h)) とすると、表示EVは次です。
+いるroot基準利得を $U_p(h)$、現在までのcommitを $C_p(h)$ とすると、表示EVは次です。
 
 \[
 EV_p(h)=U_p(h)+C_p(h)
@@ -254,7 +256,7 @@ EV_p(h)=U_p(h)+C_p(h)
 
 viewer内の`Node strategy`、rank詳細、tooltipのAction EVもすべて同じcurrent-node基準へ
 変換します。したがってbetに直面した局面のFold EVは0です。元の`analysis.json`とCSVは
-実験全体で統一しているroot基準utilityを保持し、表示時だけrebaseします。
+実験全体で統一しているroot基準利得を保持し、表示時だけrebaseします。
 
 この基準では両プレイヤーの表示EV合計が現在potと一致し、現在foldした場合の追加EVは0です。
 EQは現在の両条件付きrangeをそのままshowdownさせたときのrange equityです。EQRは
