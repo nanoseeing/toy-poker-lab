@@ -127,7 +127,7 @@ th{background:#f4f7fa}code{font-size:.85em}a{color:#315efb}
     readme = """# 公開解析結果
 
 各toyゲームの代表runから、Gitで閲覧しやすいreportと図を抽出したものです。
-`integer_range_betting`はinteractive strategy viewerも含みます。
+numeric range gameはinteractive strategy viewerも含みます。
 
 | Game | Report | Viewer | Iterations | Exploitability |
 |---|---|---|---:|---:|

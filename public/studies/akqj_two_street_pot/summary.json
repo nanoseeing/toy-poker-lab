@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "game": {
+    "id": "akqj_two_street",
+    "title": "AKQJ two-street geometric toy poker",
+    "parameters": {
+      "initial_pot": 1.0,
+      "oop_stack": 4.0,
+      "ip_stack": 4.0,
+      "streets": 2
+    },
+    "utility_sum": 1.0
+  },
+  "source": {
+    "run_id": "20260824T171423408260Z_e4dfff20",
+    "config_sha256": "e4dfff20e19655a749f624cfdf216b6eae15f2ead1e28fda26b9169f6af38294",
+    "git_commit": "9567c4233f91ebc59af902c5ac029e8ce1ec2dea"
+  },
+  "solver": {
+    "id": "cfr_plus",
+    "name": "OpenSpiel C++ CFRPlusSolver",
+    "backend": "native_efg",
+    "checkpoint_evaluation_backend": "native_efg",
+    "iterations": 100000,
+    "snapshot_every": 1000,
+    "elapsed_seconds": 5.137258411999937
+  },
+  "summary": {
+    "returns": {
+      "IP": 0.749999998149728,
+      "OOP": 0.2500000018502719
+    },
+    "exploitability": 3.591400045577231e-06,
+    "nash_conv": 7.182800091154462e-06
+  },
+  "files": {
+    "report": "report.md",
+    "html_report": "report.html",
+    "strategy_viewer": null
+  },
+  "study_id": "akqj_two_street_pot"
+}

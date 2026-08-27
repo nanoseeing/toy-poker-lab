@@ -355,7 +355,7 @@ def _tree(
             )
             nodes.append(
                 {
-                    "label": f"Terminal\n{payoff}",
+                    "label": payoff,
                     "depth": depth,
                     "reach": reach,
                     "terminal": True,
@@ -462,9 +462,9 @@ def _merged_public_tree(
                     f"{plugin.player_name(player)} {weighted / source['reach']:+.2f}"
                     for player, weighted in enumerate(source["returns"])
                 )
-                label = f"Terminal avg.\n{payoff}"
+                label = f"Avg.\n{payoff}"
             else:
-                label = "Terminal\noff path"
+                label = "off path"
         else:
             label = plugin.player_name(source["player"])
         nodes.append(
@@ -524,7 +524,7 @@ def _stored_public_tree(
                 f"{plugin.player_name(player)} {value:+.2f}"
                 for player, value in enumerate(source.get("returns", []))
             )
-            label = f"Terminal avg.\n{payoff}"
+            label = f"Avg.\n{payoff}"
         else:
             label = plugin.player_name(source["player_index"])
         nodes.append(

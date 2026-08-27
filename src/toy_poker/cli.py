@@ -12,6 +12,7 @@ from toy_poker.experiments.config import ExperimentConfig
 from toy_poker.experiments.runner import rerender_artifact, run_experiment
 from toy_poker.games import list_games
 from toy_poker.reporting.public_results import load_result_selection, publish_results
+from toy_poker.reporting.public_studies import load_study_selection, publish_studies
 
 
 def main() -> None:
@@ -42,6 +43,18 @@ def main() -> None:
         "--selection",
         type=Path,
         help="TOML mapping game IDs to reproducible source run IDs",
+    )
+    studies_parser = subparsers.add_parser(
+        "publish-studies", help="Publish pinned experiment runs by study ID"
+    )
+    studies_parser.add_argument(
+        "--artifact-root", type=Path, default=Path("artifacts")
+    )
+    studies_parser.add_argument(
+        "--output-root", type=Path, default=Path("public/studies")
+    )
+    studies_parser.add_argument(
+        "--selection", type=Path, default=Path("configs/public_studies.toml")
     )
     args = parser.parse_args()
 
@@ -74,6 +87,14 @@ def main() -> None:
             load_result_selection(args.selection) if args.selection is not None else None
         )
         published = publish_results(args.artifact_root, args.output_root, selections)
+        for path in published:
+            print(f"Published: {path.resolve()}")
+    elif args.command == "publish-studies":
+        published = publish_studies(
+            args.artifact_root,
+            args.output_root,
+            load_study_selection(args.selection),
+        )
         for path in published:
             print(f"Published: {path.resolve()}")
 

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "game": {
+    "id": "integer_range_betting",
+    "title": "Integer 1-N custom-size toy poker",
+    "parameters": {
+      "initial_pot": 1.0,
+      "oop_stack": 1.0,
+      "ip_stack": 1.0,
+      "min_card": 1,
+      "max_card": 3,
+      "num_ranks": 3,
+      "oop_rank_weights": "uniform",
+      "ip_rank_weights": "uniform",
+      "bet_fractions": "1.0",
+      "minimum_raise": "standard no-limit minimum raise",
+      "streets": 1,
+      "oop_rank_probabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "ip_rank_probabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    },
+    "utility_sum": 1.0
+  },
+  "source": {
+    "run_id": "20260826T181415249298Z_4254f63d",
+    "config_sha256": "4254f63dc93df0295945ca4f7912db7d68254d50d2446c7fa36cc7f76fa81f4d",
+    "git_commit": "cbcf5fc8b0b1e57be3f15f2e16691ba5d70cd7ae"
+  },
+  "solver": {
+    "id": "cfr_plus",
+    "name": "C++ range-vector DCFR",
+    "backend": "cpp_range",
+    "algorithm": "dcfr",
+    "precision": "float64",
+    "checkpoint_evaluation_backend": "cpp_range",
+    "iterations": 3000,
+    "requested_iterations": 10000,
+    "completed_iterations": 3000,
+    "snapshot_every": 1000,
+    "early_stopping": true,
+    "early_stopped": true,
+    "stop_reason": "target_exploitability",
+    "target_exploitability": 1e-05,
+    "min_iterations": 1000,
+    "patience_checkpoints": 2,
+    "dcfr": {
+      "alpha": 1.5,
+      "beta": 0.0,
+      "gamma": 2.0
+    },
+    "best_exploitability": 4.037635366854753e-06,
+    "best_iteration": 3000,
+    "elapsed_seconds": 0.002371167007368058,
+    "node_locks": [],
+    "exploitability_definition": "exploitability"
+  },
+  "summary": {
+    "returns": {
+      "IP": 0.527777779503102,
+      "OOP": 0.4722222204968979
+    },
+    "exploitability": 4.037635366854753e-06,
+    "exploitability_definition": "exploitability",
+    "nash_conv": 8.075270733709505e-06,
+    "unconstrained_exploitability": null
+  },
+  "files": {
+    "report": "report.md",
+    "html_report": "report.html",
+    "strategy_viewer": "strategy_viewer.html"
+  },
+  "study_id": "akq_symmetric_allin"
+}

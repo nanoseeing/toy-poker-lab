@@ -73,7 +73,7 @@ artifact_root = "artifacts"
 float32はregret・strategyだけに使い、checkpointのEV・Exploitabilityはfloat64で厳密評価します。
 
 `native_efg`は有限の2人逐次ゲームに使用できます。元ゲームと同じinformation set、
-action、chance確率、terminal utilityを持つ木を生成し、求解後の方策を元ゲームのaction IDへ
+action、chance確率、終端利得を持つ木を生成し、求解後の方策を元ゲームのaction IDへ
 戻します。ゲーム木全体を事前構築するため、大規模ゲームには適しません。
 
 `native_efg`使用時はCFR+の反復だけでなく、各checkpointのExploitabilityとExpected
@@ -92,7 +92,7 @@ stoppingを使用します。目標を2 checkpoint連続で満たした時点で
 rank配列を使う等価な厳密解析を行い、private dealのN²列挙を避けます。
 
 組み込みゲームでは初期ポット1を両プレイヤーの過去の拠出とはみなさず、デッドマネー
-として扱います。したがって各terminalのutility合計と、ゲーム開始時点の両者EV合計は
+として扱います。したがって各終端の利得合計と、ゲーム開始時点の両者EV合計は
 常に1です。この規約は`analysis.json`の`game.utility_convention`と`game.utility_sum`にも
 保存されます。
 
@@ -131,6 +131,10 @@ toy-poker benchmark configs/experiments/integer_range_betting_dcfr.toml --iterat
 # 固定した代表artifactからGit公開用report/viewerを生成
 toy-poker publish-results --selection configs/public_results.toml \
   --artifact-root artifacts --output-root public/results
+
+# 同じgame IDの複数教材をstudy ID別に公開
+toy-poker publish-studies --selection configs/public_studies.toml \
+  --artifact-root artifacts --output-root public/studies
 ```
 
 `publish-results`はGit上で表示できるMarkdown report、standalone HTML report、必要な図、
@@ -162,9 +166,9 @@ artifacts/<game_id>/<run-id>/
 - `manifest.json`: バージョン、設定ハッシュ、実行時間などの再現情報
 - `resolved_config.json`: 実際に使用した全設定
 - `policy.*`: solverから独立して復元可能な平均方策
-- `analysis.json`: utility規約、EV、Exploitability、情報集合、終端経路、収束履歴の統合データ
+- `analysis.json`: 利得規約、EV、Exploitability、情報集合、終端経路、収束履歴の統合データ
 - `information_sets.csv`: 情報集合・合法アクション単位の確率とEV
-- `terminal_paths.csv`: 終端履歴の到達確率とutility
+- `terminal_paths.csv`: 終端履歴の到達確率と利得
 - `convergence.csv`: 反復数ごとのEVとExploitability
 - `figures/`, `report.html`: 生データから再生成できる表示用成果物
 

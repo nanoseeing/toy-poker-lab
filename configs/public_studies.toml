@@ -1,0 +1,39 @@
+[studies.akq_k_vs_aq_allin]
+game_id = "integer_range_betting"
+run_id = "20260826T181415250474Z_f08adea2"
+
+[studies.akq_k_vs_aq_variable_size]
+game_id = "integer_range_betting"
+run_id = "20260826T181415397319Z_1e500723"
+
+[studies.akqj_two_street_pot]
+game_id = "akqj_two_street"
+run_id = "20260824T171423408260Z_e4dfff20"
+
+[studies.akqj_two_street_variable_size]
+game_id = "integer_range_betting_two_street"
+run_id = "20260826T182658785517Z_4f5893e7"
+
+[studies.akq_symmetric_allin]
+game_id = "integer_range_betting"
+run_id = "20260826T181415249298Z_4254f63d"
+
+[studies.akq_symmetric_ip_betting]
+game_id = "integer_range_betting"
+run_id = "20260826T182229564846Z_6973800e"
+
+[studies.akq_symmetric_variable_size]
+game_id = "integer_range_betting"
+run_id = "20260826T083319796287Z_62cac0a5"
+
+[studies.akq_symmetric_two_street]
+game_id = "integer_range_betting_two_street"
+run_id = "20260826T182659141589Z_b94cb64e"
+
+[studies.zero_one_n50_one_street]
+game_id = "integer_range_betting"
+run_id = "20260825T012535053821Z_9f148e42"
+
+[studies.zero_one_n50_two_street]
+game_id = "integer_range_betting_two_street"
+run_id = "20260826T183358693407Z_fa021575"

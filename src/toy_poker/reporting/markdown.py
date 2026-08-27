@@ -91,10 +91,10 @@ def save_markdown(
     sections = [
         f"# {_text(plugin.metadata.title)}",
         "",
-        f"EV is {_text(plugin.metadata.utility_unit)} for the acting player, conditional "
-        "on reaching the information set. "
-        f"{_text(plugin.metadata.utility_convention)} This game has terminal utility sum "
-        f"{analysis['game'].get('utility_sum', 1.0):g}.",
+        f"各情報集合へ到達した条件下で、手番プレイヤーの利得EVを"
+        f"{_text(plugin.metadata.utility_unit)}単位で表示します。"
+        f"{_text(plugin.metadata.utility_convention)}このゲームの終端利得合計は"
+        f"{analysis['game'].get('utility_sum', 1.0):g}です。",
         "",
         "## Solver summary",
         "",
@@ -260,7 +260,7 @@ def save_markdown(
                 f"- [Analysis data]({analysis_filename})",
                 f"- [Policy]({policy_filename})",
                 f"- [Information sets]({information_sets_filename})",
-                f"- [Terminal paths]({terminal_paths_filename})",
+                f"- [終端経路]({terminal_paths_filename})",
                 "- [Convergence data](convergence.csv)",
             ]
         )

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "game": {
+    "id": "integer_range_betting_two_street",
+    "title": "Integer 1-N two-street custom-size toy poker",
+    "parameters": {
+      "initial_pot": 1.0,
+      "oop_stack": 1.0,
+      "ip_stack": 1.0,
+      "min_card": 1,
+      "max_card": 3,
+      "num_ranks": 3,
+      "oop_rank_weights": "uniform",
+      "ip_rank_weights": "uniform",
+      "bet_fractions": "0.1,0.2,0.3333333333333333,0.5,0.75",
+      "minimum_raise": "standard no-limit minimum raise",
+      "oop_can_raise": true,
+      "ip_can_raise": true,
+      "streets": 2,
+      "public_runout": false,
+      "oop_rank_probabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "ip_rank_probabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    },
+    "utility_sum": 1.0
+  },
+  "source": {
+    "run_id": "20260826T182659141589Z_b94cb64e",
+    "config_sha256": "b94cb64e1ee1ca8ad92d5efef1f0fe623a6b9ad4489d6564a5266c89c546bc13",
+    "git_commit": "cbcf5fc8b0b1e57be3f15f2e16691ba5d70cd7ae"
+  },
+  "solver": {
+    "id": "cfr_plus",
+    "name": "C++ range-vector DCFR",
+    "backend": "cpp_range",
+    "algorithm": "dcfr",
+    "precision": "float64",
+    "checkpoint_evaluation_backend": "cpp_range",
+    "iterations": 8000,
+    "requested_iterations": 10000,
+    "completed_iterations": 8000,
+    "snapshot_every": 1000,
+    "early_stopping": true,
+    "early_stopped": true,
+    "stop_reason": "target_exploitability",
+    "target_exploitability": 1e-05,
+    "min_iterations": 1000,
+    "patience_checkpoints": 2,
+    "dcfr": {
+      "alpha": 1.5,
+      "beta": 0.0,
+      "gamma": 2.0
+    },
+    "best_exploitability": 5.800735174393834e-06,
+    "best_iteration": 8000,
+    "elapsed_seconds": 2.0097573780221865,
+    "node_locks": [],
+    "exploitability_definition": "exploitability"
+  },
+  "summary": {
+    "returns": {
+      "IP": 0.5225617444583693,
+      "OOP": 0.4774382555416304
+    },
+    "exploitability": 5.800735174393834e-06,
+    "exploitability_definition": "exploitability",
+    "nash_conv": 1.1601470348787668e-05,
+    "unconstrained_exploitability": null
+  },
+  "files": {
+    "report": "report.md",
+    "html_report": "report.html",
+    "strategy_viewer": "strategy_viewer.html"
+  },
+  "study_id": "akq_symmetric_two_street"
+}

@@ -129,7 +129,7 @@ def save_html(
         f'<p>Data: <a href="{html.escape(analysis_filename)}">analysis JSON</a>, '
         f'<a href="{html.escape(policy_filename)}">policy</a>, '
         f'<a href="{html.escape(information_sets_filename)}">information sets CSV</a>, '
-        f'<a href="{html.escape(terminal_paths_filename)}">terminal paths CSV</a>, '
+        f'<a href="{html.escape(terminal_paths_filename)}">終端経路CSV</a>, '
         '<a href="convergence.csv">convergence CSV</a>'
         + (
             ', <a href="rank_distribution.csv">rank distribution CSV</a>'
@@ -140,7 +140,7 @@ def save_html(
         if include_data_links
         else ""
     )
-    document = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+    document = f"""<!doctype html><html lang="ja"><head><meta charset="utf-8">
 <title>{html.escape(plugin.metadata.title)} report</title><style>
 body {{ font-family: system-ui,sans-serif; margin:2rem auto; max-width:1200px; color:#222; }}
 .cards {{ display:flex; gap:1rem; flex-wrap:wrap; }} .card {{ background:#f4f7fa; border-radius:8px; padding:1rem 1.4rem; min-width:180px; }}
@@ -152,9 +152,9 @@ hr {{ border:0; border-top:2px solid #ddd; margin:3rem 0; }}
 .viewer-cta {{ display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:1rem 1.2rem;margin:1.5rem 0; }}
 .viewer-cta a {{ background:#315efb;color:white;text-decoration:none;border-radius:7px;padding:.7rem 1rem;font-weight:700; }}
 </style></head><body><h1>{html.escape(plugin.metadata.title)}</h1>
-<p>EV is {html.escape(plugin.metadata.utility_unit)} for the acting player, conditional on reaching the information set.
-{html.escape(plugin.metadata.utility_convention)} This game has terminal utility sum
-{analysis['game'].get('utility_sum', 1.0):g}.</p>
+<p>各情報集合へ到達した条件下で、手番プレイヤーの利得EVを{html.escape(plugin.metadata.utility_unit)}単位で表示します。
+{html.escape(plugin.metadata.utility_convention)}このゲームの終端利得合計は
+{analysis['game'].get('utility_sum', 1.0):g}です。</p>
 <p>Solver backend: <code>{html.escape(analysis['solver']['backend'])}</code>;
 algorithm: <code>{html.escape(analysis['solver'].get('algorithm', 'cfr_plus'))}</code>;
 checkpoint evaluation: <code>{html.escape(analysis['solver'].get('checkpoint_evaluation_backend', analysis['solver']['backend']))}</code>.</p>

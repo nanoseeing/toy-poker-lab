@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8">
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
 <title>AKQJ two-street geometric toy poker report</title><style>
 body { font-family: system-ui,sans-serif; margin:2rem auto; max-width:1200px; color:#222; }
 .cards { display:flex; gap:1rem; flex-wrap:wrap; } .card { background:#f4f7fa; border-radius:8px; padding:1rem 1.4rem; min-width:180px; }
@@ -10,9 +10,9 @@ hr { border:0; border-top:2px solid #ddd; margin:3rem 0; }
 .viewer-cta { display:flex;align-items:center;justify-content:space-between;gap:1rem;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:1rem 1.2rem;margin:1.5rem 0; }
 .viewer-cta a { background:#315efb;color:white;text-decoration:none;border-radius:7px;padding:.7rem 1rem;font-weight:700; }
 </style></head><body><h1>AKQJ two-street geometric toy poker</h1>
-<p>EV is chips (initial pot is dead money) for the acting player, conditional on reaching the information set.
-Initial pot is dead money; terminal utilities sum to it. This game has terminal utility sum
-1.</p>
+<p>各情報集合へ到達した条件下で、手番プレイヤーの利得EVをchips単位で表示します。
+初期potはデッドマネーとして扱います。このゲームの終端利得合計は
+1です。</p>
 <p>Solver backend: <code>native_efg</code>;
 algorithm: <code>cfr_plus</code>;
 checkpoint evaluation: <code>native_efg</code>.</p>
@@ -22,6 +22,7 @@ checkpoint evaluation: <code>native_efg</code>.</p>
 target exploitability: <code>nan</code>;
 best checkpoint: <code>3.5914e-06</code>
 at iteration 100,000.</p>
+
 
 
 <h2>Major strategy</h2>

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "run_id": "20260826T183358693407Z_fa021575",
+  "experiment_name": "study_zero_one_n50_two_street_dcfr",
+  "created_at": "2026-08-26T18:34:05.656099+00:00",
+  "config_sha256": "fa021575fc16abe75d3eb1d35419b45c7737a118404ad32eafcc7cf61a822abe",
+  "toy_poker_version": "0.1.0",
+  "open_spiel_version": "2.0.2",
+  "python_version": "3.12.3",
+  "platform": "Linux-5.15.133.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "git_commit": "cbcf5fc8b0b1e57be3f15f2e16691ba5d70cd7ae",
+  "elapsed_seconds": 1.560689274017932
+}

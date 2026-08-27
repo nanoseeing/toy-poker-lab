@@ -15,7 +15,7 @@ class GameMetadata:
     title: str
     player_names: tuple[str, ...]
     utility_unit: str
-    utility_convention: str = "Initial pot is dead money; terminal utilities sum to it."
+    utility_convention: str = "初期potはデッドマネーとして扱います。"
     information_labels: dict[str, str] = field(default_factory=dict)
     analytic_returns: tuple[float, ...] | None = None
     parameters: dict[str, Any] = field(default_factory=dict)

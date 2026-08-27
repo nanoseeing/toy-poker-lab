@@ -18,7 +18,7 @@ METADATA = GameMetadata(
     open_spiel_name="python_akqj_allin",
     title="AKQJ all-in toy poker",
     player_names=("IP", "OOP"),
-    utility_unit="chips (initial pot is dead money)",
+    utility_unit="chips",
     information_labels=INFORMATION_LABELS,
     parameters={"initial_pot": 1.0, "oop_stack": 4.0, "ip_stack": 4.0},
 )

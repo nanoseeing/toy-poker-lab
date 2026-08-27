@@ -1,6 +1,6 @@
 # AKQ all-in toy poker
 
-EV is chips (initial pot is dead money) for the acting player, conditional on reaching the information set. Initial pot is dead money; terminal utilities sum to it. This game has terminal utility sum 1.
+各情報集合へ到達した条件下で、手番プレイヤーの利得EVをchips単位で表示します。初期potはデッドマネーとして扱います。このゲームの終端利得合計は1です。
 
 ## Solver summary
 
@@ -71,6 +71,8 @@ Information sets and tree nodes with reach probability below 0.0100% are omitted
 ## Reproducibility
 
 - [Summary](summary.json)
+- [Resolved configuration](resolved_config.json)
+- [Source manifest](manifest.json)
 - [Resolved configuration](resolved_config.json)
 - [Source manifest](manifest.json)
 - [Standalone HTML report](report.html)
