@@ -148,6 +148,27 @@ def test_standard_minimum_raise_and_short_all_in():
     assert state.returns() == [2.5, -1.5]
 
 
+def test_player_specific_raise_restrictions_keep_bet_call_fold_actions():
+    state = dealt_state(
+        oop_card=2,
+        ip_card=3,
+        params={"oop_can_raise": False, "ip_can_raise": True},
+    )
+    state.apply_action(Action.CHECK)
+    state.apply_action(BET_33)
+    assert state.current_player() == 1
+    assert state.legal_actions() == [Action.FOLD, Action.CALL]
+
+    state = dealt_state(
+        oop_card=2,
+        ip_card=3,
+        params={"oop_can_raise": True, "ip_can_raise": False},
+    )
+    state.apply_action(BET_33)
+    assert state.current_player() == 0
+    assert state.legal_actions() == [Action.FOLD, Action.CALL]
+
+
 def test_showdown_fold_and_tie_utilities():
     state = apply_actions(
         dealt_state(oop_card=4, ip_card=8), [Action.CHECK, Action.CHECK]

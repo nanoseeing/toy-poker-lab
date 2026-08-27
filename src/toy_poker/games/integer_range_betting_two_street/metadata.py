@@ -1,12 +1,12 @@
-"""Human-readable metadata for the integer range betting game."""
+"""Metadata for the two-street integer range game."""
 
 from toy_poker.games.base import GameMetadata
 
 
 METADATA = GameMetadata(
-    game_id="integer_range_betting",
-    open_spiel_name="python_integer_range_betting",
-    title="Integer 1-N custom-size toy poker",
+    game_id="integer_range_betting_two_street",
+    open_spiel_name="python_integer_range_betting_two_street",
+    title="Integer 1-N two-street custom-size toy poker",
     player_names=("IP", "OOP"),
     utility_unit="chips",
     parameters={
@@ -22,6 +22,7 @@ METADATA = GameMetadata(
         "minimum_raise": "standard no-limit minimum raise",
         "oop_can_raise": True,
         "ip_can_raise": True,
-        "streets": 1,
+        "streets": 2,
+        "public_runout": False,
     },
 )

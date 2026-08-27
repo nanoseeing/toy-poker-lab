@@ -116,3 +116,35 @@ def test_cpp_matches_numpy_with_node_lock():
     )
     for key, actions in numpy_result.policy_table.items():
         assert dict(cpp_result.policy_table[key]) == pytest.approx(dict(actions), abs=1e-12)
+
+
+def test_cpp_matches_numpy_on_two_street_range_game():
+    game = get_game("integer_range_betting_two_street").load_game(
+        {
+            "num_ranks": 3,
+            "oop_stack": 1.0,
+            "ip_stack": 1.0,
+            "bet_fractions": "0.5,1.0",
+        }
+    )
+    common = dict(
+        algorithm="dcfr",
+        iterations=50,
+        snapshot_every=50,
+        early_stopping=False,
+    )
+    numpy_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="vectorized_range", **common)
+    )
+    cpp_result = CFRPlusSolverAdapter().solve(
+        game, SolverConfig(backend="cpp_range", **common)
+    )
+
+    assert cpp_result.convergence[-1]["exploitability"] == pytest.approx(
+        numpy_result.convergence[-1]["exploitability"], abs=1e-12
+    )
+    assert cpp_result.convergence[-1]["returns"] == pytest.approx(
+        numpy_result.convergence[-1]["returns"], abs=1e-12
+    )
+    for key, actions in numpy_result.policy_table.items():
+        assert dict(cpp_result.policy_table[key]) == pytest.approx(dict(actions), abs=1e-12)

@@ -102,6 +102,8 @@ def make_game_type(
             "num_ranks": default_num_ranks,
             "oop_rank_weights": default_oop_rank_weights,
             "ip_rank_weights": default_ip_rank_weights,
+            "oop_can_raise": True,
+            "ip_can_raise": True,
         },
     )
 
@@ -117,6 +119,7 @@ class FixedRangeOneStreetGame(pyspiel.Game):
         default_stack: float,
         default_bet_fractions: str,
         params=None,
+        num_streets: int = 1,
     ):
         params = params or {}
         self.oop_stack = float(params.get("oop_stack", default_stack))
@@ -124,6 +127,11 @@ class FixedRangeOneStreetGame(pyspiel.Game):
         if self.oop_stack <= 0 or self.ip_stack <= 0:
             raise ValueError("oop_stack and ip_stack must both be positive")
         self.effective_stack = min(self.oop_stack, self.ip_stack)
+        self.num_streets = int(num_streets)
+        if self.num_streets <= 0:
+            raise ValueError("num_streets must be positive")
+        self.oop_can_raise = bool(params.get("oop_can_raise", True))
+        self.ip_can_raise = bool(params.get("ip_can_raise", True))
         self.min_card = int(min_card)
         default_num_ranks = int(max_card) - self.min_card + 1
         self.num_ranks = int(params.get("num_ranks", default_num_ranks))
@@ -153,7 +161,7 @@ class FixedRangeOneStreetGame(pyspiel.Game):
             min_utility=-self.effective_stack,
             max_utility=INITIAL_POT + self.effective_stack,
             utility_sum=INITIAL_POT,
-            max_game_length=max_wager_actions + 4,
+            max_game_length=self.num_streets * (max_wager_actions + 3) + 1,
         )
         super().__init__(game_type, game_info, params)
 
@@ -272,6 +280,13 @@ class FixedRangeOneStreetState(pyspiel.State):
         if to_call > _CHIP_TOLERANCE:
             actions = [Action.FOLD, Action.CALL]
             if self._opponent_is_all_in(player):
+                return actions
+            can_raise = (
+                self.get_game().oop_can_raise
+                if player == PLAYER_OOP
+                else self.get_game().ip_can_raise
+            )
+            if not can_raise:
                 return actions
             actions.extend(
                 self.get_game().custom_action(index)
