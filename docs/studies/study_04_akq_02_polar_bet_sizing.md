@@ -11,7 +11,7 @@
 | 有効Stack | 1 |
 | 許可アクション | Check、Fold、Call、10/20/33/50/75% PotのBet・Raise、All-in |
 | 勝敗判定 | A > K > Q |
-| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
+| 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### 均衡戦略
 
-solverはAll-in-only版と同じon-path戦略へ収束しました。
+ソルバーはAll-in-only版と同じon-path戦略へ収束しました。
 
 | 局面 | 戦略 |
 |---|---|
@@ -40,9 +40,18 @@ solverはAll-in-only版と同じon-path戦略へ収束しました。
 
 ### 導出方法
 
+#### 戦略の形を場合別に整理
+
+| 局面 | hand | 比較するaction | 結論 |
+|---|---|---|---|
+| Root、OOP | K | Check / 各sizeのBet | Check 100% |
+| OOP Check後、IP | A | Check / 各sizeのBet | 選ばれたsizeでBet 100% |
+| OOP Check後、IP | Q | Check / 各sizeのBet | CheckとBluffを混合 |
+| IPのBetに直面、OOP | K | Fold / Call / Raise | All-inに対してFoldとCallを混合 |
+
 #### 固定したsize $`B`$ に対する数学的導出
 
-初期pot 1へIPが $`B\leq1`$ をbetし、Aを100% value bet、Qを頻度 $`b`$ でbluffするとします。
+初期pot 1へIPが $`B\leq1`$ をBetし、Aを100% Value Bet、Qを頻度 $`b`$ でBluffするとします。
 KのCall EVを0にする条件は、
 
 $$
@@ -51,7 +60,7 @@ b(1+B)-B=0
 b=\frac{B}{1+B}
 $$
 
-です。QをCheckとbluffで無差別にするKのCall率は、
+です。QをCheckとBluffで無差別にするKのCall率は、
 
 $$
 (1-c)-cB=0
@@ -80,9 +89,9 @@ $$
 
 となります。したがってstack制約内の最大値 $`B=1`$、つまりAll-inが最適です。
 
-#### 純粋戦略と未使用sizeのヒューリスティック解釈
+#### 純粋actionと未使用sizeの検証
 
-- AはKに必ず勝つため、選ばれたsizeでは100% value betします。
+- AはKに必ず勝つため、選ばれたsizeでは100% Value Betします。
 - OOPの先打ちAll-inは、AにCall、QにFoldされて期待利得0です。Checkの均衡利得0.25を下回るため、Kは100% Checkします。
 - $`EV_{IP}(B)`$が厳密に増加するため、10〜75%はAll-inより低利得で、均衡頻度0になります。
 - $`B=1`$では$`b=c=1/2`$となり、All-in-only版の混合頻度をそのまま再現します。

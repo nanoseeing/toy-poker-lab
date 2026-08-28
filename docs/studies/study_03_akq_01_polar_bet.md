@@ -11,7 +11,7 @@
 | 有効Stack | 1 |
 | 許可アクション | Check、All-in、Call、Fold |
 | 勝敗判定 | A > K > Q |
-| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
+| 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
 ---
 
@@ -36,10 +36,16 @@
 
 ### 導出方法
 
-#### 純粋戦略のヒューリスティック解釈
+#### 戦略の形を場合別に整理
 
-IPのAは常にKへ勝ちます。Checkなら初期pot 1を獲得しますが、All-inならOOPがCallする確率 $`c`$ だけ
-追加の1を獲得できるため、$`c>0`$ではAll-inがCheckより厳密に高利得です。したがってAは100% All-inします。
+| 局面 | hand | 比較するaction | 結論 |
+|---|---|---|---|
+| Root、OOP | K | Check / All-in | Check 100% |
+| OOP Check後、IP | A | Check / All-in | All-in 100% |
+| OOP Check後、IP | Q | Check / All-in | 両actionを混合 |
+| IP All-inに直面、OOP | K | Fold / Call | 両actionを混合 |
+
+##### RootでOOPがKの場合
 
 OOPがKで先にAll-inすると、IPはAをCall、QをFoldできます。そのときOOPの利得は、
 
@@ -48,12 +54,20 @@ $$
 $$
 
 です。後述の均衡でCheckしたKの期待利得は0.25なので、OOPは自分からAll-inせず100% Checkします。
+
+##### OOP Check後にIPがAの場合
+
+IPのAは常にKへ勝ちます。Checkなら初期pot 1を獲得しますが、All-inならOOPがCallする確率 $`c`$ だけ
+追加の1を獲得できるため、$`c>0`$ではAll-inがCheckより厳密に高利得です。したがってAは100% All-inします。
+
+##### OOP Check後にIPがQの場合
+
 QはCheckすると必ずKに負けるため利得0ですが、All-inにもriskとFold equityがあり、ここだけが混合候補になります。
 
-#### QのBluff頻度の数学的導出
+#### IP(Q)のBluff頻度
 
-IP(Q)のbluff率を $`b`$、OOP(K)のCall率を $`c`$ とします。OOPがAll-inに直面したとき、IPの事前確率は
-Aが$`1/2`$、Qが$`b/2`$です。共通の$`1/2`$を除けば、bet range内の重みは`A : Q = 1 : b`です。
+IP(Q)のBluff率を $`b`$、OOP(K)のCall率を $`c`$ とします。OOPがAll-inに直面したとき、IPの事前確率は
+Aが$`1/2`$、Qが$`b/2`$です。共通の$`1/2`$を除けば、Bet range内の重みは`A : Q = 1 : b`です。
 
 KがCallすると、Qには`+2`、Aには`-1`の利得です。KをCallとFoldで無差別にするには、
 
@@ -61,10 +75,10 @@ $$
 2b-1=0 \quad\Rightarrow\quad b=\frac{1}{2}
 $$
 
-です。これはbet range全体ではQが1/3、Aが2/3、すなわちvalue:bluffが2:1であることを
+です。これはBet range全体ではQが1/3、Aが2/3、すなわちValue:Bluffが2:1であることを
 意味します。
 
-#### KのCall頻度の数学的導出
+#### OOP(K)のCall頻度
 
 QはCheckするとKに負けて利得0です。All-inしたときは、Foldされると`+1`、Callされると`-1`なので、
 
@@ -107,7 +121,7 @@ Nut advantageもないため、先にBetしてPolar rangeを表現できませ�
 
 ## Solverによる再現結果
 
-固定カード版`akq_allin`とは別に、strategy viewerを生成できるinteger-range solverへ
+固定カード版`akq_allin`とは別に、Strategy Viewerを生成できるinteger-rangeソルバーへ
 `1=Q, 2=K, 3=A`を割り当て、OOP weightを`0,1,0`、IP weightを`1,0,1`として再現しました。
 
 | 指標 | 結果 |

@@ -10,9 +10,9 @@
 | 初期Pot | 1 |
 | 有効Stack | 1 |
 | 許可アクション | Check、Fold、Call、5%刻みのPot Bet（5〜95%）、All-in |
-| アクション制約 | OOPのRoot戦略を全ハンド100% Checkに固定。OOPはCall / FoldのみでRaise不可 |
-| 勝敗判定 | A > K > Q。同じハンドはTie |
-| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
+| アクション制約 | OOPのRoot戦略を全hand 100% Checkに固定。OOPはCall / FoldのみでRaise不可 |
+| 勝敗判定 | A > K > Q。同じhandはTie |
+| 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
 ---
 
@@ -22,7 +22,7 @@
 
 連続sizeでの均衡戦略は次のとおりです。
 
-| 局面 | ハンド | 戦略 |
+| 局面 | hand | 戦略 |
 |---|---|---|
 | IP、OOP Check後 | A | $`B^{*}=\sqrt{5/2}-1\simeq0.5811`$、すなわち58.11% Potを100% Bet |
 | IP、OOP Check後 | K | Check 100% |
@@ -31,7 +31,7 @@
 
 5%刻みの離散actionでは60% Potが主要sizeになります。
 
-| IP rank | 戦略 |
+| IP hand | 戦略 |
 |---|---|
 | Q | Check 62.63% / Bet 55% 2.33% / Bet 60% 35.03% |
 | K | Checkほぼ100% |
@@ -47,15 +47,27 @@
 
 ### 導出方法
 
-#### 純粋戦略のヒューリスティック解釈
+#### 戦略の形を場合別に整理
 
-Aは全ての非Aに勝つためvalue bet、Kは弱いQに勝って強いAに負けるshowdown handなのでCheck、Qは
-showdown valueがtie分しかなくbluff候補、と仮定します。後で得られる解に対して各Action EVを比較すると、
+| 局面 | プレイヤー・hand | 比較するaction | 結論 |
+|---|---|---|---|
+| Root | OOP(Q/K/A) | Check / Bet | Node lockによりCheck 100% |
+| OOP Check後 | IP(A) | Check / 各sizeのBet | 最適sizeでValue Bet 100% |
+| OOP Check後 | IP(K) | Check / 各sizeのBet | Check 100% |
+| OOP Check後 | IP(Q) | Check / 各sizeのBet | CheckとBluffを混合 |
+| IPのBetに直面 | OOP(Q) | Fold / Call | Fold 100% |
+| IPのBetに直面 | OOP(K) | Fold / Call | 両actionを混合 |
+| IPのBetに直面 | OOP(A) | Fold / Call | Call 100% |
+
+#### IP(A/K/Q)の戦略の形
+
+Aは全ての非Aに勝つためValue Bet、Kは弱いQに勝って強いAに負けるshowdown handなのでCheck、Qは
+showdown valueがtie分しかなくBluff候補、と仮定します。後で得られる解に対して各Action EVを比較すると、
 AのBetとKのCheckは他のaction以上になるため、この純粋戦略の形が自己整合的です。
 
 #### QのBluff頻度の数学的導出
 
-IPはAを100% bet、KをCheck、Qを頻度 $`b`$ でbluffするとします。bet額を $`B`$ とすると、
+IPはAを100% Bet、KをCheck、Qを頻度 $`b`$ でBluffするとします。Bet額を $`B`$ とすると、
 OOPのKをCall/Foldで無差別にする条件は、
 
 $$
@@ -101,7 +113,7 @@ B^{*}=\sqrt{\frac{5}{2}}-1\simeq0.581139
 $$
 
 となります。二次導関数または導関数の符号変化から最大値であり、$`b,c`$も0〜1に入ります。したがって
-連続sizeの最適値は約58.1% potです。このsizeは、AがKから得るthin valueとQが負うbluff riskを
+連続sizeの最適値は約58.1% potです。このsizeは、AがKから得るThin valueとQが負うBluff riskを
 同時に最適化した結果です。
 
 この最適sizeでの混合頻度は、
@@ -112,7 +124,7 @@ b^{*}=\frac{B^{*}}{1+B^{*}}\simeq0.367544,
 c^{*}=\frac{1.5-B^{*}}{1+B^{*}}=B^{*}\simeq0.581139
 $$
 
-です。つまり連続ゲームではQを約36.75% bluffし、OOPのKは約58.11% Callします。
+です。つまり連続ゲームではQを約36.75% Bluffし、OOPのKは約58.11% Callします。
 
 #### 5%刻みの離散解との比較
 
@@ -122,12 +134,12 @@ $$
 b(0.6)=0.375,\qquad c(0.6)=0.5625
 $$
 
-です。solverではOOP(K)が`Call 56.244% / Fold 43.756%`となり、解析値と一致しました。
+です。ソルバーではOOP(K)が`Call 56.244% / Fold 43.756%`となり、解析値と一致しました。
 
 #### なぜAll-inではないのか
 
 All-inはKから1 stackを取れる一方、KのCall頻度を25%まで下げます。約58% betならKを約60%近く
-Callさせ、Aがより頻繁にthin valueを得られます。Qのbluff riskも小さくなるため、必要なbluff量と
+Callさせ、Aがより頻繁にThin valueを得られます。QのBluff riskも小さくなるため、必要なBluff量と
 KのCall量を最も効率よく釣り合わせる中間sizeが選ばれます。
 
 ---

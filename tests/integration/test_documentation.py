@@ -122,6 +122,8 @@ def test_every_pinned_study_has_documentation_and_public_result():
 def test_study_curriculum_and_rule_tables_are_structured():
     studies_root = PROJECT_ROOT / "docs" / "studies"
     curriculum = (studies_root / "README.md").read_text(encoding="utf-8")
+    assert "(style_guide.md)" in curriculum
+    assert (studies_root / "style_guide.md").exists()
     ordered_documents = [
         "study_01_game_theory_basics.md",
         "study_02_poker_terms_and_math.md",
@@ -159,6 +161,14 @@ def test_study_curriculum_and_rule_tables_are_structured():
         assert "### EV" in document
         assert "### 導出方法" in document
         assert document.count("\n---\n") >= 3
+
+        derivation = document.split("### 導出方法", maxsplit=1)[1].split(
+            "\n---\n", maxsplit=1
+        )[0]
+        assert "|---" in derivation
+        first_formula = derivation.find("$$")
+        if first_formula >= 0:
+            assert derivation.index("|---") < first_formula
 
         rules = document.split("## ルール", maxsplit=1)[1].split("## ", maxsplit=1)[0]
         assert "| 項目 | 内容 |" in rules
@@ -201,6 +211,16 @@ def test_study_curriculum_and_rule_tables_are_structured():
     for path in studies_root.glob("*.md"):
         document = path.read_text(encoding="utf-8")
         assert re.search(r"\butility\b|\bterminal\b", document, re.IGNORECASE) is None
+        for unnatural_term in ("定和利得", "条件付き信念", "終端利得"):
+            assert unnatural_term not in document, path
+        for hand_rank_misuse in ("| OOP rank |", "| IP rank |", "同じrankのまま"):
+            assert hand_rank_misuse not in document, path
+
+    poker_terms = (studies_root / "study_02_poker_terms_and_math.md").read_text(
+        encoding="utf-8"
+    )
+    assert "専門用語は初出で定義し" not in poker_terms
+    assert "Viewerの定義は" not in poker_terms
 
 
 def test_markdown_uses_github_math_delimiters():

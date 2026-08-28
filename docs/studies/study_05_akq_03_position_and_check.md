@@ -10,8 +10,8 @@
 | 初期Pot | 1 |
 | 有効Stack | 1 |
 | 許可アクション | Check、All-in、Call、Fold |
-| 勝敗判定 | A > K > Q。同じハンドはTie |
-| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
+| 勝敗判定 | A > K > Q。同じhandはTie |
+| 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
 ---
 
@@ -35,7 +35,19 @@
 
 ### 導出方法
 
-#### IPの純粋戦略のヒューリスティック解釈
+#### 戦略の形を場合別に整理
+
+| 局面 | プレイヤー・hand | 比較するaction | 結論 |
+|---|---|---|---|
+| Root | OOP(Q/K/A) | Check / All-in | 全hand Check 100% |
+| OOP Check後 | IP(A) | Check / All-in | All-in 100% |
+| OOP Check後 | IP(K) | Check / All-in | Check 100% |
+| OOP Check後 | IP(Q) | Check / All-in | 両actionを混合 |
+| IP All-inに直面 | OOP(Q) | Fold / Call | Fold 100% |
+| IP All-inに直面 | OOP(K) | Fold / Call | 両actionを混合 |
+| IP All-inに直面 | OOP(A) | Fold / Call | Call 100% |
+
+#### IP(A/K/Q)のAction EV比較
 
 OOPが全rangeをCheckした後を考えます。後で導くOOPの応答`Q Fold / K Call 25% / A Call`を使うと、
 
@@ -44,7 +56,7 @@ OOPが全rangeをCheckした後を考えます。後で導くOOPの応答`Q Fold
 - IPのAはCheckで$`(1+1+0.5)/3=5/6`$、All-inで
   $`(1+1.25+0.5)/3=11/12`$を得るため、All-inが厳密に優れます。
 
-したがって、Kは純粋Check、Aは純粋All-inです。Qだけがbluff候補になります。
+したがって、IP(A)は純粋All-in、IP(K)は純粋Checkです。IP(Q)だけがBluff候補になります。
 
 #### IP(Q)のBluff頻度の数学的導出
 
@@ -55,7 +67,7 @@ $$
 2b-1=0 \Rightarrow b=\frac{1}{2}
 $$
 
-です。bet range内のQは1/3となり、Kの必要equity1/3と一致します。
+です。Bet range内のQは1/3となり、Kの必要EQ 1/3と一致します。
 
 #### OOP(K)のCall頻度の数学的導出
 
@@ -79,14 +91,14 @@ OOPのQはIPのbet rangeに一度も勝たないため100% Fold、Aは一度も�
 #### OOPが全rangeをCheckする理由
 
 OOPが先にbetすると、IPは後手から自分のQ/K/Aに応じてFold、Callを選び、OOPの中間rangeを効率よく
-選別できます。CheckならAをrangeに残したままIPのbluffを受け、Kをbluff catcherとして使えます。
-この純粋なroot Checkは、各rankの先打ちAll-inがCheckの利得を上回らないことをsolverのAction EVでも
+選別できます。CheckならAをrangeに残したままIPのBluffを受け、KをBluff catcherとして使えます。
+この純粋なroot Checkは、各handの先打ちAll-inがCheckの利得を上回らないことをソルバーのAction EVでも
 確認しています。rootのoff-path応答を含む完全な不等式は長くなるため、ここでは混合頻度の閉形式と分け、
 checking-range protectionとして解釈します。
 
 #### ゲーム価値
 
-IPのrank別利得は、Qが$`1/6`$、Kが$`1/2`$、Aが$`11/12`$です。したがって、
+IPのhand別利得は、Qが$`1/6`$、Kが$`1/2`$、Aが$`11/12`$です。したがって、
 
 $$
 EV_{IP}=\frac{1}{3}\left(\frac{1}{6}+\frac{1}{2}+\frac{11}{12}\right)
@@ -101,7 +113,7 @@ $$
 ## ポーカーにおける概念理解
 
 OOPは全rangeをCheckし、Aを含むChecking rangeを守ります。IPはPositionを使って、AとQの一部を
-Polarizeします。KはIPではShowdown valueを持つためCheck、OOPではAll-in rangeに対するBluff
+Polarizeします。KはIPではshowdown valueを持つためCheck、OOPではAll-in rangeに対するBluff
 catcherになります。同じKでもPositionと直前のrange更新によって役割が変わります。
 
 ---
