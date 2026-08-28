@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "run_id": "20260826T083319796287Z_62cac0a5",
-  "experiment_name": "integer_range_betting_n3_stack_1_5_sizes_dcfr",
-  "created_at": "2026-08-26T08:33:28.295796+00:00",
-  "config_sha256": "62cac0a54e87d1965d62bcf7a59b0a7a8dafd6fe6138b5320b7ae0ce9609ce2c",
+  "run_id": "20260828T130159773769Z_6b26e103",
+  "experiment_name": "study_akq_symmetric_variable_size_dcfr",
+  "created_at": "2026-08-28T13:02:09.728109+00:00",
+  "config_sha256": "6b26e1034986c5772b7018b6efcbe4215e6cbc113724b02797cbe0403635d719",
   "toy_poker_version": "0.1.0",
   "open_spiel_version": "2.0.2",
   "python_version": "3.12.3",
   "platform": "Linux-5.15.133.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-  "git_commit": "74b1859b50d1dd082e108b05e0162266a9897f8e",
-  "elapsed_seconds": 0.19467542599886656
+  "git_commit": "7185d8a02500853744b6b66c03b91c1975bf3143",
+  "elapsed_seconds": 0.11791521997656673
 }

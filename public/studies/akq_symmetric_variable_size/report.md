@@ -1,13 +1,13 @@
 # Integer 1-N custom-size toy poker
 
-Pinned result for study `akq_symmetric_variable_size` from run `20260826T083319796287Z_62cac0a5`.
+Pinned result for study `akq_symmetric_variable_size` from run `20260828T130159773769Z_6b26e103`.
 
 | Metric | Value |
 |---|---:|
-| Iterations | 8,000 |
-| Exploitability | 7.4617445e-06 |
-| IP EV | +0.53019322 |
-| OOP EV | +0.46980678 |
+| Iterations | 4,000 |
+| Exploitability | 7.4671346e-06 |
+| IP EV | +0.53053394 |
+| OOP EV | +0.46946606 |
 
 ![Root strategy](figures/root_strategy.png)
 

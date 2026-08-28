@@ -1,13 +1,15 @@
 {
-  "name": "integer_range_betting_n3_stack_1_5_sizes_dcfr",
+  "name": "study_akq_symmetric_variable_size_dcfr",
   "game_id": "integer_range_betting",
   "game_params": {
     "oop_stack": 1.0,
     "ip_stack": 1.0,
-    "bet_fractions": "0.1,0.2,0.3333333333333333,0.5,0.75",
+    "bet_fractions": "0.1,0.2,0.3333333333333333,0.5,0.75,0.9,0.9293389456520863,0.95",
     "num_ranks": 3,
     "oop_rank_weights": "uniform",
-    "ip_rank_weights": "uniform"
+    "ip_rank_weights": "uniform",
+    "oop_can_raise": true,
+    "ip_can_raise": true
   },
   "solver": {
     "solver_id": "cfr_plus",
@@ -22,7 +24,8 @@
     "dcfr_alpha": 1.5,
     "dcfr_beta": 0.0,
     "dcfr_gamma": 2.0,
-    "precision": "float64"
+    "precision": "float64",
+    "node_locks": []
   },
   "analysis": {
     "mode": "exact_tree",

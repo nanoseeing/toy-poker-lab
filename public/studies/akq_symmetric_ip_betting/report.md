@@ -1,13 +1,13 @@
 # Integer 1-N custom-size toy poker
 
-Pinned result for study `akq_symmetric_ip_betting` from run `20260826T182229564846Z_6973800e`.
+Pinned result for study `akq_symmetric_ip_betting` from run `20260828T132447955224Z_260c983b`.
 
 | Metric | Value |
 |---|---:|
-| Iterations | 8,000 |
-| Exploitability | 5.0386425e-06 |
-| IP EV | +0.53749713 |
-| OOP EV | +0.46250287 |
+| Iterations | 6,000 |
+| Exploitability | 8.133699e-06 |
+| IP EV | +0.53751607 |
+| OOP EV | +0.46248393 |
 
 ![Root strategy](figures/root_strategy.png)
 

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "run_id": "20260826T182229564846Z_6973800e",
+  "run_id": "20260828T132447955224Z_260c983b",
   "experiment_name": "study_akq_symmetric_oop_check_ip_variable_size_dcfr",
-  "created_at": "2026-08-26T18:22:38.273129+00:00",
-  "config_sha256": "6973800e4effd31e99903f995b4974aa52b4a6fe5428a6ca8fd147dd56d2d925",
+  "created_at": "2026-08-28T13:24:57.099355+00:00",
+  "config_sha256": "260c983b1745c99aa54244e6774d923f49c4bc50dca98480e3627cb4f8adb92b",
   "toy_poker_version": "0.1.0",
   "open_spiel_version": "2.0.2",
   "python_version": "3.12.3",
   "platform": "Linux-5.15.133.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
-  "git_commit": "cbcf5fc8b0b1e57be3f15f2e16691ba5d70cd7ae",
-  "elapsed_seconds": 0.24823846700019203
+  "git_commit": "7185d8a02500853744b6b66c03b91c1975bf3143",
+  "elapsed_seconds": 0.19635750900488347
 }

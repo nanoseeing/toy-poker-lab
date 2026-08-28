@@ -1,0 +1,41 @@
+[experiment]
+name = "study_akq_symmetric_variable_size_dcfr"
+
+[game]
+id = "integer_range_betting"
+
+[game.params]
+oop_stack = 1.0
+ip_stack = 1.0
+# Algebraic support sizes plus representative global and local deviations.
+bet_fractions = "0.1,0.2,0.3333333333333333,0.5,0.75,0.9,0.9293389456520863,0.95"
+num_ranks = 3
+oop_rank_weights = "uniform"
+ip_rank_weights = "uniform"
+oop_can_raise = true
+ip_can_raise = true
+
+[solver]
+id = "cfr_plus"
+backend = "cpp_range"
+algorithm = "dcfr"
+dcfr_alpha = 1.5
+dcfr_beta = 0.0
+dcfr_gamma = 2.0
+precision = "float64"
+iterations = 10000
+snapshot_every = 1000
+early_stopping = true
+target_exploitability = 1e-5
+min_iterations = 1000
+patience_checkpoints = 2
+
+[analysis]
+mode = "exact_tree"
+off_path_threshold = 1e-8
+major_reach_threshold = 1e-4
+interactive_viewer = true
+viewer_grid_columns = 3
+
+[output]
+artifact_root = "artifacts"
