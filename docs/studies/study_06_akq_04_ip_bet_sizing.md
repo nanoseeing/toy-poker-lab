@@ -1,30 +1,59 @@
-# Symmetric AKQ: OOP forced check, IP chooses bet size
-
-> Status: `解析解あり`・`数値検証済み`
+# AKQゲーム④ IPの最適Bet size
 
 ## ルール
 
 | 項目 | 内容 |
 |---|---|
-| Street | River相当の1 street。runoutなし |
-| OOP range | Q / K / Aを各1/3。rootを全rank 100% Checkに固定 |
-| IP range | Q / K / Aを各1/3 |
-| 配布 / 強さ | 独立配布、A > K > Q、同rankはtie |
-| 初期pot / stack | pot 1、両者stack 1 |
-| IPのBet size | 5%刻みのpot bet（5〜95%）とAll-in |
-| OOPの応答 | Call / Foldのみ。Raise不可 |
-| 最適化対象 | rootのNode lockを守る条件付きゲーム |
-| 利得 | 終端利得の合計は常に1 |
+| OOPハンド | A / K / Q（各1/3・独立配布） |
+| IPハンド | A / K / Q（各1/3・独立配布） |
+| Street | 1 Street |
+| 初期Pot | 1 |
+| 有効Stack | 1 |
+| 許可アクション | Check、Fold、Call、5%刻みのPot Bet（5〜95%）、All-in |
+| アクション制約 | OOPのRoot戦略を全ハンド100% Checkに固定。OOPはCall / FoldのみでRaise不可 |
+| 勝敗判定 | A > K > Q。同じハンドはTie |
+| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
 
-## 連続sizeの解析解
+---
 
-### 純粋戦略の形
+## 最適戦略
+
+### 均衡戦略
+
+連続sizeでの均衡戦略は次のとおりです。
+
+| 局面 | ハンド | 戦略 |
+|---|---|---|
+| IP、OOP Check後 | A | $B^*=\sqrt{5/2}-1\simeq58.11\%$ Potを100% Bet |
+| IP、OOP Check後 | K | Check 100% |
+| IP、OOP Check後 | Q | Bet 36.75% / Check 63.25% |
+| OOP、Betに直面 | K | Call 58.11% / Fold 41.89% |
+
+5%刻みの離散actionでは60% Potが主要sizeになります。
+
+| IP rank | 戦略 |
+|---|---|
+| Q | Check 62.63% / Bet 55% 2.33% / Bet 60% 35.03% |
+| K | Checkほぼ100% |
+| A | Bet 55% 6.58% / Bet 60% 93.41% |
+
+### EV
+
+| プレイヤー | EV |
+|---|---:|
+| IP | 0.537497132 |
+| OOP | 0.462502868 |
+| 合計 | 1.00 |
+
+### 導出方法
+
+#### 純粋戦略のヒューリスティック解釈
 
 Aは全ての非Aに勝つためvalue bet、Kは弱いQに勝って強いAに負けるshowdown handなのでCheck、Qは
 showdown valueがtie分しかなくbluff候補、と仮定します。後で得られる解に対して各Action EVを比較すると、
 AのBetとKのCheckは他のaction以上になるため、この純粋戦略の形が自己整合的です。
 
-### Qのbluff頻度
+#### QのBluff頻度の数学的導出
 
 IPはAを100% bet、KをCheck、Qを頻度 $b$ でbluffするとします。bet額を $B$ とすると、
 OOPのKをCall/Foldで無差別にする条件は、
@@ -37,7 +66,7 @@ b(B)=\frac{B}{1+B}
 
 です。
 
-### OOP(K)のCall頻度
+#### OOP(K)のCall頻度と最適sizeの数学的導出
 
 IPのQはCheckするとOOPのQとのtieだけから $1/6$ を得ます。OOP(K)のCall率を $c$ とすると、
 Qのbet EVは、
@@ -85,15 +114,7 @@ $$
 
 です。つまり連続ゲームではQを約36.75% bluffし、OOPのKは約58.11% Callします。
 
-## 5%刻みでの戦略
-
-離散actionでは60%が主要sizeになりました。
-
-| IP rank | 戦略 |
-|---|---|
-| Q | Check 62.63% / Bet 55% 2.33% / Bet 60% 35.03% |
-| K | Checkほぼ100% |
-| A | Bet 55% 6.58% / Bet 60% 93.41% |
+#### 5%刻みの離散解との比較
 
 60%だけを使う解析値は、
 
@@ -103,29 +124,42 @@ b(0.6)=37.5\%,\qquad c(0.6)=56.25\%
 
 です。solverではOOP(K)が`Call 56.244% / Fold 43.756%`となり、解析値と一致しました。
 
-## なぜAll-inではないのか
+#### なぜAll-inではないのか
 
 All-inはKから1 stackを取れる一方、KのCall頻度を25%まで下げます。約58% betならKを約60%近く
 Callさせ、Aがより頻繁にthin valueを得られます。Qのbluff riskも小さくなるため、必要なbluff量と
 KのCall量を最も効率よく釣り合わせる中間sizeが選ばれます。
 
-## Solver結果
+---
+
+## ポーカーにおける概念理解
+
+このゲームは、最大sizeより中間sizeの方が高EVになり得ることを、Thin valueとBluff riskの両面から示します。
+Aは大きくBetすればCall時に多く得られますが、KのCall頻度が下がります。約58% Potは、AがKからValueを
+得る頻度とQのBluff costを最も効率よく釣り合わせるsizeです。
+
+---
+
+## Solverによる再現結果
 
 | 指標 | 結果 |
 |---|---:|
-| Iterations | 8,000 / 10,000 |
-| Constrained Nash gap | `5.0386e-6` |
 | IP EV | 0.537497132 |
 | OOP EV | 0.462502868 |
+| Exploitability | `5.0386e-6`（Constrained Nash gap） |
 
 - [Strategy Viewer](../../public/studies/akq_symmetric_ip_betting/strategy_viewer.html)
 - [計算条件](../../public/studies/akq_symmetric_ip_betting/resolved_config.json)
 
-Node lockを破る通常Exploitabilityは`0.15579`です。これはOOP全checkというルールを外した元ゲームの
-指標であり、本教材の収束判定にはconstrained Nash gapを使います。
-
-## 再現方法
+### 再現方法
 
 ```bash
 toy-poker run configs/experiments/study_akq_symmetric_oop_check_ip_variable_size_dcfr.toml
 ```
+
+---
+
+## その他備考
+
+Node lockを破る通常Exploitabilityは`0.15579`です。これはOOP全checkというルールを外した元ゲームの
+指標であり、本教材の収束判定にはconstrained Nash gapを使います。

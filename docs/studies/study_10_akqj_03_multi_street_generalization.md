@@ -1,24 +1,47 @@
-# Polar toy game: multi-street generalization
-
-> Status: `解析解あり`（sizeと最終street）・street別bluff量は`考察`
+# AKQJゲーム③ Multi-streetへの一般化
 
 ## ルール
 
 | 項目 | 内容 |
 |---|---|
-| Street | $n$ street。public runoutなし |
-| OOP range | 中間のbluff catcher |
-| IP range | nutsと複数のair rankからなるpolar range |
-| 初期pot / stack | pot 1、有効stack $S$ |
-| 各streetの順序 | OOP Check → IP Bet/Check → OOP Call/Fold |
+| OOPハンド | 中間のBluff catcher |
+| IPハンド | Nutsと複数のAirからなるPolar range |
+| Street | $n$ Street |
+| 初期Pot | 1 |
+| 有効Stack | $S$ |
+| 許可アクション | OOPはCheck、Call、Fold。IPはCheck、Bet |
+| アクション制約 | OOPは各Streetで先に行動し、Bet不可。両者Raise不可。全Streetで同じPot比率 $e$ を使用 |
+| 勝敗判定 | Nuts > Bluff catcher > Air |
 | Street遷移 | bet-callまたはcheck-check後、同じprivate rankで次streetへ進む |
-| Size仮定 | 全streetで開始時potに対する同じ比率 $e$ を使用 |
-| 利得 | 初期potをデッドマネーとし、終端利得の合計は1 |
+| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
 
 AKQのK vs AQが1 street、AKQJのK vs AQJが2 streetの最小例です。3 street以上では、
 必要なbluff候補を表現するためにJ、Tのような弱いrankを追加できます。
 
-## Geometric sizingの一般式
+---
+
+## 最適戦略
+
+### 均衡戦略
+
+| 対象 | 均衡条件 |
+|---|---|
+| 各StreetのBet size | $e_n=((1+2S)^{1/n}-1)/2$ |
+| 最終StreetのBluff:Value比 | $e:(1+e)$ |
+| 最終StreetのOOP Call率 | $1/(1+e)$ |
+| Early StreetのBluff | 最終StreetまでBarrelするBluffと途中でGive upするBluffをBackward inductionで配分 |
+
+### EV
+
+| プレイヤー | EV |
+|---|---:|
+| IP | $S$、$n$、Value / Bluff候補の初期分布に依存 |
+| OOP | $1-EV_{IP}$ |
+| 合計 | 1 |
+
+### 導出方法
+
+#### Geometric sizingの一般式
 
 毎streetで、そのstreet開始時のpotに対して同じ比率 $e$ をbetすると、bet-call後のpotは
 $(1+2e)$ 倍になります。$n$ 回のbet-callでstack $S$を使い切る条件は、
@@ -35,7 +58,7 @@ $$
 
 です。$S=4,n=2$なら $e_2=1$、つまりpot betを2回行うとちょうどAll-inになります。
 
-## 最終streetで必ず成立する比率
+#### 最終Streetで必ず成立する比率
 
 最終streetのbet額を $eP$ とすると、OOPのpot oddsから、bet rangeに必要な
 bluff:value比は、
@@ -52,7 +75,7 @@ $$
 
 です。pot betならbluff:valueは1:2、MDFは50%です。
 
-## 前のstreetほどbluff候補が多くなる理由
+#### 前のStreetほどBluff候補が多くなる理由
 
 early streetのbluffには、現在のFold equityに加えて、Call後に次streetで再びbluffする選択肢があります。
 そのため、最終streetまでbarrelするbluffだけでなく、途中でgive upするbluffも最初のbet rangeへ入れられます。
@@ -63,28 +86,39 @@ K vs AQJの2 street pot-bet例では、J/Qはそれぞれ62.5%で1st streetをbe
 early-streetの正確なbluff量は $S$、$n$、range内のvalue/bluff候補数に依存し、最終streetの比率だけから
 一意には決まりません。
 
-## Bluff候補が不足する場合
+---
 
-離散AKQ型ゲームでは、必要なearly-street bluff massがQだけでは足りないことがあります。これは式の破綻ではなく、
-rangeモデルの供給制約です。J、Tなどのair rankを追加すると、
-
-- 最終streetまでbarrelするbluff
-- 途中でgive upするbluff
-- off-pathのchecking rangeを守るrank
-
-を別々に割り当てられます。追加したrankは同じshowdown valueでもよく、card-removalを導入しない限り、
-どのair rankを使うかは非一意になり得ます。
-
-## ポーカー的解釈
+## ポーカーにおける概念理解
 
 - **Future street:** 追加streetはbluffを一度に使い切らず、段階的に選別する価値を生みます。
 - **Geometric betting:** 複数streetで均等な圧力をかけながらriverでstackを使い切る基準です。
 - **Equity realization:** polar側はpositionと将来のactionを利用し、nutsの価値とairのFold equityを実現します。
-- **Dynamic equity:** このtoy gameにはrunoutがないため存在しません。実戦ではturn/river cardがrange advantageや
-  blockerを変え、同じ式からずれることがあります。
 
-## 要点
+要点は次の3点です。
 
 1. $n$ streetのgeometric fractionは $((1+2S)^{1/n}-1)/2$ です。
 2. 最終streetのbluff:value比とMDFはpot oddsだけで決まります。
 3. early-streetのbluff量はbackward inductionと利用可能なbluff候補数で決まります。
+
+---
+
+## Solverによる再現結果
+
+この一般化Studyには独立したSolver runはありません。$n=1$はAKQゲーム①、$n=2,S=4$は
+AKQJゲーム①・②の解析解とSolver結果で確認できます。
+
+---
+
+## その他備考
+
+### Bluff候補が不足する場合
+
+離散AKQ型ゲームでは、必要なEarly-street Bluff massがQだけでは足りないことがあります。J、Tなどの
+Air rankを追加すると、
+
+- 最終StreetまでBarrelするBluff
+- 途中でGive upするBluff
+- Off-pathのChecking rangeを守るrank
+
+を別々に割り当てられます。追加したrankが同じShowdown valueを持つ場合、どのAir rankを使うかは
+非一意になり得ます。

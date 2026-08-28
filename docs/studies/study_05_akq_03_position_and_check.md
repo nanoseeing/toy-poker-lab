@@ -1,22 +1,23 @@
-# Symmetric AKQ game: both players hold AKQ, All-in only
-
-> Status: `解析解あり`・`数値検証済み`
+# AKQゲーム③ PositionとChecking range
 
 ## ルール
 
 | 項目 | 内容 |
 |---|---|
-| Street | River相当の1 street。runoutなし |
-| OOP range | Q / K / Aを各1/3 |
-| IP range | Q / K / Aを各1/3 |
-| 配布 | 独立配布。同rankはtie |
-| 強さ | A > K > Q |
-| 初期pot / stack | pot 1、両者stack 1 |
-| Bet size | All-inのみ |
-| Action | Check、All-in、Call、Fold |
-| 利得 | 終端利得の合計は常に1 |
+| OOPハンド | A / K / Q（各1/3・独立配布） |
+| IPハンド | A / K / Q（各1/3・独立配布） |
+| Street | 1 Street |
+| 初期Pot | 1 |
+| 有効Stack | 1 |
+| 許可アクション | Check、All-in、Call、Fold |
+| 勝敗判定 | A > K > Q。同じハンドはTie |
+| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
+
+---
 
 ## 最適戦略
+
+### 均衡戦略
 
 | 局面 | Q | K | A |
 |---|---|---|---|
@@ -24,19 +25,17 @@
 | IP after Check | All-in 50% | Check 100% | All-in 100% |
 | OOP facing All-in | Fold 100% | Call 25% | Call 100% |
 
-ゲーム価値は、
+### EV
 
-\[
-EV_{IP}=\frac{19}{36}\simeq0.527778,
-\qquad
-EV_{OOP}=\frac{17}{36}\simeq0.472222
-\]
+| プレイヤー | EV |
+|---|---:|
+| IP | $19/36 \simeq 0.527778$ |
+| OOP | $17/36 \simeq 0.472222$ |
+| 合計 | 1.00 |
 
-です。
+### 導出方法
 
-## 数学的導出
-
-### IPの純粋戦略
+#### IPの純粋戦略のヒューリスティック解釈
 
 OOPが全rangeをCheckした後を考えます。後で導くOOPの応答`Q Fold / K Call 25% / A Call`を使うと、
 
@@ -47,7 +46,7 @@ OOPが全rangeをCheckした後を考えます。後で導くOOPの応答`Q Fold
 
 したがって、Kは純粋Check、Aは純粋All-inです。Qだけがbluff候補になります。
 
-### IP(Q)のbluff頻度
+#### IP(Q)のBluff頻度の数学的導出
 
 IPがAを100%、Qを頻度 $b$ でAll-inするとします。OOPのKがCallしたとき、Qには`+2`、
 Aには`-1`なので、
@@ -58,7 +57,7 @@ Aには`-1`なので、
 
 です。bet range内のQは1/3となり、Kの必要equity1/3と一致します。
 
-### OOP(K)のCall頻度
+#### OOP(K)のCall頻度の数学的導出
 
 IPのQはCheckすると、OOPのQとtieする1/3の場合だけpotの半分を得るため、
 
@@ -77,7 +76,7 @@ EV_Q(\mathrm{allin})=\frac{1-2c}{3}
 
 OOPのQはIPのbet rangeに一度も勝たないため100% Fold、Aは一度も負けないため100% Callです。
 
-### OOPが全rangeをCheckする理由
+#### OOPが全rangeをCheckする理由
 
 OOPが先にbetすると、IPは後手から自分のQ/K/Aに応じてFold、Callを選び、OOPの中間rangeを効率よく
 選別できます。CheckならAをrangeに残したままIPのbluffを受け、Kをbluff catcherとして使えます。
@@ -85,7 +84,7 @@ OOPが先にbetすると、IPは後手から自分のQ/K/Aに応じてFold、Cal
 確認しています。rootのoff-path応答を含む完全な不等式は長くなるため、ここでは混合頻度の閉形式と分け、
 checking-range protectionとして解釈します。
 
-### ゲーム価値
+#### ゲーム価値
 
 IPのrank別利得は、Qが$1/6$、Kが$1/2$、Aが$11/12$です。したがって、
 
@@ -97,25 +96,28 @@ $$
 
 となります。
 
-## Solverによる再現
+---
+
+## ポーカーにおける概念理解
+
+OOPは全rangeをCheckし、Aを含むChecking rangeを守ります。IPはPositionを使って、AとQの一部を
+Polarizeします。KはIPではShowdown valueを持つためCheck、OOPではAll-in rangeに対するBluff
+catcherになります。同じKでもPositionと直前のrange更新によって役割が変わります。
+
+---
+
+## Solverによる再現結果
 
 | 指標 | 結果 |
 |---|---:|
-| Iterations | 3,000 / 10,000 |
-| Exploitability | `4.0376e-6` |
 | IP EV | 0.527777780 |
 | OOP EV | 0.472222220 |
+| Exploitability | `4.0376e-6` |
 
 - [Strategy Viewer](../../public/studies/akq_symmetric_allin/strategy_viewer.html)
 - [計算条件](../../public/studies/akq_symmetric_allin/resolved_config.json)
 
-## ポーカー的解釈
-
-OOPは全rangeをCheckし、Aを含むchecking rangeを守ります。IPはpositionを使って、AとQの一部を
-polarizeします。KはIPではshowdown valueを持つためCheck、OOPではAll-in rangeに対するbluff
-catcherになります。同じKでもpositionと直前のrange更新によって役割が変わります。
-
-## 再現方法
+### 再現方法
 
 ```bash
 toy-poker run configs/experiments/study_akq_symmetric_allin_dcfr.toml

@@ -1,27 +1,23 @@
-# AKQ game: K vs AQ, variable bet size
-
-> Status: `解析解あり`・`数値検証済み`
+# AKQゲーム② Polar rangeのBet size
 
 ## ルール
 
 | 項目 | 内容 |
 |---|---|
-| Street | River相当の1 street。runoutなし |
-| OOP range | K 100% |
-| IP range | A / Qを各50% |
-| 強さ | A > K > Q |
-| 初期pot | 1（デッドマネー） |
-| 有効stack | 1 |
-| Bet size | 10/20/33/50/75% pot、All-in |
-| 応答 | Check、Call、Fold、標準minimum raiseを満たすRaise |
-| 利得 | 終端利得の合計は常に1 |
+| OOPハンド | K（100%） |
+| IPハンド | A / Q（各50%） |
+| Street | 1 Street |
+| 初期Pot | 1 |
+| 有効Stack | 1 |
+| 許可アクション | Check、Fold、Call、10/20/33/50/75% PotのBet・Raise、All-in |
+| 勝敗判定 | A > K > Q |
+| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
 
-## このゲームで検証する問い
-
-polar range側がsizeを自由に選べるとき、中間sizeでCallを増やすのか、最大sizeでbluff catcherへ
-圧力をかけるのかを調べます。
+---
 
 ## 最適戦略
+
+### 均衡戦略
 
 solverはAll-in-only版と同じon-path戦略へ収束しました。
 
@@ -34,9 +30,17 @@ solverはAll-in-only版と同じon-path戦略へ収束しました。
 
 10〜75%の中間sizeは数値誤差を除いて使いません。
 
-## All-inが最適になる証明
+### EV
 
-### 固定したsize $B$ に対する均衡
+| プレイヤー | EV |
+|---|---:|
+| IP | 0.75 |
+| OOP | 0.25 |
+| 合計 | 1.00 |
+
+### 導出方法
+
+#### 固定したsize $B$ に対する数学的導出
 
 初期pot 1へIPが $B\le1$ をbetし、Aを100% value bet、Qを頻度 $b$ でbluffするとします。
 KのCall EVを0にする条件は、
@@ -76,7 +80,7 @@ $$
 
 となります。したがってstack制約内の最大値 $B=1$、つまりAll-inが最適です。
 
-### 純粋戦略と未使用size
+#### 純粋戦略と未使用sizeのヒューリスティック解釈
 
 - AはKに必ず勝つため、選ばれたsizeでは100% value betします。
 - OOPの先打ちAll-inは、AにCall、QにFoldされて期待利得0です。Checkの均衡利得0.25を下回るため、Kは100% Checkします。
@@ -87,28 +91,30 @@ $$
 追加選択肢を与えてもIPが保証できる利得は増えません。$B<1$のCall/Fold限定値がすでに0.75未満である一方、
 $B=1$ならRaise余地を消して0.75を保証できます。したがってRaiseを含む元ゲームでもAll-inが最適です。
 
-## Solverによる再現
+---
+
+## ポーカーにおける概念理解
+
+Polar range側がsizeを自由に選べるとき、中間sizeでCallを増やすのか、最大sizeでBluff catcherへ
+圧力をかけるのかを検証する題材です。
+
+KしかないOOPにはRaiseでIPのThin valueを罰するrangeも、Aを上回るNutsもありません。IPはsizeを
+小さくしてCallを増やすより、Aと必要量のQをPolarizeして最大sizeを使う方が高EVです。
+
+---
+
+## Solverによる再現結果
 
 | 指標 | 結果 |
 |---|---:|
-| Iterations | 3,000 / 10,000 |
-| Exploitability | `2.3830e-6` |
 | IP EV | 0.750000003 |
 | OOP EV | 0.249999997 |
+| Exploitability | `2.3830e-6` |
 
 - [Strategy Viewer](../../public/studies/akq_k_vs_aq_variable_size/strategy_viewer.html)
 - [計算条件](../../public/studies/akq_k_vs_aq_variable_size/resolved_config.json)
 
-## ポーカー的解釈
-
-KしかないOOPにはRaiseでIPのthin valueを罰するrangeも、Aを上回るnutもありません。IPはsizeを
-小さくしてCallを増やすより、Aと必要量のQをpolarizeして最大sizeを使う方が高EVです。
-
-「polarなら常にAll-in」ではありません。複数street、dynamic equity、stack depth、IPにも
-bluff catcherがある構造では、geometric sizeや複数sizeが選ばれます。この結論はriver・固定range・
-KだけのOOPという条件に依存します。
-
-## 再現方法
+### 再現方法
 
 ```bash
 toy-poker run configs/experiments/study_akq_k_vs_aq_variable_size_dcfr.toml

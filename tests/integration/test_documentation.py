@@ -97,7 +97,9 @@ def test_every_pinned_study_has_documentation_and_public_result():
 
     assert studies
     for study_id, selection in studies.items():
-        document_path = PROJECT_ROOT / "docs" / "studies" / f"{study_id}.md"
+        document_path = (
+            PROJECT_ROOT / "docs" / "studies" / selection["document"]
+        )
         assert document_path.exists()
         document = document_path.read_text(encoding="utf-8")
         assert "## ルール" in document
@@ -119,29 +121,80 @@ def test_study_curriculum_and_rule_tables_are_structured():
     studies_root = PROJECT_ROOT / "docs" / "studies"
     curriculum = (studies_root / "README.md").read_text(encoding="utf-8")
     ordered_documents = [
-        "game_theory_basics.md",
-        "concepts.md",
-        "akq_k_vs_aq_allin.md",
-        "akq_k_vs_aq_variable_size.md",
-        "akq_symmetric_allin.md",
-        "akq_symmetric_ip_betting.md",
-        "akq_symmetric_variable_size.md",
-        "akqj_two_street_pot.md",
-        "akqj_two_street_variable_size.md",
-        "polar_multi_street_generalization.md",
-        "akq_symmetric_two_street.md",
-        "zero_one_n50_one_street.md",
-        "zero_one_n50_two_street.md",
+        "study_01_game_theory_basics.md",
+        "study_02_poker_terms_and_math.md",
+        "study_03_akq_01_polar_bet.md",
+        "study_04_akq_02_polar_bet_sizing.md",
+        "study_05_akq_03_position_and_check.md",
+        "study_06_akq_04_ip_bet_sizing.md",
+        "study_07_akq_05_bet_raise_strategy.md",
+        "study_08_akqj_01_two_street_bluff.md",
+        "study_09_akqj_02_geometric_bet.md",
+        "study_10_akqj_03_multi_street_generalization.md",
+        "study_11_akq_06_two_street_strategy.md",
+        "study_12_01_game_01_oop_bet_strategy.md",
+        "study_13_01_game_02_two_street_strategy.md",
     ]
+    assert [path.name for path in sorted(studies_root.glob("study_*.md"))] == (
+        ordered_documents
+    )
     positions = [curriculum.index(f"({name})") for name in ordered_documents]
     assert positions == sorted(positions)
 
     game_studies = ordered_documents[2:]
     for name in game_studies:
         document = (studies_root / name).read_text(encoding="utf-8")
+        assert "Status" not in document
+        major_sections = [
+            "## ルール",
+            "## 最適戦略",
+            "## ポーカーにおける概念理解",
+            "## Solverによる再現結果",
+        ]
+        major_positions = [document.index(section) for section in major_sections]
+        assert major_positions == sorted(major_positions)
+        assert "### 均衡戦略" in document
+        assert "### EV" in document
+        assert "### 導出方法" in document
+        assert document.count("\n---\n") >= 3
+
         rules = document.split("## ルール", maxsplit=1)[1].split("## ", maxsplit=1)[0]
         assert "| 項目 | 内容 |" in rules
-        assert "| 利得 |" in rules
+        required_rows = [
+            "| OOPハンド |",
+            "| IPハンド |",
+            "| Street |",
+            "| 初期Pot |",
+            "| 有効Stack |",
+            "| 許可アクション |",
+            "| 勝敗判定 |",
+            "| 利得計算方法 |",
+        ]
+        positions = [rules.index(row) for row in required_rows]
+        assert positions == sorted(positions)
+        assert "標準minimum raise" not in rules
+
+        solver_section = document.split(
+            "## Solverによる再現結果", maxsplit=1
+        )[1].split("\n---\n", maxsplit=1)[0]
+        if "| 指標 | 結果 |" in solver_section:
+            result_table = solver_section.split("| 指標 | 結果 |", maxsplit=1)[
+                1
+            ].strip().split("\n\n", maxsplit=1)[0]
+            result_rows = [
+                line
+                for line in result_table.splitlines()
+                if line.startswith("|") and not line.startswith("|---")
+            ]
+            assert [row.split("|", maxsplit=2)[1].strip() for row in result_rows] == [
+                "IP EV",
+                "OOP EV",
+                "Exploitability",
+            ]
+
+    template = (studies_root / "zz_template.md").read_text(encoding="utf-8")
+    assert "Status" not in template
+    assert template.count("\n---\n") == 4
 
     for path in studies_root.glob("*.md"):
         document = path.read_text(encoding="utf-8")

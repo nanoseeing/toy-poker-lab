@@ -1,23 +1,24 @@
-# AKQJ game: K vs AQJ, two streets with variable size
-
-> Status: `解析解あり`・`数値検証済み`
+# AKQJゲーム② Geometric Bet
 
 ## ルール
 
 | 項目 | 内容 |
 |---|---|
-| Street | 2 street。public runoutなし |
-| OOP range | K 100% |
-| IP range | J / Q / Aを各1/3 |
-| 強さ | A > K > Q > J |
-| 初期pot / stack | pot 1、両者stack 4 |
-| Bet / Raise size | 25/50/75/100/125/150% pot、All-in |
-| Raise制約 | 標準minimum raise。両者Raise可能 |
+| OOPハンド | K（100%） |
+| IPハンド | A / Q / J（各1/3） |
+| Street | 2 Street |
+| 初期Pot | 1 |
+| 有効Stack | 4 |
+| 許可アクション | Check、Fold、Call、25/50/75/100/125/150% PotのBet・Raise、All-in |
+| 勝敗判定 | A > K > Q > J |
 | Street遷移 | Check-checkまたはbet-callで同じrankのまま次streetへ進む |
-| Node lock | なし |
-| 利得 | 終端利得の合計は常に1 |
+| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
 
-## Solverが選んだ戦略
+---
+
+## 最適戦略
+
+### 均衡戦略
 
 OOPはrootを100% Checkしました。IPの1st-street戦略は次です。
 
@@ -30,15 +31,25 @@ OOPはrootを100% Checkしました。IPの1st-street戦略は次です。
 OOPはpot betへCall/Foldを各50%。bet-call後の2nd streetでは、IPのJ/Qが40%、Aが100%を
 All-inします。25〜150%の候補を与えても、on-pathの1st streetではpot betだけが残りました。
 
-## 純粋戦略になる部分
+### EV
+
+| プレイヤー | EV |
+|---|---:|
+| IP | 0.75 |
+| OOP | 0.25 |
+| 合計 | 1.00 |
+
+### 導出方法
+
+#### 純粋戦略のヒューリスティック解釈
 
 OOPのKはAにだけ負け、J/Qには勝つbluff catcherです。先打ちではvalue handを持たないためrootをCheckします。
-IPのAは唯一のvalue handなので、主要なbet-call経路では両streetをbetします。J/QはKに勝てず、blocker差も
-ないため同価値のbluff候補です。ここまでが戦略の形で、各bluff頻度とsizeは以下の無差別条件から決まります。
+IPのAは唯一のvalue handなので、主要なbet-call経路では両streetをbetします。J/QはKに勝てず、
+同じshowdown valueを持つbluff候補です。ここまでが戦略の形で、各bluff頻度とsizeは以下の無差別条件から決まります。
 
-## Geometric pot betが最適になる証明
+以下では、Geometric Pot Betが最適になることをBackward inductionで導出します。
 
-### 2nd streetのCall率
+#### 2nd StreetのCall率
 
 1st-street bet額を $B$、Call後に残りstack $C=4-B$ を2nd streetでbetするとします。
 2nd streetのpotは $1+2B$ です。
@@ -51,7 +62,7 @@ c_2=\frac{1+2B}{1+B+4}
 
 です。
 
-### 1st streetで開始できるbluff量
+#### 1st Streetで開始できるBluff量
 
 OOPが1st betをCallした場合、Aに対する期待損失の大きさは$B+c_2C$です。J/Qに対しては、IPが
 2nd streetでCheckしても均衡頻度でbluffしても、OOPの期待利得は$1+B$です。したがって、
@@ -70,7 +81,7 @@ $$
 bet rangeに対するOOPの期待利得が0で、J/Qの均衡利得も0なので、constant-sum 1からIPのAの利得は
 $1+x(B)$になります。したがってIPは$x(B)$を最大化します。
 
-### sizeの最大化
+#### Sizeの最大化
 
 微分を分母まで書くと、
 
@@ -87,7 +98,7 @@ backward inductionしたものです。元の有限ゲームにはRaiseと他siz
 Raiseや他の1st-street sizeのAction EVが上回らず、この解析解が拡張ゲームでも均衡条件を満たすことを
 数値的に確認しています。
 
-## Bluff配分
+#### Bluff配分
 
 $B=1$を代入すると、
 
@@ -98,25 +109,36 @@ x(1)=1.25
 です。J/Qへ均等配分すると各62.5%。最終streetまで残す総bluff massは0.5なので各handの
 40%、rootからは`62.5% × 40% = 25%`がbarrelします。
 
-## Solver結果
+---
+
+## ポーカーにおける概念理解
+
+Geometric Betは、複数Streetで同じPot比率を使い、Bet–Callが続いたときに最後のStreetでStackを
+使い切るsizeです。このゲームでは候補sizeの一つとして与えられたPot Betが、OOPの無差別条件とIPの
+Bluff供給量を同時に最大化するため、均衡から内生的に選ばれます。
+
+---
+
+## Solverによる再現結果
 
 | 指標 | 結果 |
 |---|---:|
-| Iterations | 4,000 / 10,000 |
-| Exploitability | `3.6924e-6` |
 | IP EV | 0.749997846 |
 | OOP EV | 0.250002154 |
+| Exploitability | `3.6924e-6` |
 
 - [Strategy Viewer](../../public/studies/akqj_two_street_variable_size/strategy_viewer.html)
 - [計算条件](../../public/studies/akqj_two_street_variable_size/resolved_config.json)
 
-## 注意
-
-Check-check後の2nd streetにはAがほぼ残らないため、Kは常に勝っています。その枝のCheckや小betは
-同じEVになり、混合は非一意です。geometric optimalityはAがbet-call経路を通る主要枝で判断します。
-
-## 再現方法
+### 再現方法
 
 ```bash
 toy-poker run configs/experiments/study_akqj_two_street_variable_size_dcfr.toml
 ```
+
+---
+
+## その他備考
+
+Check-check後の2nd streetにはAがほぼ残らないため、Kは常に勝っています。その枝のCheckや小betは
+同じEVになり、混合は非一意です。geometric optimalityはAがbet-call経路を通る主要枝で判断します。

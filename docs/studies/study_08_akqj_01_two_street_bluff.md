@@ -1,24 +1,27 @@
-# AKQJ game: K vs AQJ, two-street pot betting
-
-> Status: `解析解あり`・`数値検証済み`
+# AKQJゲーム① 2 StreetのBluff戦略
 
 ## ルール
 
 | 項目 | 内容 |
 |---|---|
-| OOP | K 100% |
-| IP | A、Q、Jを各1/3 |
-| Street | 2 street、runoutなし |
-| Pot / stack | 初期pot 1、stack 4 |
-| 1st street | OOPから行動。Check、pot bet、Call/Fold、All-in raise |
-| 2nd street | OOPから行動。残stackに対するAll-inはpot bet |
+| OOPハンド | K（100%） |
+| IPハンド | A / Q / J（各1/3） |
+| Street | 2 Street |
+| 初期Pot | 1 |
+| 有効Stack | 4 |
+| 許可アクション | Check、Pot Bet、Call、Fold、All-in Raise |
+| 勝敗判定 | A > K > Q > J |
 | Street遷移 | Check-checkまたはbet-callで同じrankのまま次streetへ進む |
-| 利得 | 終端利得の合計は常に1 |
+| 利得計算方法 | 初期Potをデッドマネーとし、両者の終端利得の合計は1 |
 
 stack 4では2-street geometric fractionが1なので、1st streetで1、Call後のpot 3へ2nd streetで3を
 betするとちょうどAll-inになります。
 
+---
+
 ## 最適戦略
+
+### 均衡戦略
 
 | 局面 | 戦略 |
 |---|---|
@@ -32,16 +35,26 @@ betするとちょうどAll-inになります。
 
 Q/Jはそれぞれ、最初のrangeの`62.5% × 40% = 25%`を最終streetまでbluffします。
 
-## 純粋戦略になる部分
+### EV
+
+| プレイヤー | EV |
+|---|---:|
+| IP | 0.75 |
+| OOP | 0.25 |
+| 合計 | 1.00 |
+
+### 導出方法
+
+#### 純粋戦略のヒューリスティック解釈
 
 - OOPのKはAに負け、Q/Jに勝つbluff catcherです。先にbetするとAだけにCallされやすく、polarな
   value/bluff構成を作れないため、各streetでCheckします。
 - IPのAは全てのKに勝つ唯一のvalue handなので、両streetで100% betします。
 - Q/JはshowdownでKに勝てないため、Checkの利得が0になる枝では同価値のbluff候補です。
 
-QとJにblocker差はなく、個別の割当は非一意です。対称解として同じ頻度を割り当てます。
+QとJは同じshowdown valueを持つため、個別の割当は非一意です。対称解として同じ頻度を割り当てます。
 
-## 最終streetのbluff比
+#### 最終StreetのBluff比の数学的導出
 
 Aのvalue massを1とすると、Q/Jの最終barrelは各0.25なので、総bluff massは0.5です。
 
@@ -62,7 +75,7 @@ $$
 
 です。これが「1st streetで入れたbluffのうち40%だけをbarrelする」の正確な由来です。
 
-## なぜ1st streetでは各62.5%なのか
+#### 1st StreetのBluff頻度の数学的導出
 
 OOPが1st streetをCallした後、riverでFoldすれば利得は`-1`、CallしてAに負ければ`-4`です。
 Aに対する期待値は、riverでCall/Foldを半分ずつ選ぶので、
@@ -101,7 +114,11 @@ bet range内でOOPの期待利得が0、各bluffの期待利得も0なので、c
 value mass 1とbluff mass 1.25の合計$2.25$になります。IPはAを1/3で持つため、range全体では
 $2.25/3=0.75$です。
 
-## 1 streetとのEV比較
+---
+
+## ポーカーにおける概念理解
+
+### 1 StreetとのEV比較
 
 同じK vs AQJ、stack 4のAll-in-only 1-streetゲームでは`IP EV = 0.6`です。2 street pot bettingでは、
 
@@ -112,20 +129,24 @@ EV_{IP}=0.75,\qquad EV_{OOP}=0.25
 となります。future streetがIPへ「今betして、Callされた後にbarrelまたはgive upを選ぶ」権利を与え、
 polar側のequity realizationを大きくします。
 
-## Solverによる再現
+このゲームはFuture streetのOption valueとGeometric bettingを純粋に示します。Early streetでは、
+最終StreetまでBarrelしないGive-up BluffもBet rangeへ入るため、最終Streetより多くのBluffを開始できます。
+
+---
+
+## Solverによる再現結果
 
 | 指標 | 結果 |
 |---|---:|
-| Iterations | 100,000 |
-| Exploitability | `3.5914e-6` |
 | IP EV | 0.749999998 |
 | OOP EV | 0.250000002 |
+| Exploitability | `3.5914e-6` |
 
 - [公開Report](../../public/results/akqj_two_street/report.md)
 - [計算条件](../../configs/experiments/akqj_two_street_stack_4_cfr_plus.toml)
 
-## 実戦への応用と限界
+### 再現方法
 
-このゲームはfuture streetのoption valueとgeometric bettingを純粋に示します。ただしpublic cardが
-増えないためdynamic equityはなく、QとJにもblocker差がありません。実際のturn/riverではrunout、
-blocker、value handの強さ変化がbarrel選択を変えます。
+```bash
+toy-poker run configs/experiments/akqj_two_street_stack_4_cfr_plus.toml
+```
