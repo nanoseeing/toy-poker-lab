@@ -18,7 +18,6 @@ betするかtrapするか、将来のAll-in脅威が現在のCallにどう影響
 
 Geometric betは、残りstreetで同じpot比率を使ってstackをちょうど使い切る実戦的なサイズ設計を学ぶ題材です。
 range更新、複数streetのequity realization、ディレイしたbluff/value、All-in raiseへの防御を観察できます。
-一方でrunoutやblockerはないため、実戦のturn/river戦略そのものではなく、street配分の基礎実験として使います。
 
 ## 公開解析結果
 

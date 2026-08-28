@@ -17,7 +17,7 @@ IPのpolar rangeに対してKのCallとFoldを無差別にすることから、b
 
 実戦的には、強いvalueとshowdown valueのないbluffで構成されたpolar側が、中間のbluff catcherだけを
 持つ側に対して大きなベットを使える理由を学べます。pot odds、minimum defense frequency、
-range advantageとpositionの影響を、blockerや複数サイズの影響から切り離して確認する題材です。
+range advantageとpositionの影響を、最小のゲーム木で確認する題材です。
 
 ## 公開解析結果
 

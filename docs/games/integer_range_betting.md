@@ -18,8 +18,7 @@ polarな大きいbet、薄いvalueを含む小さいbet、check rangeの保護�
 
 Bet/Raiseサイズとminimum raiseが作るアクション木の中で、複数サイズの使い分け、raiseに対する防御、
 rangeのBayes更新、非一様rangeが戦略に与える影響を検証できます。実戦的にはGTO viewerのrange grid、
-node頻度、EQ、EV、EQRの読み方を練習する題材です。ただしrankは独立配布なので、実カードのblockerと
-card-removal effectはこのゲームからは学べません。
+node頻度、EQ、EV、EQRの読み方を練習する題材です。
 
 ## 公開解析結果
 

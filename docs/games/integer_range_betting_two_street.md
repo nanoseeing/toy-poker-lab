@@ -7,16 +7,13 @@
 - 両streetともOOPから開始し、Check、Bet、Raise、Call、Fold、All-inを使用できます。
 - 1st streetのCheck-checkまたはbet-callで、同じrankのまま2nd streetへ進みます。
 - Fold、All-in-call、または2nd streetのCheck-check/bet-callで終了します。
-- public cardは増えないためfuture-street option valueはありますがdynamic equityはありません。
+- street間でpublic cardは増えません。
 
 ## toyゲームの目的
 
 one-street版と同じrange・sizeを保ちながら、将来streetの存在だけがpolarization、barrel頻度、
 checking range、equity realizationへ与える影響を比較します。複数streetで同じpot比率を使う
 geometric bettingと、early-street bluffの一部が次streetでgive upする構造を検証できます。
-
-private rankは独立配布なのでblockerはありません。またrunoutがなくhand strengthが固定されるため、
-実戦のdynamic equityではなく純粋なbetting option valueを扱うゲームです。
 
 ## パラメータ
 
@@ -46,7 +43,7 @@ toy-poker run configs/experiments/integer_range_betting_two_street_cfr_plus.toml
 
 - [公開Report](../../public/results/integer_range_betting_two_street/report.md)
 - [公開Strategy Viewer](../../public/results/integer_range_betting_two_street/strategy_viewer.html)
-- [N=50 study](../studies/zero_one_n50_two_street.md)
+- [N=50 study](../studies/study_13_01_game_02_two_street_strategy.md)
 
 ## 出力の読み方
 
