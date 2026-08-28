@@ -67,9 +67,9 @@ weightを`0`にすると、そのrankを当該プレイヤーのrangeから除�
 
 実効stackは次のとおりです。
 
-\[
+$$
 S=\min(\text{oop\_stack},\text{ip\_stack})
-\]
+$$
 
 heads-upでは相手がcoverできない超過分を返却できるため、commit額を実効stackまでに
 制限します。
@@ -94,26 +94,26 @@ heads-upでは相手がcoverできない超過分を返却できるため、comm
 
 未bet時のfraction \(x\) によるbet額は、action前のpotを \(P\) として次のとおりです。
 
-\[
+$$
 \text{bet}=xP
-\]
+$$
 
 raise時は、現在のcall必要額を \(C\)、相手のbetを含む現在potを \(P_{current}\) とします。
 
-\[
+$$
 P_{after\ call}=P_{current}+C
-\]
+$$
 
-\[
+$$
 \text{chips added}=C+xP_{after\ call}
-\]
+$$
 
 相手のbet前のpotを \(P\)、相手のbet額を \(B\) と置けば、\(C=B\)、
 \(P_{current}=P+B\)なので、同じ式は次の形になります。
 
-\[
+$$
 B+x(P+2B)
-\]
+$$
 
 ## Minimum raise
 
@@ -125,9 +125,9 @@ stack上限によるAll-inだけはminimum未満のshort raiseを許可します
 
 例として初期pot 1へpot-sizeの1をbetされた場合、1/3 pot raiseは次の額になります。
 
-\[
+$$
 1+\frac{1}{3}(1+2)=2
-\]
+$$
 
 raise incrementは1で直前のbet increment 1と等しいため、minimum raiseを満たします。
 
@@ -249,9 +249,9 @@ bet/raise名とpot比率を表示します。通常サイズはaction前のpot�
 EVは現在nodeより前に支払ったcommitをsunk costとして戻したcurrent-node基準です。保存されて
 いるroot基準利得を $U_p(h)$、現在までのcommitを $C_p(h)$ とすると、表示EVは次です。
 
-\[
+$$
 EV_p(h)=U_p(h)+C_p(h)
-\]
+$$
 
 viewer内の`Node strategy`、rank詳細、tooltipのAction EVもすべて同じcurrent-node基準へ
 変換します。したがってbetに直面した局面のFold EVは0です。元の`analysis.json`とCSVは
@@ -261,9 +261,9 @@ viewer内の`Node strategy`、rank詳細、tooltipのAction EVもすべて同じ
 EQは現在の両条件付きrangeをそのままshowdownさせたときのrange equityです。EQRは
 [GTO Wizard公式の定義](https://blog.gtowizard.com/what-is-equity-in-poker/#eqr-defined)に従います。
 
-\[
+$$
 EQR_p(h)=\frac{EV_p(h)}{Pot(h)\times EQ_p(h)}
-\]
+$$
 
 たとえばEVがpotの75%、EQが50%ならEQRは150%です。EQが実質0の場合はゼロ除算を避けて
 EQRを未定義として表示します。
@@ -272,44 +272,44 @@ EQRを未定義として表示します。
 条件付きrangeで重み付けしたaction頻度です。履歴 (h)、手番プレイヤーのrank (r)、action
 (a)に対して次の値を表示します。
 
-\[
+$$
 F(a\mid h)=\sum_r P(r\mid h)\,\sigma(a\mid r,h)
-\]
+$$
 
 actionを選んで次の局面へ進むと、実際にそのactionを取る頻度を使って、手番プレイヤーの
 rangeをBayes更新します。
 
-\[
+$$
 P(r\mid h,a)=
 \frac{P(r\mid h)\,\sigma(a\mid r,h)}
 {\sum_{r'}P(r'\mid h)\,\sigma(a\mid r',h)}
-\]
+$$
 
 プレイヤー (p) のrank (r) がrootから履歴 (h) まで残っている割合を
 (W_p(r,h)) とします。rootでは全rankが100%残っています。
 
-\[
+$$
 W_p(r,\emptyset)=1
-\]
+$$
 
 プレイヤー (p) 自身がaction (a) を選んだときだけ、そのaction頻度を乗算します。
 相手がactionした場合、自分の残存率は変わりません。
 
-\[
+$$
 W_p(r,h+a)=
 \begin{cases}
 W_p(r,h)\,\sigma_p(a\mid r,h) & \text{if player}(h)=p \\
 W_p(r,h) & \text{otherwise}
 \end{cases}
-\]
+$$
 
 条件付きrangeはrootの事前分布 (P_{0,p}) と残存率を使って正規化した別の値です。
 
-\[
+$$
 P_p(r\mid h)=
 \frac{P_{0,p}(r)W_p(r,h)}
 {\sum_{r'}P_{0,p}(r')W_p(r',h)}
-\]
+$$
 
 このため、重み付きroot rangeでもrootにある全rankの表示高は100%です。元々の出現確率は
 `Conditional range weight`、rootから同rankが残った割合は`Range retained`として区別します。
@@ -334,18 +334,18 @@ distribution`は[GTO WizardのEquity Graph](https://blog.gtowizard.com/what-is-e
 range percentile、縦軸をshowdown EQとして表示します。rank \(r\) のEQは、相手が弱い確率と
 同rankの半分です。
 
-\[
+$$
 EQ(r)=P(R_{opp}<r)+\frac12P(R_{opp}=r)
-\]
+$$
 
 EQ順のrankを \(r_1,\ldots,r_N\) とすると、rank \(r_i\) は横軸の次の区間を占めます。
 
-\[
+$$
 \left[
 \sum_{j<i}P(r_j\mid h),
 \sum_{j\le i}P(r_j\mid h)
 \right]
-\]
+$$
 
 したがって、action後にBayes更新された重みの大きいrankほど、Equity Distribution上でも
 広い横幅を占めます。

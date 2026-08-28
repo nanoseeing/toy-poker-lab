@@ -199,3 +199,14 @@ def test_study_curriculum_and_rule_tables_are_structured():
     for path in studies_root.glob("*.md"):
         document = path.read_text(encoding="utf-8")
         assert re.search(r"\butility\b|\bterminal\b", document, re.IGNORECASE) is None
+
+
+def test_markdown_uses_github_math_delimiters():
+    markdown_paths = [PROJECT_ROOT / "README.md"]
+    for root in (PROJECT_ROOT / "docs", PROJECT_ROOT / "public"):
+        markdown_paths.extend(root.rglob("*.md"))
+
+    for path in markdown_paths:
+        document = path.read_text(encoding="utf-8")
+        assert re.search(r"(?m)^\\(?:\[|\])\s*$", document) is None, path
+        assert sum(line.strip() == "$$" for line in document.splitlines()) % 2 == 0, path

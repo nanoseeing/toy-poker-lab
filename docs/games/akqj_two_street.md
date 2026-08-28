@@ -48,22 +48,22 @@ range更新、複数streetのequity realization、ディレイしたbluff/value�
 
 実効スタックは次のとおりです。
 
-\[
+$$
 S=\min(\text{oop\_stack},\text{ip\_stack})
-\]
+$$
 
 Geometric betのpot比率 \(e\) は次の式で計算します。
 
-\[
+$$
 e=\frac{-1+\sqrt{1+2S}}{2}
-\]
+$$
 
 初期pot 1に対する1st streetのbet額は \(b_1=e\)、call後のpotは \(1+2e\)、
 2nd streetのbet額は \(b_2=e(1+2e)\) です。
 
-\[
+$$
 b_1+b_2=e+e(1+2e)=2e+2e^2=S
-\]
+$$
 
 したがって、両streetで同じpot比率をbetしてcallされると、2nd streetでちょうど
 All-inになります。例えば \(S=1\) では \(e\simeq0.366025\)、bet額は順に
@@ -193,9 +193,9 @@ OpenSpielのC++内で完結させます。現在は全標準設定で最大10,00
 
 両者のスタックを4にすると、Geometric betのpot比率はちょうど1になります。
 
-\[
+$$
 e=\frac{-1+\sqrt{1+2\times4}}{2}=1
-\]
+$$
 
 1st streetではpot 1へ1をbetし、call後のpot 3へ2nd streetで残り3をAll-inします。
 両方がcallされると最終potは9、showdownの利得は勝者`+5`、敗者`-4`です。

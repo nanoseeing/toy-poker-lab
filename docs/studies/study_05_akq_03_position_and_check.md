@@ -51,9 +51,9 @@ OOPが全rangeをCheckした後を考えます。後で導くOOPの応答`Q Fold
 IPがAを100%、Qを頻度 $b$ でAll-inするとします。OOPのKがCallしたとき、Qには`+2`、
 Aには`-1`なので、
 
-\[
+$$
 2b-1=0 \Rightarrow b=\frac12
-\]
+$$
 
 です。bet range内のQは1/3となり、Kの必要equity1/3と一致します。
 
@@ -61,16 +61,16 @@ Aには`-1`なので、
 
 IPのQはCheckすると、OOPのQとtieする1/3の場合だけpotの半分を得るため、
 
-\[
+$$
 EV_Q(\mathrm{check})=\frac13\cdot\frac12=\frac16
-\]
+$$
 
 です。OOPのKのCall率を $c$ とすると、QのAll-in EVは、OOPのQがFold、KがCall/Fold、AがCall
 することから、
 
-\[
+$$
 EV_Q(\mathrm{allin})=\frac{1-2c}{3}
-\]
+$$
 
 です。これを1/6に合わせると $c=1/4$ になります。
 

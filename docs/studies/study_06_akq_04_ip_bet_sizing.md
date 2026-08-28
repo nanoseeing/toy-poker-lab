@@ -58,11 +58,11 @@ AのBetとKのCheckは他のaction以上になるため、この純粋戦略の�
 IPはAを100% bet、KをCheck、Qを頻度 $b$ でbluffするとします。bet額を $B$ とすると、
 OOPのKをCall/Foldで無差別にする条件は、
 
-\[
+$$
 b(1+B)-B=0
 \quad\Rightarrow\quad
 b(B)=\frac{B}{1+B}
-\]
+$$
 
 です。
 
@@ -71,21 +71,21 @@ b(B)=\frac{B}{1+B}
 IPのQはCheckするとOOPのQとのtieだけから $1/6$ を得ます。OOP(K)のCall率を $c$ とすると、
 Qのbet EVは、
 
-\[
+$$
 EV_Q(B)=\frac{2-B-c(1+B)}{3}
-\]
+$$
 
 なので、Checkと無差別にする条件は、
 
-\[
+$$
 c(B)=\frac{1.5-B}{1+B}
-\]
+$$
 
 です。IP(A)のEVは、OOP(Q)がFold、Kが頻度 $c$ でCall、AがCallすることから、
 
-\[
+$$
 EV_A(B)=\frac{2.5+B\frac{1.5-B}{1+B}}{3}
-\]
+$$
 
 です。$B$に依存する部分を微分すると、
 
@@ -96,9 +96,9 @@ $$
 
 です。分子を0とすると、
 
-\[
+$$
 B^*=\sqrt{\frac52}-1\simeq0.581139
-\]
+$$
 
 となります。二次導関数または導関数の符号変化から最大値であり、$b,c$も0〜1に入ります。したがって
 連続sizeの最適値は約58.1% potです。このsizeは、AがKから得るthin valueとQが負うbluff riskを
@@ -118,9 +118,9 @@ $$
 
 60%だけを使う解析値は、
 
-\[
+$$
 b(0.6)=37.5\%,\qquad c(0.6)=56.25\%
-\]
+$$
 
 です。solverではOOP(K)が`Call 56.244% / Fold 43.756%`となり、解析値と一致しました。
 

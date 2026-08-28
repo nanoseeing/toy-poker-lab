@@ -58,9 +58,9 @@ QとJは同じshowdown valueを持つため、個別の割当は非一意です�
 
 Aのvalue massを1とすると、Q/Jの最終barrelは各0.25なので、総bluff massは0.5です。
 
-\[
+$$
 \text{value:bluff}=1:0.5=2:1
-\]
+$$
 
 pot-sized river betの理論比と一致し、OOPは50% Callします。
 
@@ -80,22 +80,22 @@ $$
 OOPが1st streetをCallした後、riverでFoldすれば利得は`-1`、CallしてAに負ければ`-4`です。
 Aに対する期待値は、riverでCall/Foldを半分ずつ選ぶので、
 
-\[
+$$
 \frac12(-1)+\frac12(-4)=-2.5
-\]
+$$
 
 です。一方、Q/Jに対してはriver Checkでも、river bluffへCall/Foldを半分ずつ選んでも期待値は`+2`です。
 OOPの1st Callを無差別にする総bluff massを $x$ とすると、
 
-\[
+$$
 -2.5+2x=0 \Rightarrow x=1.25
-\]
+$$
 
 Q/Jへ均等配分すると、
 
-\[
+$$
 \frac{1.25}{2}=0.625=62.5\%
-\]
+$$
 
 になります。early streetでは最終barrelに残らないgive-up bluffも含むため、最終streetより多くの
 bluffを開始できます。
@@ -122,9 +122,9 @@ $2.25/3=0.75$です。
 
 同じK vs AQJ、stack 4のAll-in-only 1-streetゲームでは`IP EV = 0.6`です。2 street pot bettingでは、
 
-\[
+$$
 EV_{IP}=0.75,\qquad EV_{OOP}=0.25
-\]
+$$
 
 となります。future streetがIPへ「今betして、Callされた後にbarrelまたはgive upを選ぶ」権利を与え、
 polar側のequity realizationを大きくします。

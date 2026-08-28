@@ -45,32 +45,32 @@ solverはAll-in-only版と同じon-path戦略へ収束しました。
 初期pot 1へIPが $B\le1$ をbetし、Aを100% value bet、Qを頻度 $b$ でbluffするとします。
 KのCall EVを0にする条件は、
 
-\[
+$$
 b(1+B)-B=0
 \quad\Rightarrow\quad
 b=\frac{B}{1+B}
-\]
+$$
 
 です。QをCheckとbluffで無差別にするKのCall率は、
 
-\[
+$$
 (1-c)-cB=0
 \quad\Rightarrow\quad
 c=\frac{1}{1+B}
-\]
+$$
 
 です。AはFoldされれば1、Callされれば $1+B$ を得るので、
 
-\[
+$$
 EV_A=1+cB=1+\frac{B}{1+B}
-\]
+$$
 
 となります。Qの均衡EVは0なので、IPのrange EVは、
 
-\[
+$$
 EV_{IP}(B)=\frac12\left(1+\frac{B}{1+B}\right)
 =\frac{1+2B}{2(1+B)}
-\]
+$$
 
 です。微分すると、
 

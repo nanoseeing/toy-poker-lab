@@ -56,9 +56,9 @@ IPのAは唯一のvalue handなので、主要なbet-call経路では両street�
 
 riverでbluffとCheckを無差別にするOOPのCall率は、
 
-\[
+$$
 c_2=\frac{1+2B}{1+B+4}
-\]
+$$
 
 です。
 
@@ -85,9 +85,9 @@ $1+x(B)$になります。したがってIPは$x(B)$を最大化します。
 
 微分を分母まで書くと、
 
-\[
+$$
 x'(B)=\frac{-18(B-1)(B+2)}{(B^2+6B+5)^2}
-\]
+$$
 
 です。合法範囲 $0\le B\le4$ では $B=1$ が一意な最大値です。Call後のpotは3、残りstackも3
 なので、2nd streetもpot-sized All-inになります。したがって両streetのpot比率が等しい
@@ -102,9 +102,9 @@ Raiseや他の1st-street sizeのAction EVが上回らず、この解析解が拡
 
 $B=1$を代入すると、
 
-\[
+$$
 x(1)=1.25
-\]
+$$
 
 です。J/Qへ均等配分すると各62.5%。最終streetまで残す総bluff massは0.5なので各handの
 40%、rootからは`62.5% × 40% = 25%`がbarrelします。
