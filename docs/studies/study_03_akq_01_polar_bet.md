@@ -44,7 +44,7 @@ IPのAは常にKへ勝ちます。Checkなら初期pot 1を獲得しますが、
 OOPがKで先にAll-inすると、IPはAをCall、QをFoldできます。そのときOOPの利得は、
 
 $$
-\frac12(-1)+\frac12(1)=0
+\frac{1}{2}(-1)+\frac{1}{2}(1)=0
 $$
 
 です。後述の均衡でCheckしたKの期待利得は0.25なので、OOPは自分からAll-inせず100% Checkします。
@@ -58,7 +58,7 @@ Aが$1/2$、Qが$b/2$です。共通の$1/2$を除けば、bet range内の重み
 KがCallすると、Qには`+2`、Aには`-1`の利得です。KをCallとFoldで無差別にするには、
 
 $$
-2b-1=0 \quad\Rightarrow\quad b=\frac12
+2b-1=0 \quad\Rightarrow\quad b=\frac{1}{2}
 $$
 
 です。これはbet range全体ではQが1/3、Aが2/3、すなわちvalue:bluffが2:1であることを
@@ -69,7 +69,7 @@ $$
 QはCheckするとKに負けて利得0です。All-inしたときは、Foldされると`+1`、Callされると`-1`なので、
 
 $$
-(1-c)-c=0 \quad\Rightarrow\quad c=\frac12
+(1-c)-c=0 \quad\Rightarrow\quad c=\frac{1}{2}
 $$
 
 です。pot-sized betに対するMDF (1/(1+1)=1/2) と一致します。
@@ -80,7 +80,7 @@ AのAll-inは、Fold時に1、Call時に2を得るため、$c=1/2$では期待�
 どちらでも利得0です。IPはA/Qを各1/2で持つので、
 
 $$
-EV_{IP}=\frac12(1.5)+\frac12(0)=0.75,
+EV_{IP}=\frac{1}{2}(1.5)+\frac{1}{2}(0)=0.75,
 \qquad EV_{OOP}=1-0.75=0.25
 $$
 

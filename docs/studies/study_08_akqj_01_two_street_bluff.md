@@ -81,7 +81,7 @@ OOPが1st streetをCallした後、riverでFoldすれば利得は`-1`、Callし�
 Aに対する期待値は、riverでCall/Foldを半分ずつ選ぶので、
 
 $$
-\frac12(-1)+\frac12(-4)=-2.5
+\frac{1}{2}(-1)+\frac{1}{2}(-4)=-2.5
 $$
 
 です。一方、Q/Jに対してはriver Checkでも、river bluffへCall/Foldを半分ずつ選んでも期待値は`+2`です。

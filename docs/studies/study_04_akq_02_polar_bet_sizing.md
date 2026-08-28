@@ -42,7 +42,7 @@ solverはAll-in-only版と同じon-path戦略へ収束しました。
 
 #### 固定したsize $B$ に対する数学的導出
 
-初期pot 1へIPが $B\le1$ をbetし、Aを100% value bet、Qを頻度 $b$ でbluffするとします。
+初期pot 1へIPが $B\leq1$ をbetし、Aを100% value bet、Qを頻度 $b$ でbluffするとします。
 KのCall EVを0にする条件は、
 
 $$
@@ -68,7 +68,7 @@ $$
 となります。Qの均衡EVは0なので、IPのrange EVは、
 
 $$
-EV_{IP}(B)=\frac12\left(1+\frac{B}{1+B}\right)
+EV_{IP}(B)=\frac{1}{2}\left(1+\frac{B}{1+B}\right)
 =\frac{1+2B}{2(1+B)}
 $$
 

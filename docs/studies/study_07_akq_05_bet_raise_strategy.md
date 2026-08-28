@@ -137,7 +137,7 @@ Fold優位です。したがって100% Foldは未収束による偶然ではな�
 
 $$
 b_Q=t,\qquad b_K=3t,\qquad b_A=6t,
-\qquad 0\le t\le\frac16
+\qquad 0\leq t\leq\frac{1}{6}
 $$
 
 と置きます。OOPがCheckした後に残るQ、K、Aのmassは、
@@ -279,7 +279,7 @@ IPの均衡戦略を固定したまま$t$だけを動かす場合、各OOP hand�
 
 $$
 \frac{dEV_{OOP}}{dt}
-=\frac13\sum_{r\in\{Q,K,A\}}m_r
+=\frac{1}{3}\sum_{r\in\{Q,K,A\}}m_r
 \left[EV_r(\mathrm{Bet\ 50\%})-EV_r(\mathrm{Check})\right]=0,
 \qquad (m_Q,m_K,m_A)=(1,3,6)
 $$

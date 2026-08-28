@@ -49,7 +49,7 @@ nut級は単純に最大sizeへ移行せず、かなりの頻度をCheckへ残�
 RootでRank $r$を持つとき、一様な相手rangeに対するShowdown equityは、
 
 $$
-EQ(r)=\frac{r-1}{50}+\frac12\frac1{50}=\frac{r-0.5}{50}
+EQ(r)=\frac{r-1}{50}+\frac{1}{2}\frac{1}{50}=\frac{r-0.5}{50}
 $$
 
 です。ただし、Bet EVは相手のsize別Call / Raise rangeに依存するため、EQだけでは最適sizeは決まりません。

@@ -31,14 +31,14 @@ $$
 EQは、これ以上bettingせずshowdownした場合に受け取るpotの期待割合です。
 
 $$
-EQ=P(Win)+\frac12P(Tie)
+EQ=P(Win)+\frac{1}{2}P(Tie)
 $$
 
 相手のhand $v$ に条件付き確率 $q_v$ があり、自分のhandを $h$ とすると、
 
 $$
 EQ(h)=\sum_v q_v\left[
-\mathbf{1}(h>v)+\frac12\mathbf{1}(h=v)
+\mathbf{1}(h>v)+\frac{1}{2}\mathbf{1}(h=v)
 \right]
 $$
 
@@ -162,7 +162,7 @@ $$
 e=\frac{\left(1+\frac{2S}{P_0}\right)^{1/n}-1}{2}
 $$
 
-を得ます。$P_0=1$、$S=4$、$n=2$ なら $e=(\sqrt9-1)/2=1$、つまり両streetでpot-size Betです。
+を得ます。$P_0=1$、$S=4$、$n=2$ なら $e=(\sqrt{9}-1)/2=1$、つまり両streetでpot-size Betです。
 
 ## Range構造
 

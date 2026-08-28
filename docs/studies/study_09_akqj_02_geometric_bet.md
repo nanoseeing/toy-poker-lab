@@ -89,7 +89,7 @@ $$
 x'(B)=\frac{-18(B-1)(B+2)}{(B^2+6B+5)^2}
 $$
 
-です。合法範囲 $0\le B\le4$ では $B=1$ が一意な最大値です。Call後のpotは3、残りstackも3
+です。合法範囲 $0\leq B\leq4$ では $B=1$ が一意な最大値です。Call後のpotは3、残りstackも3
 なので、2nd streetもpot-sized All-inになります。したがって両streetのpot比率が等しい
 geometric betが、単なる事前指定ではなく戦略から内生的に選ばれます。
 

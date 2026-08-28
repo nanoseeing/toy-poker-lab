@@ -52,7 +52,7 @@ IPがAを100%、Qを頻度 $b$ でAll-inするとします。OOPのKがCallし�
 Aには`-1`なので、
 
 $$
-2b-1=0 \Rightarrow b=\frac12
+2b-1=0 \Rightarrow b=\frac{1}{2}
 $$
 
 です。bet range内のQは1/3となり、Kの必要equity1/3と一致します。
@@ -62,7 +62,7 @@ $$
 IPのQはCheckすると、OOPのQとtieする1/3の場合だけpotの半分を得るため、
 
 $$
-EV_Q(\mathrm{check})=\frac13\cdot\frac12=\frac16
+EV_Q(\mathrm{check})=\frac{1}{3}\cdot\frac{1}{2}=\frac{1}{6}
 $$
 
 です。OOPのKのCall率を $c$ とすると、QのAll-in EVは、OOPのQがFold、KがCall/Fold、AがCall
@@ -89,7 +89,7 @@ checking-range protectionとして解釈します。
 IPのrank別利得は、Qが$1/6$、Kが$1/2$、Aが$11/12$です。したがって、
 
 $$
-EV_{IP}=\frac13\left(\frac16+\frac12+\frac{11}{12}\right)
+EV_{IP}=\frac{1}{3}\left(\frac{1}{6}+\frac{1}{2}+\frac{11}{12}\right)
 =\frac{19}{36},
 \qquad EV_{OOP}=1-EV_{IP}=\frac{17}{36}
 $$
