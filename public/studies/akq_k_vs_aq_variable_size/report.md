@@ -16,4 +16,4 @@ Pinned result for study `akq_k_vs_aq_variable_size` from run `20260826T181415397
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akq_k_vs_aq_variable_size.md`](../../../docs/studies/akq_k_vs_aq_variable_size.md).
+[`docs/studies/study_04_akq_02_polar_bet_sizing.md`](../../../docs/studies/study_04_akq_02_polar_bet_sizing.md).

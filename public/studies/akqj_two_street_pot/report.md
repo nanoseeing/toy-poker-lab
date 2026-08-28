@@ -15,4 +15,4 @@ Pinned result for study `akqj_two_street_pot` from run `20260824T171423408260Z_e
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akqj_two_street_pot.md`](../../../docs/studies/akqj_two_street_pot.md).
+[`docs/studies/study_08_akqj_01_two_street_bluff.md`](../../../docs/studies/study_08_akqj_01_two_street_bluff.md).

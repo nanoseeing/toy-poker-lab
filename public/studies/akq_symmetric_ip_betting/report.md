@@ -16,4 +16,4 @@ Pinned result for study `akq_symmetric_ip_betting` from run `20260826T1822295648
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akq_symmetric_ip_betting.md`](../../../docs/studies/akq_symmetric_ip_betting.md).
+[`docs/studies/study_06_akq_04_ip_bet_sizing.md`](../../../docs/studies/study_06_akq_04_ip_bet_sizing.md).

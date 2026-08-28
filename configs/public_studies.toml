@@ -1,39 +1,49 @@
 [studies.akq_k_vs_aq_allin]
 game_id = "integer_range_betting"
 run_id = "20260826T181415250474Z_f08adea2"
+document = "study_03_akq_01_polar_bet.md"
 
 [studies.akq_k_vs_aq_variable_size]
 game_id = "integer_range_betting"
 run_id = "20260826T181415397319Z_1e500723"
+document = "study_04_akq_02_polar_bet_sizing.md"
 
 [studies.akqj_two_street_pot]
 game_id = "akqj_two_street"
 run_id = "20260824T171423408260Z_e4dfff20"
+document = "study_08_akqj_01_two_street_bluff.md"
 
 [studies.akqj_two_street_variable_size]
 game_id = "integer_range_betting_two_street"
 run_id = "20260826T182658785517Z_4f5893e7"
+document = "study_09_akqj_02_geometric_bet.md"
 
 [studies.akq_symmetric_allin]
 game_id = "integer_range_betting"
 run_id = "20260826T181415249298Z_4254f63d"
+document = "study_05_akq_03_position_and_check.md"
 
 [studies.akq_symmetric_ip_betting]
 game_id = "integer_range_betting"
 run_id = "20260826T182229564846Z_6973800e"
+document = "study_06_akq_04_ip_bet_sizing.md"
 
 [studies.akq_symmetric_variable_size]
 game_id = "integer_range_betting"
 run_id = "20260826T083319796287Z_62cac0a5"
+document = "study_07_akq_05_bet_raise_strategy.md"
 
 [studies.akq_symmetric_two_street]
 game_id = "integer_range_betting_two_street"
 run_id = "20260826T182659141589Z_b94cb64e"
+document = "study_11_akq_06_two_street_strategy.md"
 
 [studies.zero_one_n50_one_street]
 game_id = "integer_range_betting"
 run_id = "20260825T012535053821Z_9f148e42"
+document = "study_12_01_game_01_oop_bet_strategy.md"
 
 [studies.zero_one_n50_two_street]
 game_id = "integer_range_betting_two_street"
 run_id = "20260826T183358693407Z_fa021575"
+document = "study_13_01_game_02_two_street_strategy.md"

@@ -16,4 +16,4 @@ Pinned result for study `akqj_two_street_variable_size` from run `20260826T18265
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akqj_two_street_variable_size.md`](../../../docs/studies/akqj_two_street_variable_size.md).
+[`docs/studies/study_09_akqj_02_geometric_bet.md`](../../../docs/studies/study_09_akqj_02_geometric_bet.md).

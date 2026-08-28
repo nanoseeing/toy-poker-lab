@@ -16,4 +16,4 @@ Pinned result for study `zero_one_n50_one_street` from run `20260825T01253505382
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/zero_one_n50_one_street.md`](../../../docs/studies/zero_one_n50_one_street.md).
+[`docs/studies/study_12_01_game_01_oop_bet_strategy.md`](../../../docs/studies/study_12_01_game_01_oop_bet_strategy.md).

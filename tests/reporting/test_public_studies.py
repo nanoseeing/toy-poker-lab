@@ -77,7 +77,14 @@ def test_publish_studies_uses_study_id_as_target(tmp_path: Path):
     published = publish_studies(
         artifact_root,
         output,
-        [StudySelection("akq-example", "integer_range_betting", run_id)],
+        [
+            StudySelection(
+                "akq-example",
+                "integer_range_betting",
+                run_id,
+                "study_03_akq_01_polar_bet.md",
+            )
+        ],
     )
 
     target = output / "akq-example"
@@ -86,16 +93,48 @@ def test_publish_studies_uses_study_id_as_target(tmp_path: Path):
     assert (target / "report.md").exists()
     assert (target / "strategy_viewer.html").read_text(encoding="utf-8") == "viewer"
     assert json.loads((target / "summary.json").read_text())["study_id"] == "akq-example"
+    assert "study_03_akq_01_polar_bet.md" in (target / "report.md").read_text(
+        encoding="utf-8"
+    )
     assert "akq-example/report.md" in (output / "README.md").read_text()
 
 
 def test_load_study_selection(tmp_path: Path):
     path = tmp_path / "studies.toml"
     path.write_text(
-        '[studies.example]\ngame_id="integer_range_betting"\nrun_id="run1"\n',
+        '[studies.example]\ngame_id="integer_range_betting"\nrun_id="run1"\n'
+        'document="study_03_akq_01_polar_bet.md"\n',
         encoding="utf-8",
     )
 
     assert load_study_selection(path) == [
-        StudySelection("example", "integer_range_betting", "run1")
+        StudySelection(
+            "example",
+            "integer_range_betting",
+            "run1",
+            "study_03_akq_01_polar_bet.md",
+        )
+    ]
+
+
+def test_load_study_selection_orders_by_numbered_document(tmp_path: Path):
+    path = tmp_path / "studies.toml"
+    path.write_text(
+        """
+[studies.later]
+game_id = "integer_range_betting"
+run_id = "run2"
+document = "study_12_01_game_01_oop_bet_strategy.md"
+
+[studies.earlier]
+game_id = "integer_range_betting"
+run_id = "run1"
+document = "study_03_akq_01_polar_bet.md"
+""",
+        encoding="utf-8",
+    )
+
+    assert [selection.study_id for selection in load_study_selection(path)] == [
+        "earlier",
+        "later",
     ]

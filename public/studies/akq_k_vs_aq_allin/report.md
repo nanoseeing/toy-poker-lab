@@ -16,4 +16,4 @@ Pinned result for study `akq_k_vs_aq_allin` from run `20260826T181415250474Z_f08
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akq_k_vs_aq_allin.md`](../../../docs/studies/akq_k_vs_aq_allin.md).
+[`docs/studies/study_03_akq_01_polar_bet.md`](../../../docs/studies/study_03_akq_01_polar_bet.md).

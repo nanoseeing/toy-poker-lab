@@ -16,4 +16,4 @@ Pinned result for study `akq_symmetric_two_street` from run `20260826T1826591415
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akq_symmetric_two_street.md`](../../../docs/studies/akq_symmetric_two_street.md).
+[`docs/studies/study_11_akq_06_two_street_strategy.md`](../../../docs/studies/study_11_akq_06_two_street_strategy.md).

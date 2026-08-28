@@ -16,4 +16,4 @@ Pinned result for study `akq_symmetric_allin` from run `20260826T181415249298Z_4
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akq_symmetric_allin.md`](../../../docs/studies/akq_symmetric_allin.md).
+[`docs/studies/study_05_akq_03_position_and_check.md`](../../../docs/studies/study_05_akq_03_position_and_check.md).

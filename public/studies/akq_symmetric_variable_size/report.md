@@ -16,4 +16,4 @@ Pinned result for study `akq_symmetric_variable_size` from run `20260826T0833197
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/akq_symmetric_variable_size.md`](../../../docs/studies/akq_symmetric_variable_size.md).
+[`docs/studies/study_07_akq_05_bet_raise_strategy.md`](../../../docs/studies/study_07_akq_05_bet_raise_strategy.md).

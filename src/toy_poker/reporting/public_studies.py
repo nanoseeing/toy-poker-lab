@@ -19,6 +19,7 @@ class StudySelection:
     study_id: str
     game_id: str
     run_id: str
+    document: str
 
 
 def load_study_selection(path: Path) -> list[StudySelection]:
@@ -28,16 +29,28 @@ def load_study_selection(path: Path) -> list[StudySelection]:
     if not isinstance(studies, dict) or not studies:
         raise ValueError(f"Public study selection has no [studies.*] entries: {path}")
     result = []
-    for study_id, entry in sorted(studies.items()):
+    for study_id, entry in studies.items():
         if not isinstance(entry, dict):
             raise ValueError(f"studies.{study_id} must be a table")
         game_id = entry.get("game_id")
         run_id = entry.get("run_id")
-        if not isinstance(game_id, str) or not isinstance(run_id, str):
+        study_document = entry.get("document")
+        if (
+            not isinstance(game_id, str)
+            or not isinstance(run_id, str)
+            or not isinstance(study_document, str)
+        ):
             raise ValueError(
-                f"studies.{study_id} requires string game_id and run_id"
+                f"studies.{study_id} requires string game_id, run_id and document"
             )
-        result.append(StudySelection(study_id, game_id, run_id))
+        if Path(study_document).name != study_document or not study_document.endswith(
+            ".md"
+        ):
+            raise ValueError(
+                f"studies.{study_id}.document must be a Markdown filename"
+            )
+        result.append(StudySelection(study_id, game_id, run_id, study_document))
+    result.sort(key=lambda selection: selection.document)
     return result
 
 
@@ -124,7 +137,7 @@ Pinned result for study `{selection.study_id}` from run `{selection.run_id}`.
 - [Source manifest](manifest.json)
 
 The theory and poker interpretation are documented in
-[`docs/studies/{selection.study_id}.md`](../../../docs/studies/{selection.study_id}.md).
+[`docs/studies/{selection.document}`](../../../docs/studies/{selection.document}).
 """
     (directory / "report.md").write_text(markdown, encoding="utf-8")
     viewer_html = (
