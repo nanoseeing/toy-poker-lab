@@ -64,7 +64,7 @@ $$
 
 pot-sized river betの理論比と一致し、OOPは50% Callします。
 
-最終streetへ到達したQ/JがAll-inする条件付き頻度を $t$ とします。1st streetでbetした各air massは
+最終streetへ到達したQ/JがAll-inする条件付き頻度を $`t`$ とします。1st streetでbetした各air massは
 0.625、最終streetに必要な総bluff massは0.5なので、
 
 $$
@@ -85,7 +85,7 @@ $$
 $$
 
 です。一方、Q/Jに対してはriver Checkでも、river bluffへCall/Foldを半分ずつ選んでも期待値は`+2`です。
-OOPの1st Callを無差別にする総bluff massを $x$ とすると、
+OOPの1st Callを無差別にする総bluff massを $`x`$ とすると、
 
 $$
 -2.5+2x=0 \Rightarrow x=1.25
@@ -94,13 +94,13 @@ $$
 Q/Jへ均等配分すると、
 
 $$
-\frac{1.25}{2}=0.625=62.5\%
+\frac{1.25}{2}=0.625
 $$
 
 になります。early streetでは最終barrelに残らないgive-up bluffも含むため、最終streetより多くの
 bluffを開始できます。
 
-最後にOOPの1st-street Call率を $c_1$ とします。Q/Jが1st streetでCheckすると利得0です。
+最後にOOPの1st-street Call率を $`c_1`$ とします。Q/Jが1st streetでCheckすると利得0です。
 1st betがFoldされればbluffの利得は`+1`、Callされれば、2nd streetでCheckしても均衡頻度でAll-inしても
 利得は`-1`です。したがって1st-street bluffの期待利得は、
 
@@ -108,11 +108,11 @@ $$
 EV_{bluff}=(1-c_1)(1)+c_1(-1)=1-2c_1
 $$
 
-です。Checkの0と等置すると$c_1=1/2$となり、solverでも50%へ収束します。
+です。Checkの0と等置すると$`c_1=1/2`$となり、solverでも50%へ収束します。
 
 bet range内でOOPの期待利得が0、各bluffの期待利得も0なので、constant-sum 1より、Aの利得は
-value mass 1とbluff mass 1.25の合計$2.25$になります。IPはAを1/3で持つため、range全体では
-$2.25/3=0.75$です。
+value mass 1とbluff mass 1.25の合計$`2.25`$になります。IPはAを1/3で持つため、range全体では
+$`2.25/3=0.75`$です。
 
 ---
 

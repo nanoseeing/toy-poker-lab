@@ -46,7 +46,7 @@ nut級は単純に最大sizeへ移行せず、かなりの頻度をCheckへ残�
 
 ### 導出方法
 
-RootでRank $r$を持つとき、一様な相手rangeに対するShowdown equityは、
+RootでRank $`r`$を持つとき、一様な相手rangeに対するShowdown equityは、
 
 $$
 EQ(r)=\frac{r-1}{50}+\frac{1}{2}\frac{1}{50}=\frac{r-0.5}{50}
@@ -80,12 +80,12 @@ rank 1〜7はCheck EVがほぼ0で、多数のbluff actionも無差別に近く�
 
 #### 混合頻度の数学的検証
 
-この多size・Raiseゲームに既知の短い閉形式解はありません。rank $r$がCheckと複数sizeを混ぜるなら、
-正の頻度を持つ全actionについて、
+この多size・Raiseゲームに既知の短い閉形式解はありません。Checkを$`C`$、Pot比$`s`$のBetを$`B_s`$と書きます。
+rank $`r`$がCheckと複数sizeを混ぜるなら、正の頻度を持つ全actionについて、
 
 $$
-EV_r(\mathrm{Check})=EV_r(\mathrm{Bet}_{10\%})
-=\cdots=EV_r(\mathrm{Bet}_{x\%})
+EV_r(C)=EV_r(B_{0.10})
+=\cdots=EV_r(B_x)
 $$
 
 が必要です。さらに、各sizeに対するIPのFold/Call/Raiseもそれぞれbest responseでなければなりません。

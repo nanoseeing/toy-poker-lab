@@ -38,8 +38,8 @@
 
 #### 純粋戦略のヒューリスティック解釈
 
-IPのAは常にKへ勝ちます。Checkなら初期pot 1を獲得しますが、All-inならOOPがCallする確率 $c$ だけ
-追加の1を獲得できるため、$c>0$ではAll-inがCheckより厳密に高利得です。したがってAは100% All-inします。
+IPのAは常にKへ勝ちます。Checkなら初期pot 1を獲得しますが、All-inならOOPがCallする確率 $`c`$ だけ
+追加の1を獲得できるため、$`c>0`$ではAll-inがCheckより厳密に高利得です。したがってAは100% All-inします。
 
 OOPがKで先にAll-inすると、IPはAをCall、QをFoldできます。そのときOOPの利得は、
 
@@ -52,8 +52,8 @@ QはCheckすると必ずKに負けるため利得0ですが、All-inにもrisk�
 
 #### QのBluff頻度の数学的導出
 
-IP(Q)のbluff率を $b$、OOP(K)のCall率を $c$ とします。OOPがAll-inに直面したとき、IPの事前確率は
-Aが$1/2$、Qが$b/2$です。共通の$1/2$を除けば、bet range内の重みは`A : Q = 1 : b`です。
+IP(Q)のbluff率を $`b`$、OOP(K)のCall率を $`c`$ とします。OOPがAll-inに直面したとき、IPの事前確率は
+Aが$`1/2`$、Qが$`b/2`$です。共通の$`1/2`$を除けば、bet range内の重みは`A : Q = 1 : b`です。
 
 KがCallすると、Qには`+2`、Aには`-1`の利得です。KをCallとFoldで無差別にするには、
 
@@ -76,7 +76,7 @@ $$
 
 #### ゲーム価値
 
-AのAll-inは、Fold時に1、Call時に2を得るため、$c=1/2$では期待利得1.5です。QはCheckとAll-inの
+AのAll-inは、Fold時に1、Call時に2を得るため、$`c=1/2`$では期待利得1.5です。QはCheckとAll-inの
 どちらでも利得0です。IPはA/Qを各1/2で持つので、
 
 $$

@@ -64,16 +64,16 @@ OOPが再びCheckした主要枝では、IPは1〜11をほぼ100% Pot Bluff、39
 
 ### 導出方法
 
-showdown equity自体はone-street版と同じ$EQ(r)=(r-0.5)/50$です。しかし1st-street Action EVには、
-現在のFold/Call/Raiseだけでなく、次streetの最適方策から得る継続利得が入ります。例えばrank $r$が
+showdown equity自体はone-street版と同じ$`EQ(r)=(r-0.5)/50`$です。しかし1st-street Action EVには、
+現在のFold/Call/Raiseだけでなく、次streetの最適方策から得る継続利得が入ります。例えばrank $`r`$が
 1st streetでCheckとBet 100%を混ぜる必要条件は、
 
 $$
-EV_r(\mathrm{Check};\,V_{street\ 2})
-=EV_r(\mathrm{Bet\ 100\%};\,V_{street\ 2})
+EV_r(\mathrm{Check};V_2)
+=EV_r(B_{1.0};V_2)
 $$
 
-です。$V_{street\ 2}$自身が両者のrank別戦略で決まるため、個別混合頻度の短い閉形式はありません。
+です。$`V_{street\ 2}`$自身が両者のrank別戦略で決まるため、個別混合頻度の短い閉形式はありません。
 保存runの数値は全情報集合の無差別条件とbest-response不等式をDCFRで同時に近似したものです。
 
 純粋戦略に近い中位Checkは「現在betしても、より強いcontinue rangeに選別される」ためと説明できます。

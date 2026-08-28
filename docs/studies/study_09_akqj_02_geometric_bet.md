@@ -51,8 +51,8 @@ IPのAは唯一のvalue handなので、主要なbet-call経路では両street�
 
 #### 2nd StreetのCall率
 
-1st-street bet額を $B$、Call後に残りstack $C=4-B$ を2nd streetでbetするとします。
-2nd streetのpotは $1+2B$ です。
+1st-street bet額を $`B`$、Call後に残りstack $`C=4-B`$ を2nd streetでbetするとします。
+2nd streetのpotは $`1+2B`$ です。
 
 riverでbluffとCheckを無差別にするOOPのCall率は、
 
@@ -64,14 +64,14 @@ $$
 
 #### 1st Streetで開始できるBluff量
 
-OOPが1st betをCallした場合、Aに対する期待損失の大きさは$B+c_2C$です。J/Qに対しては、IPが
-2nd streetでCheckしても均衡頻度でbluffしても、OOPの期待利得は$1+B$です。したがって、
+OOPが1st betをCallした場合、Aに対する期待損失の大きさは$`B+c_2C`$です。J/Qに対しては、IPが
+2nd streetでCheckしても均衡頻度でbluffしても、OOPの期待利得は$`1+B`$です。したがって、
 
 $$
 x(B)(1+B)=B+c_2C
 $$
 
-が1st Call/Foldの無差別条件になり、次の$x(B)$が得られます。
+が1st Call/Foldの無差別条件になり、次の$`x(B)`$が得られます。
 
 $$
 x(B)=\frac{B+c_2C}{1+B}
@@ -79,7 +79,7 @@ x(B)=\frac{B+c_2C}{1+B}
 $$
 
 bet rangeに対するOOPの期待利得が0で、J/Qの均衡利得も0なので、constant-sum 1からIPのAの利得は
-$1+x(B)$になります。したがってIPは$x(B)$を最大化します。
+$`1+x(B)`$になります。したがってIPは$`x(B)`$を最大化します。
 
 #### Sizeの最大化
 
@@ -89,7 +89,7 @@ $$
 x'(B)=\frac{-18(B-1)(B+2)}{(B^2+6B+5)^2}
 $$
 
-です。合法範囲 $0\leq B\leq4$ では $B=1$ が一意な最大値です。Call後のpotは3、残りstackも3
+です。合法範囲 $`0\leq B\leq4`$ では $`B=1`$ が一意な最大値です。Call後のpotは3、残りstackも3
 なので、2nd streetもpot-sized All-inになります。したがって両streetのpot比率が等しい
 geometric betが、単なる事前指定ではなく戦略から内生的に選ばれます。
 
@@ -100,7 +100,7 @@ Raiseや他の1st-street sizeのAction EVが上回らず、この解析解が拡
 
 #### Bluff配分
 
-$B=1$を代入すると、
+$`B=1`$を代入すると、
 
 $$
 x(1)=1.25

@@ -213,10 +213,20 @@ def test_markdown_uses_github_math_delimiters():
         assert re.search(r"(?m)^\\(?:\[|\])\s*$", document) is None, path
         assert "^*" not in document, path
         assert r"\operatorname" not in document, path
+        assert r"\%" not in document, path
         standalone_dollars = sum(
             line.strip() == "$$" for line in document.splitlines()
         )
         assert standalone_dollars % 2 == 0, path
+        markdown = re.sub(r"```.*?```", "", document, flags=re.DOTALL)
+        markdown = re.sub(r"\$\$.*?\$\$", "", markdown, flags=re.DOTALL)
+        markdown = re.sub(r"\$`.*?`\$", "", markdown)
+        plain_inline = re.findall(
+            r"(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)",
+            markdown,
+            flags=re.DOTALL,
+        )
+        assert plain_inline == [], path
 
 
 def test_study_math_expressions_are_parseable():
@@ -226,13 +236,16 @@ def test_study_math_expressions_are_parseable():
         document = re.sub(r"```.*?```", "", document, flags=re.DOTALL)
         block_expressions = re.findall(r"\$\$(.*?)\$\$", document, flags=re.DOTALL)
         without_blocks = re.sub(r"\$\$.*?\$\$", "", document, flags=re.DOTALL)
-        assert len(re.findall(r"(?<!\\)\$", without_blocks)) % 2 == 0, path
-        inline_expressions = re.findall(
+        inline_expressions = re.findall(r"\$`(.*?)`\$", without_blocks)
+        without_inline = re.sub(r"\$`.*?`\$", "", without_blocks)
+        plain_inline = re.findall(
             r"(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)",
-            without_blocks,
+            without_inline,
             flags=re.DOTALL,
         )
+        assert plain_inline == [], path
 
         for expression in block_expressions + inline_expressions:
+            assert re.search(r"\\[^A-Za-z\s]", expression) is None, path
             normalized = re.sub(r"\s+", " ", expression.strip())
             parser.parse(f"${normalized}$")

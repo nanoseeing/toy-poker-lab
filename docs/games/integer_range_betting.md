@@ -247,7 +247,7 @@ bet/raise名とpot比率を表示します。通常サイズはaction前のpot�
 `Range metrics`は戦略方眼と`Manhattan strategy`の間に配置し、現在のhistoryにおけるOOP/IP
 それぞれのrange全体のEV、EQ、EQRを表示します。
 EVは現在nodeより前に支払ったcommitをsunk costとして戻したcurrent-node基準です。保存されて
-いるroot基準利得を $U_p(h)$、現在までのcommitを $C_p(h)$ とすると、表示EVは次です。
+いるroot基準利得を $`U_p(h)`$、現在までのcommitを $`C_p(h)`$ とすると、表示EVは次です。
 
 $$
 EV_p(h)=U_p(h)+C_p(h)

@@ -56,10 +56,10 @@ IPも1st streetでは大きくpolarizeせず、小sizeで次streetへrangeを運
 閉形式は使えません。solverは全情報集合について、使用中actionのAction EVを等しくし、未使用actionのEVを
 それ以下にする連立条件を数値的に解いています。
 
-rootでrank $r$がCheckとBet 33%を混ぜるなら必要条件は、
+rootでrank $`r`$がCheckとBet 33%を混ぜるなら必要条件は、
 
 $$
-EV_r(\mathrm{Check})=EV_r(\mathrm{Bet\ 33\%})
+EV_r(\mathrm{Check})=EV_r(B_{0.33})
 $$
 
 です。ただし、この等式は相手の1st-street応答だけでなく、Call後の2nd-street方策を含む継続利得を使います。

@@ -29,8 +29,8 @@
 
 | プレイヤー | EV |
 |---|---:|
-| IP | $19/36 \simeq 0.527778$ |
-| OOP | $17/36 \simeq 0.472222$ |
+| IP | $`19/36 \simeq 0.527778`$ |
+| OOP | $`17/36 \simeq 0.472222`$ |
 | 合計 | 1.00 |
 
 ### 導出方法
@@ -39,16 +39,16 @@
 
 OOPが全rangeをCheckした後を考えます。後で導くOOPの応答`Q Fold / K Call 25% / A Call`を使うと、
 
-- IPのKはCheckで $(1+0.5+0)/3=0.5$を得ます。All-inは
-  $(1+0.75\times1+0.25\times0.5-1)/3=7/24$なので、Checkが厳密に優れます。
-- IPのAはCheckで$(1+1+0.5)/3=5/6$、All-inで
-  $(1+1.25+0.5)/3=11/12$を得るため、All-inが厳密に優れます。
+- IPのKはCheckで $`(1+0.5+0)/3=0.5`$を得ます。All-inは
+  $`(1+0.75\times1+0.25\times0.5-1)/3=7/24`$なので、Checkが厳密に優れます。
+- IPのAはCheckで$`(1+1+0.5)/3=5/6`$、All-inで
+  $`(1+1.25+0.5)/3=11/12`$を得るため、All-inが厳密に優れます。
 
 したがって、Kは純粋Check、Aは純粋All-inです。Qだけがbluff候補になります。
 
 #### IP(Q)のBluff頻度の数学的導出
 
-IPがAを100%、Qを頻度 $b$ でAll-inするとします。OOPのKがCallしたとき、Qには`+2`、
+IPがAを100%、Qを頻度 $`b`$ でAll-inするとします。OOPのKがCallしたとき、Qには`+2`、
 Aには`-1`なので、
 
 $$
@@ -65,14 +65,14 @@ $$
 EV_Q(\mathrm{check})=\frac{1}{3}\cdot\frac{1}{2}=\frac{1}{6}
 $$
 
-です。OOPのKのCall率を $c$ とすると、QのAll-in EVは、OOPのQがFold、KがCall/Fold、AがCall
+です。OOPのKのCall率を $`c`$ とすると、QのAll-in EVは、OOPのQがFold、KがCall/Fold、AがCall
 することから、
 
 $$
 EV_Q(\mathrm{allin})=\frac{1-2c}{3}
 $$
 
-です。これを1/6に合わせると $c=1/4$ になります。
+です。これを1/6に合わせると $`c=1/4`$ になります。
 
 OOPのQはIPのbet rangeに一度も勝たないため100% Fold、Aは一度も負けないため100% Callです。
 
@@ -86,7 +86,7 @@ checking-range protectionとして解釈します。
 
 #### ゲーム価値
 
-IPのrank別利得は、Qが$1/6$、Kが$1/2$、Aが$11/12$です。したがって、
+IPのrank別利得は、Qが$`1/6`$、Kが$`1/2`$、Aが$`11/12`$です。したがって、
 
 $$
 EV_{IP}=\frac{1}{3}\left(\frac{1}{6}+\frac{1}{2}+\frac{11}{12}\right)

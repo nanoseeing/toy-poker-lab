@@ -24,7 +24,7 @@
 
 | 局面 | ハンド | 戦略 |
 |---|---|---|
-| IP、OOP Check後 | A | $B^{*}=\sqrt{5/2}-1\simeq58.11\%$ Potを100% Bet |
+| IP、OOP Check後 | A | $`B^{*}=\sqrt{5/2}-1\simeq0.5811`$、すなわち58.11% Potを100% Bet |
 | IP、OOP Check後 | K | Check 100% |
 | IP、OOP Check後 | Q | Bet 36.75% / Check 63.25% |
 | OOP、Betに直面 | K | Call 58.11% / Fold 41.89% |
@@ -55,7 +55,7 @@ AのBetとKのCheckは他のaction以上になるため、この純粋戦略の�
 
 #### QのBluff頻度の数学的導出
 
-IPはAを100% bet、KをCheck、Qを頻度 $b$ でbluffするとします。bet額を $B$ とすると、
+IPはAを100% bet、KをCheck、Qを頻度 $`b`$ でbluffするとします。bet額を $`B`$ とすると、
 OOPのKをCall/Foldで無差別にする条件は、
 
 $$
@@ -68,7 +68,7 @@ $$
 
 #### OOP(K)のCall頻度と最適sizeの数学的導出
 
-IPのQはCheckするとOOPのQとのtieだけから $1/6$ を得ます。OOP(K)のCall率を $c$ とすると、
+IPのQはCheckするとOOPのQとのtieだけから $`1/6`$ を得ます。OOP(K)のCall率を $`c`$ とすると、
 Qのbet EVは、
 
 $$
@@ -81,13 +81,13 @@ $$
 c(B)=\frac{1.5-B}{1+B}
 $$
 
-です。IP(A)のEVは、OOP(Q)がFold、Kが頻度 $c$ でCall、AがCallすることから、
+です。IP(A)のEVは、OOP(Q)がFold、Kが頻度 $`c`$ でCall、AがCallすることから、
 
 $$
 EV_A(B)=\frac{2.5+B\frac{1.5-B}{1+B}}{3}
 $$
 
-です。$B$に依存する部分を微分すると、
+です。$`B`$に依存する部分を微分すると、
 
 $$
 \frac{d}{dB}\left(\frac{B(1.5-B)}{1+B}\right)
@@ -100,7 +100,7 @@ $$
 B^{*}=\sqrt{\frac{5}{2}}-1\simeq0.581139
 $$
 
-となります。二次導関数または導関数の符号変化から最大値であり、$b,c$も0〜1に入ります。したがって
+となります。二次導関数または導関数の符号変化から最大値であり、$`b,c`$も0〜1に入ります。したがって
 連続sizeの最適値は約58.1% potです。このsizeは、AがKから得るthin valueとQが負うbluff riskを
 同時に最適化した結果です。
 
@@ -119,7 +119,7 @@ $$
 60%だけを使う解析値は、
 
 $$
-b(0.6)=37.5\%,\qquad c(0.6)=56.25\%
+b(0.6)=0.375,\qquad c(0.6)=0.5625
 $$
 
 です。solverではOOP(K)が`Call 56.244% / Fold 43.756%`となり、解析値と一致しました。

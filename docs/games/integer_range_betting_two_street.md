@@ -30,8 +30,8 @@ minimum raise incrementだけは新しいstreetで0へ戻します。2nd street�
 
 ## Showdownと利得
 
-両者の最終commitを $c$ とすると、勝者は $1+c$、敗者は $-c$、tieは両者0.5です。
-Fold側のcommitが $c_f$ ならFold側は $-c_f$、勝者は $1+c_f$ です。利得合計は常に1です。
+両者の最終commitを $`c`$ とすると、勝者は $`1+c`$、敗者は $`-c`$、tieは両者0.5です。
+Fold側のcommitが $`c_f`$ ならFold側は $`-c_f`$、勝者は $`1+c_f`$ です。利得合計は常に1です。
 
 ## 設定と実行
 

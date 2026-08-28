@@ -6,19 +6,19 @@
 
 ## EV（Expected Value、期待値）
 
-EVは、起こり得る結果の利得を、その結果が起こる確率で重み付けした平均です。結果 $i$ の確率を
-$p_i$、利得を $x_i$ とすると、
+EVは、起こり得る結果の利得を、その結果が起こる確率で重み付けした平均です。結果 $`i`$ の確率を
+$`p_i`$、利得を $`x_i`$ とすると、
 
 $$
 EV=\sum_i p_i x_i
 $$
 
 です。例えば、50%で2を得て50%で1を失う賭けのEVは
-$0.5\times2+0.5\times(-1)=0.5$です。
+$`0.5\times2+0.5\times(-1)=0.5`$です。
 
 このプロジェクトのViewerは**current-node基準**を使います。現在までに投入したチップは埋没費用なので、
-root基準の利得EVに自分の既投入額を足し戻します。現在potが $P$ なら、両者のcurrent-node EVの合計は
-$P$です。range全体のEVは、そのnodeにおける条件付きrange weight $w_h$ を使って、
+root基準の利得EVに自分の既投入額を足し戻します。現在potが $`P`$ なら、両者のcurrent-node EVの合計は
+$`P`$です。range全体のEVは、そのnodeにおける条件付きrange weight $`w_h`$ を使って、
 
 $$
 EV_{range}=\sum_h w_h EV_h,\qquad \sum_h w_h=1
@@ -34,7 +34,7 @@ $$
 EQ=P(Win)+\frac{1}{2}P(Tie)
 $$
 
-相手のhand $v$ に条件付き確率 $q_v$ があり、自分のhandを $h$ とすると、
+相手のhand $`v`$ に条件付き確率 $`q_v`$ があり、自分のhandを $`h`$ とすると、
 
 $$
 EQ(h)=\sum_v q_v\left[
@@ -42,13 +42,13 @@ EQ(h)=\sum_v q_v\left[
 \right]
 $$
 
-です。自range全体のEQは $EQ_{range}=\sum_h w_h EQ(h)$ です。EQはshowdownの取り分だけを測り、
+です。自range全体のEQは $`EQ_{range}=\sum_h w_h EQ(h)`$ です。EQはshowdownの取り分だけを測り、
 将来のBet、Fold equity、Positionによる選択権は含みません。
 
 ## EQR（Equity Realization、Equity実現率）
 
 EQRは、showdown EQが示すpot shareに対して、実際の戦略EVをどれだけ実現したかを表します。現在potを
-$P$ とすると、Viewerの計算は
+$`P`$ とすると、Viewerの計算は
 
 $$
 EQR=\frac{EV}{P\times EQ}
@@ -56,17 +56,17 @@ $$
 
 です。表示時は100倍して百分率にします。
 
-- $EQR=100\%$: EQどおりのpot shareを実現した
-- $EQR>100\%$: Fold equityや有利なBet選択によってEQ以上のEVを得た
-- $EQR<100\%$: Foldを強いられるなどしてEQの一部しか実現できなかった
+- $`EQR=1`$（100%）: EQどおりのpot shareを実現した
+- $`EQR>1`$（100%超）: Fold equityや有利なBet選択によってEQ以上のEVを得た
+- $`EQR<1`$（100%未満）: Foldを強いられるなどしてEQの一部しか実現できなかった
 
-$EQ=0$ のときは分母が0なのでEQRを定義せず、Viewerでは`—`と表示します。例えばpot 1、EQ 40%、
-EV 0.30なら、$EQR=0.30/(1\times0.40)=75\%$です。
+$`EQ=0`$ のときは分母が0なのでEQRを定義せず、Viewerでは`—`と表示します。例えばpot 1、EQ 40%、
+EV 0.30なら、$`EQR=0.30/(1\times0.40)=0.75`$、すなわち75%です。
 
 ## Pot odds
 
-相手が現在pot $P$ に $B$ をBetし、自分が $B$ をCallする場面を考えます。Call後の最終potは
-$P+2B$、Callに必要な追加投資は $B$ です。必要EQは
+相手が現在pot $`P`$ に $`B`$ をBetし、自分が $`B`$ をCallする場面を考えます。Call後の最終potは
+$`P+2B`$、Callに必要な追加投資は $`B`$ です。必要EQは
 
 $$
 EQ_{break-even}=\frac{B}{P+2B}
@@ -75,17 +75,17 @@ $$
 です。これはCall EVを
 
 $$
-EV(Call)=EQ\,(P+B)-(1-EQ)B
-           =EQ\,(P+2B)-B
+EV(Call)=EQ(P+B)-(1-EQ)B
+           =EQ(P+2B)-B
 $$
 
-と書き、$EV(Call)=0$ と置けば得られます。pot-size Bet、すなわち $B=P$ なら必要EQは
-$P/(3P)=1/3$です。
+と書き、$`EV(Call)=0`$ と置けば得られます。pot-size Bet、すなわち $`B=P`$ なら必要EQは
+$`P/(3P)=1/3`$です。
 
 ## MDF（Minimum Defense Frequency、最低防御頻度）
 
 MDFは、相手の0 equity BluffがBetだけで自動利益を得ないために、range全体で最低限Continueする頻度です。
-現在pot $P$ にBet $B$ を受け、Continue率を $d$ とすると、BluffのEVは
+現在pot $`P`$ にBet $`B`$ を受け、Continue率を $`d`$ とすると、BluffのEVは
 
 $$
 EV(Bluff)=(1-d)P-dB
@@ -97,39 +97,39 @@ $$
 MDF=d=\frac{P}{P+B}
 $$
 
-を得ます。Betをpot比 $e=B/P$ で表せば、$MDF=1/(1+e)$です。pot-size Betなら50%になります。
+を得ます。Betをpot比 $`e=B/P`$ で表せば、$`MDF=1/(1+e)`$です。pot-size Betなら50%になります。
 MDFは各handを同じ頻度で防御する規則ではなく、CallとRaiseを合わせたrange全体の基準です。
 
 ## Bluff:value比
 
-最終streetで完全にpolarなrangeがpot $P$ に $B$ をBetする場合を考えます。相手のbluff catcherがCallした
-とき、Bet range中のBluff比率を $q$ とすると、
+最終streetで完全にpolarなrangeがpot $`P`$ に $`B`$ をBetする場合を考えます。相手のbluff catcherがCallした
+とき、Bet range中のBluff比率を $`q`$ とすると、
 
 $$
 EV(Call)=q(P+B)-(1-q)B
 $$
 
-です。CallとFoldを無差別にする $EV(Call)=0$ から、
+です。CallとFoldを無差別にする $`EV(Call)=0`$ から、
 
 $$
 q=\frac{B}{P+2B}
 $$
 
-を得ます。したがって、Bet range全体に占めるBluffの割合は $B/(P+2B)$、比率表記では
+を得ます。したがって、Bet range全体に占めるBluffの割合は $`B/(P+2B)`$、比率表記では
 
 $$
 Bluff:Value=B:(P+B)
 $$
 
-です。pot-size Betなら $Bluff:Value=1:2$、すなわちBluffはBet rangeの1/3です。このBluff比率と、
+です。pot-size Betなら $`Bluff:Value=1:2`$、すなわちBluffはBet rangeの1/3です。このBluff比率と、
 bluff catcher側のMDFは別の量です。
 
 ## Bet sizing
 
-Bet sizeはValueが得るCall額と、Bluffが負担するriskを同時に変えます。$e=B/P$ と置くと、最終streetの
+Bet sizeはValueが得るCall額と、Bluffが負担するriskを同時に変えます。$`e=B/P`$ と置くと、最終streetの
 主要な基準は次の表になります。
 
-| Bet size | 必要EQ $e/(1+2e)$ | MDF $1/(1+e)$ | Bluff:Value $e:(1+e)$ |
+| Bet size | 必要EQ $`e/(1+2e)`$ | MDF $`1/(1+e)`$ | Bluff:Value $`e:(1+e)`$ |
 |---:|---:|---:|---:|
 | 50% pot | 25.00% | 66.67% | 1:3 |
 | 75% pot | 30.00% | 57.14% | 3:7 |
@@ -141,16 +141,16 @@ Bet sizeはValueが得るCall額と、Bluffが負担するriskを同時に変え
 ## Geometric Bet
 
 Geometric Betは、残り全streetで同じpot比率をBetし、Bet–Callが続いたとき最終streetまでに実効stackを
-ちょうど使い切るsizeです。現在potを $P_0$、実効stackを $S$、残りstreet数を $n$、各streetのBetを
-その時点のpotの $e$ 倍とします。
+ちょうど使い切るsizeです。現在potを $`P_0`$、実効stackを $`S`$、残りstreet数を $`n`$、各streetのBetを
+その時点のpotの $`e`$ 倍とします。
 
-1回Bet–Callされるたびpotは $1+2e$ 倍になるため、$n$ street後のpotは
+1回Bet–Callされるたびpotは $`1+2e`$ 倍になるため、$`n`$ street後のpotは
 
 $$
 P_n=P_0(1+2e)^n
 $$
 
-です。実効stackを全て投入すると最終potは $P_0+2S$ なので、
+です。実効stackを全て投入すると最終potは $`P_0+2S`$ なので、
 
 $$
 P_0(1+2e)^n=P_0+2S
@@ -162,7 +162,7 @@ $$
 e=\frac{\left(1+\frac{2S}{P_0}\right)^{1/n}-1}{2}
 $$
 
-を得ます。$P_0=1$、$S=4$、$n=2$ なら $e=(\sqrt{9}-1)/2=1$、つまり両streetでpot-size Betです。
+を得ます。$`P_0=1`$、$`S=4`$、$`n=2`$ なら $`e=(\sqrt{9}-1)/2=1`$、つまり両streetでpot-size Betです。
 
 ## Range構造
 
@@ -203,8 +203,8 @@ ValueとBluffを効率よく配分し、一般にOOPより高いEQRを得やす�
 Future streetは、現在のaction後に意思決定が残っていることです。現在のBetは即時のFold equityに加え、
 次streetで再びBetできるoption valueを作ります。
 
-Dynamic equityは、将来のpublic cardによってhand strengthやEQが変化する性質です。あるrunout $r$ の確率を
-$p_r$、そのrunout後のEQを $EQ_r$ とすると、現在のEQは $\sum_r p_r EQ_r$ ですが、各 $EQ_r$ の分布と、
+Dynamic equityは、将来のpublic cardによってhand strengthやEQが変化する性質です。あるrunout $`r`$ の確率を
+$`p_r`$、そのrunout後のEQを $`EQ_r`$ とすると、現在のEQは $`\sum_r p_r EQ_r`$ ですが、各 $`EQ_r`$ の分布と、
 runoutごとに異なる将来actionがEVを左右します。
 
 ## Blocker
