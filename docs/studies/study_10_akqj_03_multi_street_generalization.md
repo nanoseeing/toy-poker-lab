@@ -9,14 +9,17 @@
 | Street | $`n`$ Street |
 | 初期Pot | 1 |
 | 有効Stack | $`S`$ |
-| 許可アクション | OOPはCheck、Call、Fold。IPはCheck、Bet |
-| アクション制約 | OOPは各Streetで先に行動し、Bet不可。両者Raise不可。全Streetで同じPot比率 $`e`$ を使用 |
+| 許可アクション | OOPはCheck、Call、Fold。IPはCheckとStack内の任意サイズのBet |
+| アクション制約 | OOPは各Streetで先に行動しBet不可。両者Raise不可 |
 | 勝敗判定 | Nuts > Bluff catcher > Air |
 | Street遷移 | Bet–CallまたはCheck–Check後、同じprivate handで次streetへ進む |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
 AKQのK vs AQが1 street、AKQJのK vs AQJが2 streetの最小例です。3 street以上では、
 必要なBluff候補を表現するためにJ、Tのような弱いhandを追加できます。
+
+ここでいうclairvoyance gameは、IPが自分のhandについて「OOPのBluff catcherへ必ず勝つNuts」か
+「必ず負けるAir」かを完全に識別できる静的ゲームです。Street間でhand strengthは変化しません。
 
 ---
 
@@ -47,20 +50,35 @@ AKQのK vs AQが1 street、AKQJのK vs AQJが2 streetの最小例です。3 stre
 |---:|---|---|---|
 | 1 | 最終street | IPはValue / Bluff、OOPはBluff catcher | Bluff:Value比とOOPのCall率 |
 | 2 | 一つ前のstreet | IPはbarrelを続けるBluffとgive-up Bluffを分ける | 次streetへ残すBluff量 |
-| 3 | Rootまで反復 | 各streetで同じpot比を使う | stackを使い切るgeometric size |
+| 3 | Rootまで反復 | Street別sizeを同時に最適化 | stackを使い切るgeometric size |
 
 最終streetからRootへ逆向きに解くことで、sizeとstreet別Bluff量を分けて導出します。
 
-#### Geometric sizingの一般式
+#### 自由なStreet別sizeからGeometric sizingを導く
 
-毎streetで、そのstreet開始時のpotに対して同じ比率 $`e`$ をBetすると、Bet–Call後のpotは
-$`(1+2e)`$ 倍になります。$`n`$ 回のBet–Callでstack $`S`$を使い切る条件は、
+Street $`i`$のPot比Betを $`e_i`$、Bet–Call後のPot成長率を
 
 $$
-1+2S=(1+2e)^n
+r_i=1+2e_i
 $$
 
-したがって、geometric fractionは、
+とします。全StreetでStack $`S`$を使い切る条件は、
+
+$$
+\prod_{i=1}^{n}r_i=1+2S
+$$
+
+です。静的なmulti-street clairvoyance gameを後ろ向き帰納法で解くと、Polar側のEV最大化は、この積を固定して
+$`r_1+\cdots+r_n`$を最小化する問題へ帰着します。相加平均・相乗平均の不等式から、
+
+$$
+\frac{r_1+\cdots+r_n}{n}
+\geq
+\left(\prod_{i=1}^{n}r_i\right)^{1/n}
+$$
+
+であり、等号は $`r_1=\cdots=r_n`$のときだけ成立します。したがって、最初から同じsizeを仮定するのではなく、
+均衡の最適化結果として全StreetのPot成長率が等しくなります。共通のPot比を $`e_n`$ とすれば、
 
 $$
 e_{n}=\frac{(1+2S)^{1/n}-1}{2}
@@ -74,6 +92,10 @@ e_{2}=\frac{(1+2\cdot4)^{1/2}-1}{2}
 $$
 
 となります。したがって、pot betを2回行うとちょうどAll-inになります。
+
+この結果は、hand strengthがStreet間で変化せず、IPがNuts/Airを完全に識別でき、必要なBluff候補が十分に
+ある静的clairvoyance gameの定理です。通常のHold'emのようにdynamic equityがあるゲームへ、そのまま適用する
+定理ではありません。
 
 #### 最終Streetで必ず成立する比率
 
@@ -127,6 +149,12 @@ AKQJゲーム①・②の解析解とSolver結果で確認できます。
 ---
 
 ## その他備考
+
+### 解析解の出典
+
+multi-street static clairvoyance gameをPot成長率の積と和の最適化へ帰着し、geometric growthを得る解析は、
+Bill Chen・Jerrod Ankenman, *The Mathematics of Poker*, Chapter 19で扱われています。本Studyでは同じ定理を、
+初期Pot 1・有効Stack $`S`$の表記へ直して使用しています。
 
 ### Bluff候補が不足する場合
 

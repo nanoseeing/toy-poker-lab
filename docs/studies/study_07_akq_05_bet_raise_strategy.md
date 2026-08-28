@@ -1,4 +1,4 @@
-# AKQゲーム⑤ Bet・Raise戦略
+# AKQゲーム⑤ OOPのBlock Bet
 
 ## ルール
 
@@ -9,9 +9,16 @@
 | Street | 1 Street |
 | 初期Pot | 1 |
 | 有効Stack | 1 |
-| 許可アクション | Check、Fold、Call、10/20/33/50/75% PotのBet・Raise、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet・Raise、All-in |
 | 勝敗判定 | A > K > Q。同じhandはTie |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
+
+Solverで複数のBet sizeを比較すると、OOPのrootでは50% Potが主要sizeとして現れます。本Studyではこの結果を
+出発点として50% Potを固定し、OOPがQのBluffとAのValueだけでなく、中間handのKもBetする理由と、その頻度を
+解析します。
+
+任意の連続sizeから50% Potそのものを導くには、全てのBet・Raise sizeと、その後の応答を同時に調べる必要があります。
+その証明は本Studyでは扱わず、50% Potを固定した後の戦略に焦点を絞ります。
 
 ---
 
@@ -19,336 +26,330 @@
 
 ### 均衡戦略
 
-#### RootのOOP戦略
+以下は、OOPのroot Betを50% Potに固定して無差別条件を解いた戦略です。
 
-| OOP hand | Check | Bet 50% |
-|---|---:|---:|
-| Q | 91.31% | 8.69% |
-| K | 73.92% | 26.07% |
-| A | 47.85% | 52.15% |
+#### 学習対象：OOPのRoot戦略
 
-その他のroot sizeは数値誤差を除いてほぼ0%です。単純な`Q Bluff / A Value / K Check`ではなく、
-Kの一部を50% Betし、Aの約半分をCheckへ残すMerged/Polar混合のrangeになります。
+| OOP hand | Check | Bet 50% | Bet range内の比率 |
+|---|---:|---:|---:|
+| Q | 90.4758% | 9.5242% | 1 |
+| K | 71.4273% | 28.5727% | 3 |
+| A | 42.8546% | 57.1454% | 6 |
 
-#### OOP Check後のIP戦略
-
-| IP hand | 主要戦略 |
-|---|---|
-| Q | Check 52.18% / All-in 34.72% / Bet 75% 13.10% |
-| K | Check 100% |
-| A | All-in 69.43% / Bet 75% 30.57% |
-
-#### OOPの50% Betに対するIP戦略
-
-| IP hand | 主要戦略 |
-|---|---|
-| Q | Fold 94.81% / Raise All-in 5.19% |
-| K | Fold 22.58% / Call 76.10% / Raise All-in 1.32% |
-| A | Raise All-in 100% |
-
-### EV
-
-| プレイヤー | EV |
-|---|---:|
-| IP | 0.530193219 |
-| OOP | 0.469806781 |
-| 合計 | 1.00 |
-
-### 導出方法
-
-#### 導出する局面を整理
-
-| 局面 | hand別の主な役割 | ここで決める条件 |
-|---|---|---|
-| Root、OOP | QはBluff、KはThin value、AはValueとChecking-range防御 | Q/K/Aの50% Bet mass比と絶対頻度 |
-| OOP Check後、IP | QはBluff、KはCheck、AはValue | 75% BetとAll-inのsize配分 |
-| OOP 50% Betに直面、IP | QはBluff Raise、Kは主にCall、AはValue Raise | Fold / Call / Raiseの無差別条件 |
-| IPのAll-in Raiseに直面、OOP | Q/K/AでFold / Callを選別 | 各handのCallに必要なEQ |
-
-以下では、まずOOPの50% Bet rangeを決め、次にRaiseへの応答、最後にrootで使う絶対頻度を求めます。
-
-#### 50% Bet rangeが1:3:6になる数学的導出
-
-OOPが50% PotをBetするQ、K、Aのmassをそれぞれ$`x_Q,x_K,x_A`$とします。各handの事前確率は同じなので、
-これはそのままRootのBet頻度比です。IPがKでCallした場合の利得は、OOPがQなら`+1.5`、KならTieで
-`+0.5`、Aなら`-0.5`です。Foldの利得0と無差別になる条件は、
-
-$$
-1.5x_Q+0.5x_K-0.5x_A=0
-\quad\Longrightarrow\quad
-x_A=3x_Q+x_K
-$$
-
-です。
-
-次にIPがQでAll-in Raiseすると、均衡応答ではOOPのQとKはFoldし、AだけがCallします。ここでOOPは
-IPのQを観測しているのではなく、All-in range全体に対して応答しています。IPのQはOOPにFoldされたとき
-`+1.5`、Callされたとき`-1`なので、RaiseとFoldで無差別になる条件は、
-
-$$
-1.5(x_Q+x_K)-x_A=0
-\quad\Longrightarrow\quad
-x_A=1.5(x_Q+x_K)
-$$
-
-です。2式を連立すると、
-
-$$
-x_K=3x_Q,\qquad x_A=6x_Q
-$$
-
-となり、50% Bet rangeの比率は厳密に、
+したがって、50% Bet rangeのmass比は、
 
 $$
 Q:K:A=1:3:6
 $$
 
-になります。つまりBet rangeの10%がQ、30%がK、60%がAです。この比率は、IPのQとKを同時に
-無差別にするために必要であり、単なるソルバーの丸め結果ではありません。
+です。QはBluff、AはValue、KはBlock Betを担当します。Aの42.8546%をCheckへ残すことで、OOPの
+Checking rangeもAを含む強いrangeになります。
 
-#### なぜOOP(K)はAll-in Raiseへ100% Foldするのか
+#### OOPの50% Betに対するIP戦略
 
-OOPの50% Bet後、IPのAll-in Raiseに対してAだけをCallすればBet rangeの60%を防御できます。IPは1を
-riskして、OOPのBetを含む1.5を取りにいくため、Bluffに許せるFold率は、
+| IP hand・action | 頻度 |
+|---|---:|
+| Q/KからのAll-in Bluff Raise | 両handへの割当頻度の合計6.8073% |
+| KのCall | 75.9156% |
+| AのAll-in Raise | 100% |
+
+QとKのどちらをBluff Raiseへ回すかには非一意性があります。代表例として、Bluff RaiseをQだけへ割り当てる
+なら、IP(Q)が6.8073% All-in Raiseし、IP(K)は75.9156% Callして残りをFoldします。
+
+50% Potを前提とすると、standard minimum raiseの合計commitmentは1で、有効Stackと一致します。そのため、
+この局面でIPが行えるfull raiseはAll-inだけです。
+
+#### OOP Check後の戦略
+
+| 局面 | hand | 戦略 |
+|---|---|---|
+| OOP Check後、IP | Q | Check 51.8312% / Bet 92.9339% 48.1688% |
+| OOP Check後、IP | K | Check 100% |
+| OOP Check後、IP | A | Bet 92.9339% 100% |
+| IPの92.9339% Betに直面、OOP | Q | Fold 100% |
+| IPの92.9339% Betに直面、OOP | K | Call 55.7580% / Fold 44.2420% |
+| IPの92.9339% Betに直面、OOP | A | All-in Raise 100% |
+
+OOPがCheckすると、IPはQ/AをPolarizeして約92.93% Potを使えます。OOPがKで50%を先にBetすることには、
+この大きなsizeを選ばせない意味があります。
+
+### EV
+
+| プレイヤー | 50% Pot固定時の解析EV |
+|---|---:|
+| IP | 0.530542271 |
+| OOP | 0.469457729 |
+| 合計 | 1.00 |
+
+### 導出方法
+
+#### 導出の順序
+
+| 順序 | 求めるもの | 使用する条件 |
+|---:|---|---|
+| 出発点 | OOPのroot Bet sizeを50% Potに固定 | Solverで得た主要sizeを解析対象とする |
+| 1 | OOPの50% Bet range比率 | IP(K)のCall/Fold、IP(Q/K)のBluff Raise/Fold無差別 |
+| 2 | 絶対頻度を決めるために必要なIP戦略 | OOP Check後のIP Bet、OOPの応答、rootでのOOP各handの無差別 |
+| 3 | OOPの絶対Bet頻度 | IP(A)のBet size最適化条件 |
+| 4 | EV | OOP各handのCheck EV |
+
+最初の無差別条件だけで決まるのは $`Q:K:A=1:3:6`$ という**比率**です。比率を保ったまま全頻度を
+上下させる共通倍率 $`t`$ はまだ決まりません。$`t`$を特定するには、OOPのChecking rangeに対するIPの戦略まで
+解く必要があります。以下では、その依存関係が分かる順序で導出します。
+
+#### 1. なぜBet rangeがQ:K:A = 1:3:6になるのか
+
+OOPが50% PotをBetするQ、K、Aのmassを、それぞれ $`x_Q,x_K,x_A`$ とします。
+
+##### IP(K)をCallとFoldで無差別にする
+
+IP(K)が50% BetをCallしたときの利得は、OOPのhandごとに次のとおりです。
+
+| OOP hand | IP(K)のCall利得 |
+|---|---:|
+| Q | +1.5 |
+| K | +0.5（Tie） |
+| A | -0.5 |
+
+Foldの利得0と等しくするには、
 
 $$
-F=\frac{1}{1+1.5}=0.4
+1.5x_Q+0.5x_K-0.5x_A=0
 $$
 
-です。OOPがQとKをFoldする割合はちょうど$`(1+3)/10=0.4`$、すなわち40%なので、AだけのCallでMDFを満たします。
-実際、IP(Q)のAll-in利得は、
+したがって、
 
 $$
-0.4\cdot1.5+0.6\cdot(-1)=0
+x_A=3x_Q+x_K
 $$
 
-となり、Foldと無差別です。KまでCallするとIP(Q)のBluffは負の利得になりますが、OOP(K)自身も
-All-in rangeに対して十分なEQを持っていないため、そのような防御は必要ありません。
+が必要です。
 
-保存runのIPのAll-in頻度はQが5.19%、Kが1.32%、Aが100%です。事前確率が等しいため、Raiseを見た
-OOP(K)から見たIP rangeは、正規化前で、
+##### IP(Q/K)をAll-in Bluff RaiseとFoldで無差別にする
 
-$$
-Q:K:A=0.0519:0.0132:1
-$$
-
-です。したがってOOP(K)のEQは約5.49%にすぎません。追加Call額0.5、Call後Pot 3から必要EQは、
+IPのQまたはKがAll-in Raiseすると、OOPのQ/KはFoldし、AだけがCallします。Q/Kへ勝つ場合は1.5を得て、
+AへCallされる場合は1を失うため、
 
 $$
-\frac{0.5}{3}\simeq0.1667
+1.5(x_Q+x_K)-x_A=0
 $$
 
-です。保存runでもFoldのAction EVは$`-0.5`$、Callは約$`-0.83524`$であり、Kは無差別ではなく厳密に
-Fold優位です。したがって100% Foldは未収束による偶然ではなく、Aだけでrange全体を十分に防御した
-結果です。
-
-#### 絶対頻度が$`2/23`$倍になる数学的導出
-
-比率を保ったRootの50% Bet頻度を、
+すなわち、
 
 $$
-b_Q=t,\qquad b_K=3t,\qquad b_A=6t,
-\qquad 0\leq t\leq\frac{1}{6}
+x_A=1.5(x_Q+x_K)
 $$
 
-と置きます。OOPがCheckした後に残るQ、K、Aのmassは、
+が必要です。
+
+2式を連立すると、
+
+$$
+x_K=3x_Q,\qquad x_A=6x_Q
+$$
+
+を得ます。したがって、
+
+$$
+Q:K:A=1:3:6
+$$
+
+です。ここでKをBet rangeから除くと、2つの無差別条件を同時に満たす非自明な解がなくなります。KのBlock Betは、
+QのBluffとAのValueを同じ50% rangeへまとめ、IPにCallとBluff Raiseの両方を混ぜさせるために必要です。
+これが本Studyの中心です。50%を固定して二つの無差別条件を同時に解くと、正の $`x_K`$ が現れます。
+したがってKは、QとAの間を埋めるBlock Betとして必要です。
+
+#### 2. 絶対頻度を決めるために必要なIP戦略
+
+ここまででBet rangeの**構成比**は決まりましたが、OOPが各handを実際に何% Betするかは決まっていません。
+絶対頻度を求めるには、BetしなかったhandでできるOOPのChecking rangeと、それに対するIPの最適戦略を同時に
+解く必要があります。そのため、ここからIP戦略を導出します。
+
+OOP Check後にIPが使うBet額を $`B`$、IP(Q)のBet頻度を $`u`$ とします。IP(A)は100% Betします。
+
+OOP(K)がCallすると、Qには $`1+B`$ 勝ち、Aには $`B`$ 負けます。CallとFoldを無差別にする条件は、
+
+$$
+(1+B)u-B=0
+$$
+
+したがって、
+
+$$
+u=\frac{B}{1+B}
+$$
+
+です。
+
+次に、OOPの50% Betに対するIP(Q/K)のBluff Raise割当頻度の合計を $`r`$、IP(K)のCall率を $`d`$ とします。
+OOP(Q)とOOP(K)をCheckと50% Betで無差別にすると、
+
+$$
+r+d=\frac{2+u}{3},\qquad 3r+d=2u
+$$
+
+なので、
+
+$$
+r=\frac{5u-2}{6},\qquad d=1-\frac{u}{2}
+$$
+
+です。さらにOOP(A)もCheckと50% Betで無差別にする条件は、
+
+$$
+r+\frac{d}{2}=uB
+$$
+
+です。$`u,r,d`$を代入すると、
+
+$$
+12B^2-9B-2=0
+$$
+
+となり、正の解は、
+
+$$
+B_{\mathrm{opt}}=\frac{9+\sqrt{177}}{24}
+\simeq0.929338946
+$$
+
+です。よって、
+
+$$
+u\simeq0.481688,\qquad
+r\simeq0.068073,\qquad
+d\simeq0.759156
+$$
+
+を得ます。
+
+#### 3. OOPの絶対Bet頻度
+
+Bet range比率を使い、OOPのQ/K/Aの50% Bet頻度を、
+
+$$
+b_Q=t,\qquad b_K=3t,\qquad b_A=6t
+$$
+
+と置きます。OOP Check後に残る各handのmassは、
 
 $$
 q=1-t,\qquad k=1-3t,\qquad a=1-6t
 $$
 
-です。IPのQがCheck、75% Bet、All-inを混合するため、OOP(K)のAll-inへのCall率を$`c_1`$、
-75% BetへのCall率を$`c_{0.75}`$とすると、Qの無差別条件から、
-
-$$
-c_1=\frac{0.5q+k-a}{2k},
-\qquad
-c_{0.75}=\frac{0.5q+k-0.75a}{1.75k}
-$$
-
-を得ます。
-
-IPのAも75% BetとAll-inを混合します。OOP(K)がCallしたとき、All-inではFold時より追加で1、
-75% Betでは追加で0.75を得るため、Aの無差別条件は、
-
-$$
-c_1=0.75c_{0.75}
-$$
-
-です。上の2式を代入すると、
-
-$$
-q+2k-5a=0
-$$
-
-となります。$`q=1-t,k=1-3t,a=1-6t`$を代入すれば、
-
-$$
--2+23t=0
-\quad\Longrightarrow\quad
-t=\frac{2}{23}
-$$
-
-です。したがってRootの厳密な50% Bet頻度は、
-
-$$
-b_Q=\frac{2}{23}\simeq0.0870,\qquad
-b_K=\frac{6}{23}\simeq0.2609,\qquad
-b_A=\frac{12}{23}\simeq0.5217
-$$
-
-となり、保存runの`8.69% / 26.07% / 52.15%`と一致します。
-
-#### なぜ75% BetとAll-inを混合するのか
-
-$`t=2/23`$のとき、OOPのCheck後rangeは、共通因子$`1/23`$を除いて、
-
-$$
-q:k:a=21:17:11
-$$
-
-です。IPがQでPot比$`B`$をBetしたとき、OOPのQはFold、Kは確率$`c_B`$でCall、AはAll-inへRaiseし、
-IP(Q)はそのRaiseへFoldするとします。IP(Q)をCheckとBetで無差別にするOOP(K)のCall率は、
+です。IPの92.9339% Betに対するOOP(K)のCall率は、IP(Q)をCheckとBetで無差別にする条件から、
 
 $$
 c_B=\frac{0.5q+k-aB}{k(1+B)}
-=\frac{27.5-11B}{17(1+B)}
 $$
 
-です。したがって、
+となります。IP(A)がBet size $`B`$から得る追加利得は $`Bc_B`$に比例します。固定したCheck rangeに対して
+この値を最大化する一階条件は、
 
 $$
-c_{0.75}=\frac{11}{17},\qquad
-c_1=\frac{33}{68}
+0.5q+k=aB(2+B)
 $$
 
-となります。IP(A)がOOP(K)のCallから得る追加利得は$`Bc_B`$に比例するため、
+です。左辺と右辺の差は $`B`$について厳密に減少するため、固定support内ではこの停留点が一意な最大値です。
+$`B=B_{\mathrm{opt}}`$を代入すると、
 
 $$
-0.75c_{0.75}=c_1=\frac{33}{68}
+t=
+\frac{B_{\mathrm{opt}}(2+B_{\mathrm{opt}})-1.5}
+{6B_{\mathrm{opt}}(2+B_{\mathrm{opt}})-3.5}
+\simeq0.095242321
 $$
 
-です。75% BetはCallされる頻度が高く、All-inはCall時に得る額が大きいため、Aは両sizeで無差別に
-なります。
-
-各sizeのPolar rangeもそれぞれ整合しています。OOP(K)をCallとFoldで無差別にするBluff:Value比は、
+です。したがって、OOPのroot Bet頻度は、
 
 $$
-\mathrm{bluff}:\mathrm{value}=B:(1+B)
+b_Q\simeq0.095242,\qquad
+b_K\simeq0.285727,\qquad
+b_A\simeq0.571454
 $$
 
-なので、75% Betでは$`3:7`$、All-inでは$`1:2`$です。保存runのIPのQ:A頻度も、75% Betでは
-`13.10:30.57`、All-inでは`34.72:69.43`となり、ほぼこの比率です。
+になります。
 
-連続sizeとしてAの追加利得を最大化すると、共通の正の因子を除いて、
+この $`t`$ が、比率を保ったままBet頻度を上下させる自由度を消す値です。異なる $`t`$を選ぶとOOPのChecking rangeが
+変わり、IP(A)が選ぶsize $`B`$の一階条件を満たさなくなります。したがって、IP戦略の導出は補足ではなく、OOPの
+絶対頻度を特定するために必要な部分です。
 
-$$
-g(B)=\frac{B(27.5-11B)}{1+B}
-$$
+#### 4. EV
 
-であり、
-
-$$
-g'(B)=\frac{27.5-22B-11B^2}{(1+B)^2}=0
-\quad\Longrightarrow\quad
-B^{*}=\sqrt{\frac{7}{2}}-1\simeq0.8708
-$$
-
-を得ます。許可sizeには87.08%がないため、その両側の75%と100%が候補になり、この均衡rangeでは
-$`g(0.75)=g(1)=8.25`$と完全に一致します。ただし両size間の**混合頻度そのもの**は87.08%を線形補間して
-決めるのではなく、size別のBluff:Value比、RootのCheck/Bet頻度、OOPの応答を同時に無差別にすることで
-決まります。87%前後のsizeを追加すればgame tree全体のrange構成も変わるため、改めて解く必要があります。
-
-#### 数学的に確定できる条件
-
-このゲームでは、各open sizeに対してIPがFold/Call/Raiseを選び、さらにRaise後のOOP応答まであるため、
-K vs AQのような2本の無差別式だけでは閉じません。完全な閉形式解は主張せず、有限ゲームの連立した
-最適反応条件をソルバーで解いています。
-
-ただし、正の頻度で混ぜるroot actionには必ず、
+OOPのQ/K/AがCheckしたときのEVは、
 
 $$
-EV_h(\mathrm{Check})=EV_h(B_{0.5})
+EV_Q=\frac{1-u}{6},\qquad
+EV_K=\frac{1}{2}-\frac{u}{3},\qquad
+EV_A=\frac{2.5+uB_{\mathrm{opt}}}{3}
 $$
 
-というhand $`h`$ごとの無差別条件が必要です。保存runではQ/K/AのいずれもCheckとBet 50%のAction EVが
-ほぼ一致し、それ以外のroot sizeはそれ以下でした。この等式だけでは各handの混合頻度は決まりません。
-IPのFold/Call/Raise頻度、OOPのRaise応答、全rangeのreachを同時に満たすことで初めて数値が決まります。
-
-#### 純粋戦略ではなく混合になるヒューリスティック解釈
-
-- QだけをBluff、AだけをValueにすると、IPはOOPのBetとCheckからhand構成を強く推定できます。
-- Kを一部BetするとIPのQ/KからThin valueを得つつ、IPの自由なBetを先回りできます。
-- KはAのRaiseに弱いため全betにはできません。
-- Aを一部Checkへ残すと、IPはOOPのCheckを見ても無制限にBluff/Raiseできません。
-
-したがって、各hand単体の強さ順thresholdではなく、Bet rangeとCheck rangeを同時に守る混合になります。
-
-#### 1:3:6を保って頻度を上下させた場合のEV
-
-IPの均衡戦略を固定したまま$`t`$だけを動かす場合、各OOP handはRootでCheckと50% Betが無差別なので、
+です。各handはCheckと50% Betで無差別なので、
 
 $$
-\frac{dEV_{OOP}}{dt}
-=\frac{1}{3}\sum_{r\in\lbrace Q,K,A\rbrace}m_r
-\left[EV_r(B_{0.5})-EV_r(\mathrm{Check})\right]=0,
-\qquad (m_Q,m_K,m_A)=(1,3,6)
+EV_{OOP}=\frac{EV_Q+EV_K+EV_A}{3}
+\simeq0.469457729
 $$
 
-となります。したがって、**相手戦略を固定するならOOPのEVは変わりません**。これは混合戦略の
-無差別性そのものです。
-
-一方、IPが変更後のrangeへ最適化し直す場合、50% Bet後のrange比は1:3:6のままですが、Check後のrangeは
-`(1-t):(1-3t):(1-6t)`へ変わります。上の無差別条件の下では、IP(A)のAll-inと75% BetのEV差は、
+となり、
 
 $$
-EV_A(\mathrm{All\text{-}in})-EV_A(B_{0.75})
-=\frac{-2+23t}{28(3-10t)}
+EV_{IP}=1-EV_{OOP}\simeq0.530542271
 $$
 
-です。$`t<2/23`$ではAが75% Betを、$`t>2/23`$ではAll-inを選びやすくなり、$`t=2/23`$だけが両方を
-無差別にします。
-
-Root頻度をNode lockし、それ以外を再最適化した感度分析は次のとおりです。数値誤差は最大約`2.1e-6`です。
-
-| $`t`$ | Q / K / Aの50% Bet頻度 | OOP EV | IP EV |
-|---:|---|---:|---:|
-| 0 | 0% / 0% / 0% | 0.462962963 | 0.537037037 |
-| 0.04 | 4% / 12% / 24% | 0.466825397 | 0.533174603 |
-| $`2/23`$ | 8.70% / 26.09% / 52.17% | **0.469806763** | **0.530193237** |
-| 0.12 | 12% / 36% / 72% | 0.468888889 | 0.531111111 |
-| $`1/6`$ | 16.67% / 50% / 100% | 0.452576489 | 0.547423511 |
-
-したがって、相手が再最適化する条件では$`t=2/23`$がOOP EVを最大化し、比率を保っていても絶対頻度を
-上下させるとOOP EVは低下します。Node lockせずSolverを再実行した場合は、この頻度へ戻る方向に最適化されます。
+です。
 
 ---
 
 ## ポーカーにおける概念理解
 
-### なぜOOPはKをBetするのか
+### Block Betとは何か
 
-OOPが全rangeをCheckすると、IPはPositionを使ってQ/AをPolarizeし、Kへ大きなBetを突きつけられます。
-Kの50% betには次の役割があります。
+Block Betは、OOPが比較的小さいsizeを先に使い、IPがより大きなsizeを自由に選ぶことを防ぐBetです。この戦略では、
 
-- IPに自由なbet sizeを選ばせず、自分でshowdownまでの価格を決めるblock-bet効果。
-- IPのKからCallを受けるThin value / Merged value。
-- QのBluffと同じsizeを使い、Bet rangeをAだけに限定しない。
-- IPのRaise rangeを誘発し、AのCheckからの防御価値を作る。
+- OOPがCheckすると、IPはQ/Aで約92.93% Potを使える
+- OOPがKで50% PotをBetすると、IPが通常のfull raiseをするにはAll-inが必要
+- KをQ/Aと同じsizeへ混ぜるため、IPは50% Betを見ただけではOOPのhandを特定できない
 
-KはAのRaiseに弱いため100% Betできません。反対にAをすべてBetするとChecking rangeがQ/Kへ偏り、IPが
-Check後に攻撃しやすくなるので、Aの一部をCheckへ残します。AのCheckはslow-playというより、OOPの
-Checking range全体を守るrange protectionです。
+という効果があります。
+
+### なぜ中間handのKをBetするのか
+
+Kだけを見れば、Qに勝ち、KとTieし、Aに負ける中間handです。しかしrange戦略として見ると、Kには次の役割があります。
+
+1. QのBluffとAのValueの間を埋め、IP(K)のCall/Foldを無差別にする。
+2. IPのBluff Raiseに対してAだけがCallするrange構造を作る。
+3. Check後にIPが使える約92.93% Potより先に、50% Potで価格を設定する。
+
+このため、均衡は単純な`Q Bluff / K Check / A Value`ではなく、Q/K/Aを同じsizeへpoolします。
+
+### Checking rangeの防御
+
+Aを100% Betすると、OOPのCheck rangeから最上位handが消えます。Aを42.85% Checkへ残すことで、IPはOOP Check後も
+無制限に攻撃できません。Block BetとChecking-range defenseは別々ではなく、root range全体を分割する同じ均衡条件から
+同時に生じます。
+
+### RaiseがBet rangeを決める
+
+IPにCall/Foldだけを許すゲームでは、KをBlock Betへ入れる必要性は同じ形では現れません。このStudyではIPが
+All-in Bluff Raiseできるため、OOPのBet rangeはCallへの防御だけでなくRaiseへの防御も必要です。その2種類の
+無差別条件が`1:3:6`を決めます。
 
 ---
 
 ## Solverによる再現結果
 
+Solverには、前提とした50%および解析から導いた92.9339%を含め、10/20/33/75/90/95%も比較候補として
+追加しています。表のExploitabilityは、これらの候補からなる有限actionゲームに対する値です。
+
 | 指標 | 結果 |
 |---|---:|
-| IP EV | 0.530193219 |
-| OOP EV | 0.469806781 |
-| Exploitability | `7.4617e-6` |
+| IP EV | 0.530533939 |
+| OOP EV | 0.469466061 |
+| Exploitability | `7.4671e-6` |
+
+Rootでは50% Pot、OOP Check後では92.9339% Potが主要sizeになりました。92.9339%付近のAction EV曲線は浅いため、
+有限iterationの平均戦略は90/92.9339/95%へ一部の頻度を分散しています。
 
 - [Strategy Viewer](../../public/studies/akq_symmetric_variable_size/strategy_viewer.html)
 - [計算条件](../../public/studies/akq_symmetric_variable_size/resolved_config.json)
@@ -356,15 +357,8 @@ Checking range全体を守るrange protectionです。
 ### 再現方法
 
 ```bash
-toy-poker run configs/experiments/integer_range_betting_n3_stack_1_5_sizes_dcfr.toml
+toy-poker run configs/experiments/study_akq_symmetric_variable_size_dcfr.toml
 ```
 
----
-
-## その他備考
-
-### 41–43型の非単調性との関係
-
-離散handゲームでは、強さが隣接するhandが必ず同じ主要actionになるとは限りません。複数の相手response range、
-Raise、同じhand同士のtie、checking-range防御が同時に釣り合うためです。Action EVが近い場合、個別handの
-混合は非一意またはソルバーの探索経路に敏感です。純粋なhand strengthだけでなくrange全体の制約を読みます。
+解析値は[`analytic.py`](../../src/toy_poker/games/integer_range_betting/analytic.py)で計算し、on-pathの
+無差別条件とsizeの一階条件をテストしています。

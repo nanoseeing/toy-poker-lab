@@ -9,7 +9,7 @@
 | Street | 2 Street |
 | 初期Pot | 1 |
 | 有効Stack | 1 |
-| 許可アクション | Check、Fold、Call、10/20/33/50/75% PotのBet・Raise、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet・Raise、All-in |
 | 勝敗判定 | A > K > Q。同じhandはTie |
 | Street遷移 | Check–CheckまたはBet–Callで同じhandのまま次streetへ進む |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
@@ -20,6 +20,9 @@
 
 ### 均衡戦略
 
+ルール上は任意のBet・Raise sizeを選べます。計算では10/20/33/50/75% PotとAll-inへaction abstractionし、
+以下にその有限actionゲームの均衡を示します。
+
 #### RootのOOP戦略
 
 | OOP hand | Check | Bet 33% |
@@ -28,7 +31,7 @@
 | K | 59.17% | 40.83% |
 | A | 42.62% | 57.38% |
 
-one-street版の主要sizeは50%でしたが、2 streetでは33%へ小さくなりました。QのBluff、KのBlock/Thin
+このaction abstractionではone-street版の主要sizeが50%、2 street版が33%になりました。QのBluff、KのBlock/Thin
 Value、AのValueが同じsizeを使い、強さに従ってBet頻度を増やすMergedな構造です。
 
 #### OOP Check後のIP戦略
@@ -65,9 +68,8 @@ IPも1st streetでは大きくPolarizeせず、小sizeで次streetへrangeを運
 
 1 streetだけの無差別条件ではなく、各action後に残る2nd-street EVまで含めて比較します。
 
-このゲームは両者がA/K/Qの3 handを持ち得て、2 streetの各Raise枝でも再び混合するため、単一sizeのriverゲームのような
-閉形式は使えません。ソルバーは全情報集合について、使用中actionのAction EVを等しくし、未使用actionのEVを
-それ以下にする連立条件を数値的に解いています。
+このゲームでは、両者がA/K/Qの3 handを持ち得て、2 streetの各Raise枝でも再び混合します。Solverは有限個の
+Bet sizeについて、使用中actionのAction EVを等しくし、未使用actionのEVをそれ以下にする条件を数値的に解きます。
 
 rootでhand $`h`$がCheckとBet 33%を混ぜるなら必要条件は、
 
@@ -86,15 +88,16 @@ $$
 
 ## ポーカーにおける概念理解
 
-### 1 StreetとのEV比較
+### 同じ離散action setでの1 Street比較
 
-| Game | IP EV | OOP EV |
+| Street | IP EV | OOP EV |
 |---|---:|---:|
 | 1 street | 0.530193 | 0.469807 |
 | 2 street | 0.522562 | 0.477438 |
 
-K vs AQJではfuture streetがPolarなIPを大きく強化しましたが、対称rangeではIP EVが約0.00763低下しました。
-理由は、2nd streetもOOPから始まり、OOP自身がQ/K/Aを使ってlead、Block bet、Value Betを再構成できる
+この比較では、1 Streetと2 Streetの両方で10/20/33/50/75% PotとAll-inを許可しています。同じ有限action setでは、
+2 Street化によりIP EVが約0.00763低下しました。K vs AQJではfuture streetがPolarなIPを強化しましたが、
+対称rangeでは、2nd streetもOOPから始まり、OOP自身がQ/K/Aを使ってlead、Block bet、Value Betを再構成できる
 ためです。future streetの価値は常にIPだけへ帰属せず、両者のrange構造と行動順に依存します。
 
 ### 戦略的な読み方
@@ -107,6 +110,9 @@ K vs AQJではfuture streetがPolarなIPを大きく強化しましたが、対�
 ---
 
 ## Solverによる再現結果
+
+Solverのaction abstractionは10/20/33/50/75% PotとAll-inです。ここでのExploitabilityは、この有限ゲームに
+対する値であり、連続サイズゲームに対する上界ではありません。
 
 | 指標 | 結果 |
 |---|---:|

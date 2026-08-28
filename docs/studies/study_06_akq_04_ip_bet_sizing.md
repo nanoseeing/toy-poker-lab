@@ -9,7 +9,7 @@
 | Street | 1 Street |
 | 初期Pot | 1 |
 | 有効Stack | 1 |
-| 許可アクション | Check、Fold、Call、5%刻みのPot Bet（5〜95%）、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet、All-in |
 | アクション制約 | OOPのRoot戦略を全hand 100% Checkに固定。OOPはCall / FoldのみでRaise不可 |
 | 勝敗判定 | A > K > Q。同じhandはTie |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
@@ -29,20 +29,12 @@
 | IP、OOP Check後 | Q | Bet 36.75% / Check 63.25% |
 | OOP、Betに直面 | K | Call 58.11% / Fold 41.89% |
 
-5%刻みの離散actionでは60% Potが主要sizeになります。
-
-| IP hand | 戦略 |
-|---|---|
-| Q | Check 62.63% / Bet 55% 2.33% / Bet 60% 35.03% |
-| K | Checkほぼ100% |
-| A | Bet 55% 6.58% / Bet 60% 93.41% |
-
 ### EV
 
 | プレイヤー | EV |
 |---|---:|
-| IP | 0.537497132 |
-| OOP | 0.462502868 |
+| IP | $`8/9-(2/9)\sqrt{5/2}\simeq0.537524704`$ |
+| OOP | $`1/9+(2/9)\sqrt{5/2}\simeq0.462475296`$ |
 | 合計 | 1.00 |
 
 ### 導出方法
@@ -126,15 +118,42 @@ $$
 
 です。つまり連続ゲームではQを約36.75% Bluffし、OOPのKは約58.11% Callします。
 
-#### 5%刻みの離散解との比較
+#### 任意の別サイズへの逸脱を検証
 
-60%だけを使う解析値は、
+一階条件だけでは連続サイズゲームの証明にならないため、on-pathでない任意のBet額 $`y`$ に対するOOPの応答も
+構成します。OOP(Q/K/A)のCall率を次のように定めます。
+
+$`0<y<1/4`$では、
 
 $$
-b(0.6)=0.375,\qquad c(0.6)=0.5625
+(c_Q(y),c_K(y),c_A(y))=(1-4y,1,1)
 $$
 
-です。ソルバーではOOP(K)が`Call 56.244% / Fold 43.756%`となり、解析値と一致しました。
+$`1/4\leq y\leq1`$では、
+
+$$
+(c_Q(y),c_K(y),c_A(y))=(0,(3/2-y)/(1+y),1)
+$$
+
+この応答では、IP(Q)のBet EVはCheck EV $`1/6`$以下、IP(K)のBet EVはCheck EV $`1/2`$以下になります。
+IP(A)がsize $`y`$で得る追加Valueは、
+
+$$
+y(c_Q(y)+c_K(y))
+$$
+
+です。$`y<1/4`$では $`2y-4y^2\leq1/4`$、$`y\geq1/4`$では
+
+$$
+\frac{y(3/2-y)}{1+y}
+\leq
+\frac{B_{\mathrm{opt}}(3/2-B_{\mathrm{opt}})}{1+B_{\mathrm{opt}}}
+=B_{\mathrm{opt}}^2
+$$
+
+となります。最後の不等式は、先ほどの微分で $`B_{\mathrm{opt}}`$がこの関数の大域的最大値であることから従います。
+したがってA、K、Qのいずれも別sizeへ逸脱して利得を増やせず、58.11%はsupportを仮定した局所解ではなく、
+連続サイズの制約付きゲームに対する均衡sizeです。
 
 #### なぜAll-inではないのか
 
@@ -154,11 +173,17 @@ Aは大きくBetすればCall時に多く得られますが、KのCall頻度が�
 
 ## Solverによる再現結果
 
+Solverには解析size $`B_{\mathrm{opt}}`$を直接含め、その前後を含む5%刻みのsizeも比較候補として残します。
+
 | 指標 | 結果 |
 |---|---:|
-| IP EV | 0.537497132 |
-| OOP EV | 0.462502868 |
-| Exploitability | `5.0386e-6`（Constrained Nash gap） |
+| IP EV | 0.537516068 |
+| OOP EV | 0.462483932 |
+| Exploitability | `8.1337e-6`（Constrained Nash gap） |
+
+有限iterationの平均戦略は、EV曲線が非常に浅い58.1139%と60%へ一部の頻度を分散しています。ただし、公開している計算結果の
+Action EVではA/Qとも58.1139%が近傍候補中で最大です。表のSolver EVは解析EVとの差が約 $`8.6\times10^{-6}`$
+で、Constrained Nash gapの範囲内にあります。
 
 - [Strategy Viewer](../../public/studies/akq_symmetric_ip_betting/strategy_viewer.html)
 - [計算条件](../../public/studies/akq_symmetric_ip_betting/resolved_config.json)
@@ -169,9 +194,12 @@ Aは大きくBetすればCall時に多く得られますが、KのCall頻度が�
 toy-poker run configs/experiments/study_akq_symmetric_oop_check_ip_variable_size_dcfr.toml
 ```
 
+解析値とoff-path逸脱条件は
+[`analytic.py`](../../src/toy_poker/games/integer_range_betting/analytic.py)で計算し、テストしています。
+
 ---
 
 ## その他備考
 
-Node lockを破る通常Exploitabilityは`0.15579`です。これはOOP全checkというルールを外した元ゲームの
-指標であり、本教材の収束判定にはconstrained Nash gapを使います。
+Node lockを破る通常Exploitabilityは、このStudyで解いている制約付きゲームの収束指標ではありません。
+本教材の収束判定にはconstrained Nash gapを使います。

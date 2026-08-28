@@ -221,6 +221,25 @@ def test_study_curriculum_and_rule_tables_are_structured():
     )
     assert "専門用語は初出で定義し" not in poker_terms
     assert "Viewerの定義は" not in poker_terms
+    assert "**action abstraction**" in poker_terms
+
+    editorial_history_phrases = (
+        "以前の解析結果",
+        "旧ver",
+        "保存run",
+        "つじつまを合わせ",
+        "後付けのヒューリスティック",
+    )
+    for path in studies_root.glob("study_*.md"):
+        document = path.read_text(encoding="utf-8")
+        for phrase in editorial_history_phrases:
+            assert phrase not in document, path
+
+    block_bet_study = (
+        studies_root / "study_07_akq_05_bet_raise_strategy.md"
+    ).read_text(encoding="utf-8")
+    assert "Solverで複数のBet sizeを比較すると" in block_bet_study
+    assert "minimum raiseの境界" not in block_bet_study
 
 
 def test_markdown_uses_github_math_delimiters():

@@ -9,7 +9,7 @@
 | Street | 2 Street |
 | 初期Pot | 1 |
 | 有効Stack | 4 |
-| 許可アクション | Check、Fold、Call、33/100% PotのBet・Raise、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet・Raise、All-in |
 | 勝敗判定 | handのrankが高い方が勝ち。同じrankはTie |
 | Street遷移 | Check–CheckまたはBet–Callで同じhandのまま次streetへ進む |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
@@ -19,6 +19,9 @@
 ## 最適戦略
 
 ### 均衡戦略
+
+ルール上は任意のBet・Raise sizeを選べます。計算では33/100% PotとAll-inへaction abstractionし、
+以下にその有限actionゲームの均衡を示します。
 
 #### RootのOOP戦略
 
@@ -85,8 +88,8 @@ EV_r(\mathrm{Check};V_2)
 =EV_r(B_{1.0};V_2)
 $$
 
-です。$`V_{street\ 2}`$自身が両者のhand別戦略で決まるため、個別混合頻度の短い閉形式はありません。
-保存runの数値は全情報集合の無差別条件と最適反応の不等式をDCFRで同時に近似したものです。
+です。$`V_{street\ 2}`$自身が両者のhand別戦略で決まります。そのため個別混合頻度は、有限actionにおける
+全情報集合の無差別条件と最適反応の不等式をDCFRで同時に解いて求めます。
 
 純粋戦略に近い中位Checkは「現在Betしても、より強いContinue rangeに選別される」ためと説明できます。
 Nut級のCheckは、2nd streetまで含むChecking rangeを守り、IPのdelayed aggressionから追加利得を得ます。
@@ -95,7 +98,7 @@ Nut級のCheckは、2nd streetまで含むChecking rangeを守り、IPのdelayed
 
 ## ポーカーにおける概念理解
 
-### 同じAction abstractionでの1 Street比較
+### 同じaction abstractionでの1 Street比較
 
 | Street数 | IP EV | OOP EV | Exploitability |
 |---:|---:|---:|---:|
@@ -112,6 +115,9 @@ Nut級のCheckは、2nd streetまで含むChecking rangeを守り、IPのdelayed
 ---
 
 ## Solverによる再現結果
+
+Exploitabilityは33/100% PotとAll-inからなる有限ゲームに対する値です。連続サイズゲームの精度指標では
+ありません。
 
 | 指標 | 結果 |
 |---|---:|
@@ -132,9 +138,8 @@ toy-poker run configs/experiments/study_zero_one_n50_two_street_dcfr.toml
 
 ## その他備考
 
-### 7サイズ版を採用しなかった理由
+### action abstractionの範囲
 
-one-street studyと同じ10/20/33/50/75/100/150%を2 streetへ展開すると、public nodeは97,057、
-information setは1,673,600になります。10 iterationの実測wall timeが約12.9秒で、1万iterationと
-全node解析は教材の標準runとして過大でした。このstudyは33%/100%へaction abstractionを粗くしています。
-したがって、[7サイズのone-street結果](study_12_01_game_01_oop_bet_strategy.md)とのEV差をstreet効果だけとして比較してはいけません。
+このStudyは計算可能な規模を保つため、33%/100% PotとAll-inへactionを離散化しています。1 Street Studyの
+10/20/33/50/75/100/150%より粗いaction abstractionです。そのため、
+[7サイズのone-street結果](study_12_01_game_01_oop_bet_strategy.md)とのEV差をstreet効果だけとして比較してはいけません。

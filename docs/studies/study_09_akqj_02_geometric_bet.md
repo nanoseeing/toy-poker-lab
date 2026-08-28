@@ -9,7 +9,7 @@
 | Street | 2 Street |
 | 初期Pot | 1 |
 | 有効Stack | 4 |
-| 許可アクション | Check、Fold、Call、25/50/75/100/125/150% PotのBet・Raise、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet・Raise、All-in |
 | 勝敗判定 | A > K > Q > J |
 | Street遷移 | Check–CheckまたはBet–Callで同じhandのまま次streetへ進む |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
@@ -20,16 +20,16 @@
 
 ### 均衡戦略
 
-OOPはrootを100% Checkしました。IPの1st-street戦略は次です。
+連続サイズゲームの対称なAir配分を使う均衡は次のとおりです。
 
 | IP | Check | Bet 100% |
 |---|---:|---:|
-| J | 37.50% | 62.46% |
-| Q | 37.50% | 62.46% |
-| A | 約0% | 99.94% |
+| J | 37.5% | 62.5% |
+| Q | 37.5% | 62.5% |
+| A | 0% | 100% |
 
 OOPはPot BetへCall/Foldを各50%。Bet–Call後の2nd streetでは、IPのJ/Qが40%、Aが100%を
-All-inします。25〜150%の候補を与えても、on-pathの1st streetではpot betだけが残りました。
+All-inします。
 
 ### EV
 
@@ -58,63 +58,82 @@ OOPのKはAにだけ負け、J/Qには勝つBluff catcherです。先打ちで�
 IPのAは唯一のValue handなので、主要なBet–Call経路では両streetをBetします。J/QはKに勝てず、
 同じshowdown valueを持つBluff候補です。ここまでが戦略の形で、各Bluff頻度とsizeは以下の無差別条件から決まります。
 
-以下では、Geometric Pot Betが最適になることを後ろ向き帰納法で導出します。
+このように、IPが「Aなら必ず勝ち、Q/Jなら必ず負ける」と自分のhandの役割を完全に識別できる静的ゲームを、
+clairvoyance gameと呼びます。Streetが進んでもhandの強さは変わりません。
+
+static clairvoyance gameには、OOPがCheckしてBluff catcherとして応答し、IPがNutsをValue、AirをBluffとして
+Betする既知の均衡があります。ここではこの均衡構造を使い、1st-streetのBet sizeを変数としてGeometric Pot Betを
+導出します。game tree全体の均衡構成は長くなるため省略し、一般化と出典をStudy 10にまとめます。
 
 #### 2nd StreetのCall率
 
-1st-street bet額を $`B`$、Call後に残りstack $`C=4-B`$ を2nd streetでbetするとします。
+有効Stackを $`S`$、1st-street Bet額を $`B`$、Call後に残る $`S-B`$ を2nd streetでBetするとします。
 2nd streetのpotは $`1+2B`$ です。
 
 riverでBluffとCheckを無差別にするOOPのCall率は、
 
 $$
-c_2=\frac{1+2B}{1+B+4}
+c_2=\frac{1+2B}{1+B+S}
 $$
 
 です。
 
 #### 1st Streetで開始できるBluff量
 
-OOPが1st betをCallした場合、Aに対する期待損失の大きさは$`B+c_2C`$です。J/Qに対しては、IPが
+OOPが1st betをCallした場合、Aに対する期待損失の大きさは $`B+c_2(S-B)`$です。J/Qに対しては、IPが
 2nd streetでCheckしても均衡頻度でBluffしても、OOPの期待利得は$`1+B`$です。したがって、
 
 $$
-x(B)(1+B)=B+c_2C
+x_S(B)(1+B)=B+c_2(S-B)
 $$
 
-が1st Call/Foldの無差別条件になり、次の$`x(B)`$が得られます。
+が1st Call/Foldの無差別条件になり、次の $`x_S(B)`$ が得られます。
 
 $$
-x(B)=\frac{B+c_2C}{1+B}
-=\frac{4+12B-B^2}{(1+B)(5+B)}
+x_S(B)=\frac{S+3SB-B^2}{(1+B)(1+B+S)}
 $$
 
 Bet rangeに対するOOPの期待利得が0で、J/Qの均衡利得も0であり、両者の利得合計が1なので、IPのAの利得は
-$`1+x(B)`$になります。したがってIPは$`x(B)`$を最大化します。
+$`1+x_S(B)`$になります。したがってIPは$`x_S(B)`$を最大化します。
 
 #### Sizeの最大化
 
-微分を分母まで書くと、
+微分の符号を決める分子は、正の定数因子を除いて、
 
 $$
-x'(B)=\frac{-18(B-1)(B+2)}{(B^2+6B+5)^2}
+S-2B(B+1)
 $$
 
-です。合法範囲 $`0\leq B\leq4`$ では $`B=1`$ が一意な最大値です。Call後のpotは3、残りstackも3
-なので、2nd streetもpot-sized All-inになります。したがって両streetのpot比率が等しい
-geometric betが、単なる事前指定ではなく戦略から内生的に選ばれます。
+です。これは $`B`$について厳密に減少するため、唯一の大域的最大値は、
 
-この閉形式は、主要なPolar経路でOOPがCall/Foldし、IPが2nd streetで残stackをBetする戦略クラスを
-後ろ向き帰納法で解いたものです。元の有限ゲームにはRaiseと他sizeもあります。保存runではpot betに対する
-Raiseや他の1st-street sizeのAction EVが上回らず、この解析解が拡張ゲームでも均衡条件を満たすことを
-数値的に確認しています。
+$$
+B_{\mathrm{opt}}=\frac{\sqrt{1+2S}-1}{2}
+$$
+
+です。$`S=4`$では $`B_{\mathrm{opt}}=1`$になります。また、最適条件
+$`S=2B_{\mathrm{opt}}^2+2B_{\mathrm{opt}}`$から、
+
+$$
+S-B_{\mathrm{opt}}=B_{\mathrm{opt}}(1+2B_{\mathrm{opt}})
+$$
+
+なので、Call後の残りStackは、次StreetのPot $`1+2B_{\mathrm{opt}}`$に対して再び
+$`B_{\mathrm{opt}}`$倍です。したがって
+両StreetのPot比率が等しいgeometric betが、事前指定ではなく戦略から内生的に選ばれます。
+
+2nd streetで残りStackをBetすることは、1 StreetのPolarゲームで最大sizeが最適になるStudy 02の結果から
+従います。上の微分は、既知の均衡構造の中で1st-street sizeを任意に動かしたとき、開始できるBluff量を
+大域的に最大化するsizeがGeometric Betであることを証明しています。
+
+KのLeadやRaiseに対しても、static clairvoyance gameの均衡では逸脱を有利にしない応答戦略を構成できます。
+以下ではsizeとBluff頻度の計算に焦点を絞ります。
 
 #### Bluff配分
 
 $`B=1`$を代入すると、
 
 $$
-x(1)=1.25
+x_4(1)=1.25
 $$
 
 です。J/Qへ均等配分すると各62.5%。最終streetまで残す総Bluff massは0.5なので各handの
@@ -125,12 +144,14 @@ $$
 ## ポーカーにおける概念理解
 
 Geometric Betは、複数Streetで同じPot比率を使い、Bet–Callが続いたときに最後のStreetでStackを
-使い切るsizeです。このゲームでは候補sizeの一つとして与えられたPot Betが、OOPの無差別条件とIPの
+使い切るsizeです。このゲームでは連続的に選べるsizeの中からPot Betが、OOPの無差別条件とIPの
 Bluff供給量を同時に最大化するため、均衡から内生的に選ばれます。
 
 ---
 
 ## Solverによる再現結果
+
+Solverは連続actionを直接扱えないため、解析解の100% Potに25/50/75/125/150%を比較候補として加えています。
 
 | 指標 | 結果 |
 |---|---:|
@@ -147,9 +168,14 @@ Bluff供給量を同時に最大化するため、均衡から内生的に選ば
 toy-poker run configs/experiments/study_akqj_two_street_variable_size_dcfr.toml
 ```
 
+一般の $`S`$に対するsize最大化とStack 4の戦略は
+[`analytic.py`](../../src/toy_poker/games/akqj_two_street/analytic.py)で計算し、テストしています。
+
 ---
 
 ## その他備考
 
 Check-check後の2nd streetにはAがほぼ残らないため、Kは常に勝っています。その枝のCheckや小betは
 同じEVになり、混合は非一意です。geometric optimalityはAがBet–Call経路を通る主要枝で判断します。
+
+一般のstatic clairvoyance gameの解析上の根拠は、Study 10の「解析解の出典」に記載しています。

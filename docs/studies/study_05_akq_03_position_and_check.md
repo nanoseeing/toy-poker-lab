@@ -10,6 +10,7 @@
 | 初期Pot | 1 |
 | 有効Stack | 1 |
 | 許可アクション | Check、All-in、Call、Fold |
+| アクション制約 | Bet sizeはAll-inだけに固定 |
 | 勝敗判定 | A > K > Q。同じhandはTie |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
@@ -90,11 +91,38 @@ OOPのQはIPのbet rangeに一度も勝たないため100% Fold、Aは一度も�
 
 #### OOPが全rangeをCheckする理由
 
-OOPが先にbetすると、IPは後手から自分のQ/K/Aに応じてFold、Callを選び、OOPの中間rangeを効率よく
-選別できます。CheckならAをrangeに残したままIPのBluffを受け、KをBluff catcherとして使えます。
-この純粋なroot Checkは、各handの先打ちAll-inがCheckの利得を上回らないことをソルバーのAction EVでも
-確認しています。rootのoff-path応答を含む完全な不等式は長くなるため、ここでは混合頻度の閉形式と分け、
-checking-range protectionとして解釈します。
+OOPがCheckしたときのhand別EVは、上で導いたIP戦略を使うと、
+
+$$
+EV_Q(C)=\frac{1}{12},\qquad
+EV_K(C)=\frac{1}{3},\qquad
+EV_A(C)=1
+$$
+
+です。次に、均衡では到達しないOOPのroot All-inに対し、IPを`QはFold、AはCall、Kは頻度dでCall`と
+定めます。このときOOPのQ/K/AがAll-inへ逸脱したEVはそれぞれ、
+
+$$
+EV_Q(AI)=\frac{1-2d}{3},\qquad
+EV_K(AI)=\frac{1-d/2}{3},\qquad
+EV_A(AI)=\frac{5/2+d}{3}
+$$
+
+です。3種類のhandについて同時に
+
+$$
+EV_h(AI)\leq EV_h(C)
+$$
+
+とする条件は、
+
+$$
+\frac{3}{8}\leq d\leq\frac{1}{2}
+$$
+
+です。この範囲の任意の $`d`$ をoff-path戦略として選べるため、OOPの全hand Checkは
+Nash均衡の逸脱不等式を満たします。off-pathのIP(K) Call率は非一意ですが、on-path戦略とゲーム価値は
+変わりません。
 
 #### ゲーム価値
 

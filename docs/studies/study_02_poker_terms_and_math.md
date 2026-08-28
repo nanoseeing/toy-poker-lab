@@ -418,6 +418,10 @@ Implied oddsは、将来強いhandへ改善したときに追加で得られる�
 
 ## ソルバーとStrategy Viewerの数値を読む順序
 
+連続的なBet sizeを全て列挙することはできないため、Solverでは10%、50%、100% Potのような有限個の候補へ
+置き換えることがあります。これを**action abstraction**と呼びます。action abstractionを使った計算の
+Exploitabilityは、その有限actionゲームに対する値であり、候補に含めなかったsizeへの逸脱までは評価しません。
+
 1. 現在pot、effective stack、投入済み額、手番を確認する。
 2. Historyとnode reachを確認する。
 3. 両者のconditional rangeと`Range retained`を確認する。

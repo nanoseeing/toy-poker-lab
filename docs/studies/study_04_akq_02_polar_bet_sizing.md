@@ -9,7 +9,7 @@
 | Street | 1 Street |
 | 初期Pot | 1 |
 | 有効Stack | 1 |
-| 許可アクション | Check、Fold、Call、10/20/33/50/75% PotのBet・Raise、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet・Raise、All-in |
 | 勝敗判定 | A > K > Q |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 
@@ -19,7 +19,7 @@
 
 ### 均衡戦略
 
-ソルバーはAll-in-only版と同じon-path戦略へ収束しました。
+連続サイズゲームの均衡はAll-in-only版と同じon-path戦略になります。
 
 | 局面 | 戦略 |
 |---|---|
@@ -28,7 +28,7 @@
 | IP(Q) | All-in 50% / Check 50% |
 | OOP(K) | Call 50% / Fold 50% |
 
-10〜75%の中間sizeは数値誤差を除いて使いません。
+中間sizeは均衡で使いません。
 
 ### EV
 
@@ -92,13 +92,39 @@ $$
 #### 純粋actionと未使用sizeの検証
 
 - AはKに必ず勝つため、選ばれたsizeでは100% Value Betします。
-- OOPの先打ちAll-inは、AにCall、QにFoldされて期待利得0です。Checkの均衡利得0.25を下回るため、Kは100% Checkします。
-- $`EV_{IP}(B)`$が厳密に増加するため、10〜75%はAll-inより低利得で、均衡頻度0になります。
+- $`EV_{IP}(B)`$が厳密に増加するため、全ての $`B<1`$はAll-inより低利得で、均衡頻度0になります。
 - $`B=1`$では$`b=c=1/2`$となり、All-in-only版の混合頻度をそのまま再現します。
 
 上の式はOOPの応答をCall/Foldに限定したときの値です。実装上は合法なRaiseもありますが、相手へRaiseという
 追加選択肢を与えてもIPが保証できる利得は増えません。$`B<1`$のCall/Fold限定値がすでに0.75未満である一方、
 $`B=1`$ならRaise余地を消して0.75を保証できます。したがってRaiseを含む元ゲームでもAll-inが最適です。
+
+#### OOPの任意サイズの先打ちを検証
+
+OOP(K)がrootで $`x`$ をBetした場合も確認します。IPはAをAll-in Raiseし、Qを頻度
+
+$$
+q(x)=\frac{1-x}{2+x}
+$$
+
+でAll-in Raiseして、残りをFoldできます。OOPがRaiseにCallする頻度を
+
+$$
+c(x)=\frac{1+x}{2+x}
+$$
+
+とすると、IP(Q)はRaiseとFoldで、OOP(K)はRaiseへのCallとFoldでそれぞれ無差別です。この応答に対する
+OOPの先打ちEVは、
+
+$$
+EV_{OOP}(x)
+=\frac{1}{2}((1-q)-x(1+q))
+=\frac{1-x}{2(2+x)}
+\leq\frac{1}{4}
+$$
+
+です。等号はBetしない極限 $`x=0`$だけで成立し、任意の正のBetはCheckの均衡EV $`1/4`$を下回ります。
+したがって、All-inだけでなく全てのroot Bet sizeについてOOPの逸脱が否定されます。
 
 ---
 
@@ -113,6 +139,8 @@ KしかないOOPにはRaiseでIPのThin valueを罰するrangeも、Aを上回�
 ---
 
 ## Solverによる再現結果
+
+Solverは連続actionを直接扱えないため、解析解のAll-inに10/20/33/50/75%を比較候補として加えています。
 
 | 指標 | 結果 |
 |---|---:|

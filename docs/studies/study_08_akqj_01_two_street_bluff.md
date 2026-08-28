@@ -10,6 +10,7 @@
 | 初期Pot | 1 |
 | 有効Stack | 4 |
 | 許可アクション | Check、Pot Bet、Call、Fold、All-in Raise |
+| アクション制約 | 通常BetはPot Betだけに固定。Stack不足時またはRaise時のAll-inは可能 |
 | 勝敗判定 | A > K > Q > J |
 | Street遷移 | Check–CheckまたはBet–Callで同じhandのまま次streetへ進む |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
@@ -65,6 +66,9 @@ Q/Jはそれぞれ、最初のrangeの`62.5% × 40% = 25%`を最終streetまでB
 - Q/JはshowdownでKに勝てないため、Checkの利得が0になる枝では同価値のBluff候補です。
 
 QとJは同じshowdown valueを持つため、個別の割当は非一意です。対称解として同じ頻度を割り当てます。
+
+Bet sizeはルールでPot Betに固定されているため、このStudyではPot Bet自体の最適性を証明しません。自由にsizeを
+選べる場合は次のStudyで扱います。
 
 #### 最終streetのBluff比
 
@@ -126,6 +130,20 @@ Bet range内でOOPの期待利得が0、各Bluffの期待利得も0であり、�
 Value mass 1とBluff mass 1.25の合計$`2.25`$になります。IPはAを1/3で持つため、range全体では
 $`2.25/3=0.75`$です。
 
+#### OOPのLeadとRaiseへの逸脱
+
+OOP(K)が1st streetでPot Betすると、IPはAをAll-in Raiseし、Q/Jから合計0.5 massをAll-in Bluff Raiseへ
+回せます。OOPはRaiseへのCallとFoldで無差別になり、IPのAirもRaiseとFoldで無差別になる応答を構成できます。
+残り1.5 massのAirはFoldするため、OOPのLead EVは
+
+$$
+\frac{1.5\times1+1.5\times(-1)}{3}=0
+$$
+
+となり、Check EV $`1/4`$を下回ります。また、IPのPolar Betに対するKのRaiseは、Airに対してCallと同じ額を
+獲得する一方、Aに対して追加chipを失います。したがってCallに弱く支配され、均衡では使いません。これで固定sizeの
+ゲームに存在するLead・Raiseへの主要な逸脱も除外できます。
+
 ---
 
 ## ポーカーにおける概念理解
@@ -162,3 +180,6 @@ Polar側のEQRを大きくします。
 ```bash
 toy-poker run configs/experiments/akqj_two_street_stack_4_cfr_plus.toml
 ```
+
+閉形式の頻度とEVは
+[`analytic.py`](../../src/toy_poker/games/akqj_two_street/analytic.py)で計算し、テストしています。

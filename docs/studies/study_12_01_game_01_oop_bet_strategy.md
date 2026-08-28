@@ -9,7 +9,7 @@
 | Street | 1 Street |
 | 初期Pot | 1 |
 | 有効Stack | 4 |
-| 許可アクション | Check、Fold、Call、10/20/33/50/75/100/150% PotのBet・Raise、All-in |
+| 許可アクション | Check、Fold、Call、Stackの範囲内の任意サイズのBet・Raise、All-in |
 | 勝敗判定 | handのrankが高い方が勝ち。同じrankはTie |
 | 利得計算方法 | 初期Potをデッドマネーとし、ゲーム終了時の両者の利得合計は1 |
 | 補足 | 連続一様な0–1 gameを50段階のrankへ離散化した近似 |
@@ -19,6 +19,9 @@
 ## 最適戦略
 
 ### 均衡戦略
+
+ルール上は任意のBet・Raise sizeを選べます。計算では10/20/33/50/75/100/150% PotとAll-inへ
+action abstractionし、以下にその有限actionゲームの均衡を示します。
 
 #### RootのOOP戦略
 
@@ -92,7 +95,7 @@ rankの低いhandをどのsizeへ割り当てるかには非一意性があり�
 
 #### 混合頻度の数学的検証
 
-この多size・Raiseゲームに既知の短い閉形式解はありません。Checkを$`C`$、Pot比$`s`$のBetを$`B_s`$と書きます。
+Checkを$`C`$、Pot比$`s`$のBetを$`B_s`$と書きます。
 rank $`r`$のhandがCheckと複数sizeを混ぜるなら、正の頻度を持つ全actionについて、
 
 $$
@@ -101,7 +104,8 @@ EV_r(C)=EV_r(B_{0.10})
 $$
 
 が必要です。さらに、各sizeに対するIPのFold/Call/Raiseもそれぞれ最適反応でなければなりません。
-Studyの頻度はこの大きな連立条件をDCFRで数値的に解いたものであり、個別handの丸め値を解析定数とは扱いません。
+このゲームの頻度は、有限actionに対する大きな連立条件をDCFRで数値的に解いたものです。個別handの丸め値や
+選択されたグリッドsizeを解析定数とは扱いません。
 
 一方、純粋戦略に近い領域は直観的です。中程度のrankを持つhandは強いrangeにCall/RaiseされるBetよりshowdownを選び、
 rankの高いhandは弱いCallからValueを得ます。最もrankの低いhandはshowdown EVがほぼないため、Fold equityを得られる
@@ -118,6 +122,9 @@ Checking rangeを守るため、一部をCheckへ残します。
 ---
 
 ## Solverによる再現結果
+
+Solverのaction abstractionは10/20/33/50/75/100/150% PotとAll-inです。Exploitabilityはこの有限ゲームに
+対する値であり、連続サイズゲームに対する上界ではありません。
 
 | 指標 | 結果 |
 |---|---:|
@@ -143,3 +150,5 @@ toy-poker run configs/experiments/integer_range_betting_n50_7_sizes_cpp_dcfr_tar
 高精度runでは、41は主にCheck、42は主に75% Bet、43は100% Checkでした。これは単純なEQ順の
 thresholdではなく、複数sizeのValue密度、IPのRaise、Checking range防御を同時に満たす離散均衡です。
 Action EVが近い、rankが隣接するhandでは、`Check → Bet → Check`のような非単調性も均衡条件に反しません。
+ただし、この非単調性が連続サイズゲームでも残るとは限らず、action abstractionと非一意な混合への感度を持つ
+数値結果として扱います。
