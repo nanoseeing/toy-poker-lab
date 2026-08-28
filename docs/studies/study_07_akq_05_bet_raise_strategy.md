@@ -240,7 +240,7 @@ $$
 $$
 g'(B)=\frac{27.5-22B-11B^2}{(1+B)^2}=0
 \quad\Longrightarrow\quad
-B^*=\sqrt{\frac72}-1\simeq87.08\%
+B^{*}=\sqrt{\frac{7}{2}}-1\simeq87.08\%
 $$
 
 を得ます。許可sizeには87.08%がないため、その両側の75%と100%が候補になり、この均衡rangeでは

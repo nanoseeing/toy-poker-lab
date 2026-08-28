@@ -209,4 +209,6 @@ def test_markdown_uses_github_math_delimiters():
     for path in markdown_paths:
         document = path.read_text(encoding="utf-8")
         assert re.search(r"(?m)^\\(?:\[|\])\s*$", document) is None, path
+        assert "^*" not in document, path
+        assert r"\operatorname" not in document, path
         assert sum(line.strip() == "$$" for line in document.splitlines()) % 2 == 0, path

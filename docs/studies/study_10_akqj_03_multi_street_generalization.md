@@ -26,7 +26,7 @@ AKQのK vs AQが1 street、AKQJのK vs AQJが2 streetの最小例です。3 stre
 
 | 対象 | 均衡条件 |
 |---|---|
-| 各StreetのBet size | $e_n=((1+2S)^{1/n}-1)/2$ |
+| 各StreetのBet size | $e_{n}=((1+2S)^{1/n}-1)/2$ |
 | 最終StreetのBluff:Value比 | $e:(1+e)$ |
 | 最終StreetのOOP Call率 | $1/(1+e)$ |
 | Early StreetのBluff | 最終StreetまでBarrelするBluffと途中でGive upするBluffをBackward inductionで配分 |
@@ -53,10 +53,17 @@ $$
 したがって、geometric bet fractionは、
 
 $$
-e_n=\frac{(1+2S)^{1/n}-1}{2}
+e_{n}=\frac{(1+2S)^{1/n}-1}{2}
 $$
 
-です。$S=4,n=2$なら $e_2=1$、つまりpot betを2回行うとちょうどAll-inになります。
+です。$S=4$、$n=2$を代入すると、
+
+$$
+e_{2}=\frac{(1+2\cdot4)^{1/2}-1}{2}
+=\frac{3-1}{2}=1
+$$
+
+となります。したがって、pot betを2回行うとちょうどAll-inになります。
 
 #### 最終Streetで必ず成立する比率
 
@@ -67,10 +74,10 @@ $$
 \frac{\text{bluff}}{\text{value}}=\frac{e}{1+e}
 $$
 
-OOPがbluffを無差別にするCall率、すなわちMDFは、
+OOPがIPのbluffを無差別にするCall率、すなわちMDFは、
 
 $$
-\operatorname{MDF}=\frac{1}{1+e}
+\mathrm{MDF}=\frac{1}{1+e}
 $$
 
 です。pot betならbluff:valueは1:2、MDFは50%です。
